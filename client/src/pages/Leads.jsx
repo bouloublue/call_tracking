@@ -24,23 +24,26 @@ function Leads() {
   //   alert(`Triggering call to ${phone}`);
   //   // Here you’d integrate with Telnyx or other calling API
   // };
+  const [calling, setCalling] = useState(null);
+
   const handleCall = async (phone) => {
-  try {
-    const res = await fetch("http://localhost:3000/api/call", {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ toNumber: phone }),
-    });
-    console.log("Response:", res);
+    setCalling(phone);
+    try {
+      const res = await fetch("http://localhost:3000/call", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ to: [phone] }),
+      });
 
-    const data = await res.json();
-    alert(data.message);
-  } catch (err) {
-    alert("Call failed");
-    console.error(err);
-  }
-};
-
+      const data = await res.json();
+      alert(data.message);
+    } catch (err) {
+      alert("Call failed");
+      console.error(err);
+    } finally {
+      setCalling(null);
+    }
+  };
 
   return (
     <div>
@@ -96,11 +99,15 @@ function Leads() {
                             <td>{lead.company}</td>
                             <td>
                               <button
-                              // src= "/assets/images/call-icon.png"
                                 className="btn btn-sm btn-success"
                                 onClick={() => handleCall(lead.phone)}
+                                disabled={calling === lead.phone}
                               >
-                                <img src="/assets/images/icons/play.png" alt="Call" style={{ width: "16px", height: "16px" }} />
+                                <img
+                                  src="/assets/images/icons/play.png"
+                                  alt="Call"
+                                  style={{ width: "16px", height: "16px" }}
+                                />
                               </button>
                             </td>
                           </tr>
@@ -119,7 +126,7 @@ function Leads() {
             </div>
           </div>
         </div>
-      </div>  
+      </div>
     </div>
   );
 }
