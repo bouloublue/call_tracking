@@ -5,20 +5,27 @@ import NavBar from "../components/NavBar";
 function Leads() {
   const [leadsList, setLeadsList] = useState([]);
 
+  // useEffect(() => {
+  //   // Load campaigns from session and extract lead info
+  //   const stored = sessionStorage.getItem("campaigns");
+  //   if (stored) {
+  //     const campaigns = JSON.parse(stored);
+  //     const extractedLeads = campaigns.flatMap((camp) =>
+  //       (camp.leadsDataParsed || []).map((lead) => ({
+  //         campaignName: camp.name,
+  //         ...lead,
+  //       }))
+  //     );
+  //     setLeadsList(extractedLeads);
+  //   }
+  // }, []);
+
   useEffect(() => {
-    // Load campaigns from session and extract lead info
-    const stored = sessionStorage.getItem("campaigns");
-    if (stored) {
-      const campaigns = JSON.parse(stored);
-      const extractedLeads = campaigns.flatMap((camp) =>
-        (camp.leadsDataParsed || []).map((lead) => ({
-          campaignName: camp.name,
-          ...lead,
-        }))
-      );
-      setLeadsList(extractedLeads);
-    }
-  }, []);
+  const stored = localStorage.getItem("leads");
+  if (stored) {
+    setLeadsList(JSON.parse(stored));
+  }
+}, []);
 
   // const handleCall = (phone) => {
   //   alert(`Triggering call to ${phone}`);
@@ -29,7 +36,7 @@ function Leads() {
   const handleCall = async (phone) => {
     setCalling(phone);
     try {
-      const res = await fetch("http://localhost:3000/call", {
+      const res = await fetch("http://localhost:3001/call", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ to: [phone] }),

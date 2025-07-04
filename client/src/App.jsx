@@ -10,10 +10,14 @@ import CampaignOverview from './pages/CampaignOverview'
 import Campaigns from './pages/Campaigns'
 import CallLogs from './pages/CallLogs'
 import Leads from './pages/Leads'
+import FormBuilder from './pages/forms'
+import { ToastContainer } from "react-toastify";
+import "react-toastify/dist/ReactToastify.css";
 
 function App() {
   return (
     <BrowserRouter>
+    <ToastContainer position="top-right" autoClose={2000} />
     <Routes>
       <Route path='/' element={<ProtectedRoute><Home /></ProtectedRoute>} />
       <Route path='/login' element={<Login />} />
@@ -25,6 +29,7 @@ function App() {
       <Route path= '/campaigns' element={<ProtectedRoute><Campaigns /></ProtectedRoute>} />
       <Route path= '/call-logs' element={<ProtectedRoute><CallLogs /></ProtectedRoute>} />
       <Route path= '/leads' element={<ProtectedRoute><Leads /></ProtectedRoute>} />
+      <Route path= '/forms' element={<ProtectedRoute><FormBuilder /></ProtectedRoute>} />
     </Routes>
     </BrowserRouter>
   )
