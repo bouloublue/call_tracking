@@ -150,7 +150,7 @@ function SideBar({ isMenuOpen }) {
                     icon="solar:file-text-bold-duotone"
                     className="menu-icon"
                   ></iconify-icon>
-                  <span>Agents</span>
+                  <span>Clients</span>
                   <span className="badge rounded text-success bg-success-subtle ms-1">
                     New
                   </span>
@@ -159,12 +159,12 @@ function SideBar({ isMenuOpen }) {
                   <ul className="nav flex-column">
                     <li className="nav-item">
                       <a className="nav-link" href="/agents">
-                        Agents
+                        Company
                       </a>
                     </li>
                     <li className="nav-item">
                       <a className="nav-link" href="#">
-                        Agents Bookings
+                        Bookings
                       </a>
                     </li>
                   </ul>
@@ -270,7 +270,7 @@ function SideBar({ isMenuOpen }) {
                 </div>
               </li>
                <li className="nav-item">
-                <a className="nav-link" href="#" aria-controls="sidebarPages">
+                <a className="nav-link" href="/forms" aria-controls="sidebarPages">
                   <iconify-icon
                     icon="solar:book-2-bold-duotone"
                     className="menu-icon"
