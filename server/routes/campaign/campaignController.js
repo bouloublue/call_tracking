@@ -2,67 +2,141 @@ const express = require("express");
 const router = express.Router();
 const { Op } = require("sequelize");
 const {csvUpload} = require("../../middlewares/upload")
-const { Campaign, User, Form } = global.db.models;
+const { Campaign, User, Form, CampaignLead } = global.db.models;
 
-// ✅ Create a Campaign
 router.post("/", csvUpload.single("file"), async (req, res) => {
   try {
-    const { name, user_id, client_id, form_id, import_lead_fields } = req.body;
-    console.log(req.id)
+    const {
+      name,
+      user_id,
+      client_id,
+      form_id,
+      import_lead_fields,
+      leadsDataParsed, // sent from frontend as JSON.stringify([...])
+    } = req.body;
 
     if (!name || !user_id || !client_id) {
       return res.status(400).json({ error: "Missing required fields" });
     }
 
+    // Create campaign entry
     const newCampaign = await Campaign.create({
       name,
       user_id,
       client_id,
       form_id,
-      import_lead_fields: import_lead_fields ? JSON.stringify(JSON.parse(import_lead_fields)) : null,
+      import_lead_fields: import_lead_fields
+        ? JSON.parse(import_lead_fields)
+        : null,
       file: req.file ? `/uploads/campaigns/${req.file.filename}` : null,
     });
 
-    res.status(201).json({ message: "Campaign created", campaign: newCampaign });
+    // Add campaign leads
+    const parsedLeads =
+      typeof leadsDataParsed === "string"
+        ? JSON.parse(leadsDataParsed)
+        : leadsDataParsed;
+
+    if (Array.isArray(parsedLeads) && parsedLeads.length > 0) {
+      const leadsToInsert = parsedLeads.map((lead) => ({
+        campaign_id: newCampaign.id,
+        data: lead,
+      }));
+
+      await global.db.models.CampaignLead.bulkCreate(leadsToInsert);
+    }
+
+    res
+      .status(201)
+      .json({ message: "Campaign created", campaign: newCampaign });
   } catch (err) {
     console.error("Error uploading campaign:", err);
     res.status(500).json({ error: "Internal server error" });
   }
 });
 
-// ✅ Get All Campaigns
+
+// router.get("/", async (req, res) => {
+//   try {
+//     const campaigns = await Campaign.findAll({
+//       include: [
+//         {
+//           model: User,
+//           as: 'creator', // user_id
+//           required: false,
+//           attributes: ['id', 'name', 'email'],
+//         },
+//         {
+//           model: User,
+//           as: 'client', // client_id
+//           required: false,
+//           attributes: ['id', 'name', 'email'],
+//         },
+//         {
+//           model: Form,
+//           required: false,
+//           attributes: ['id', 'name'],
+//         }
+//       ],
+//       order: [['created_at', 'DESC']],
+//     });
+
+//     const formatted = campaigns.map((campaign) => {
+//       const obj = campaign.toJSON();
+//       return {
+//         ...obj,
+//         import_lead_fields: typeof obj.import_lead_fields === 'string'
+//           ? JSON.parse(obj.import_lead_fields)
+//           : obj.import_lead_fields || [],
+//       };
+//     });
+
+//     res.json(formatted);
+//   } catch (err) {
+//     console.error("Error fetching campaigns:", err);
+//     res.status(500).json({ error: "Internal server error" });
+//   }
+// });
+
 router.get("/", async (req, res) => {
   try {
     const campaigns = await Campaign.findAll({
       include: [
         {
           model: User,
-          as: 'creator', // user_id
+          as: "creator", // user_id
           required: false,
-          attributes: ['id', 'name', 'email'],
+          attributes: ["id", "name", "email"],
         },
         {
           model: User,
-          as: 'client', // client_id
+          as: "client", // client_id
           required: false,
-          attributes: ['id', 'name', 'email'],
+          attributes: ["id", "name", "email"],
         },
         {
           model: Form,
           required: false,
-          attributes: ['id', 'name'],
-        }
+          attributes: ["id", "name"],
+        },
+        {
+          model: CampaignLead,
+          required: false,
+          as: "leads",
+          attributes: ["data"],
+        },
       ],
-      order: [['created_at', 'DESC']],
+      order: [["created_at", "DESC"]],
     });
 
     const formatted = campaigns.map((campaign) => {
       const obj = campaign.toJSON();
       return {
         ...obj,
-        import_lead_fields: typeof obj.import_lead_fields === 'string'
-          ? JSON.parse(obj.import_lead_fields)
-          : obj.import_lead_fields || [],
+        import_lead_fields:
+          typeof obj.import_lead_fields === "string"
+            ? JSON.parse(obj.import_lead_fields)
+            : obj.import_lead_fields || [],
       };
     });
 
@@ -73,7 +147,7 @@ router.get("/", async (req, res) => {
   }
 });
 
-// ✅ Get Single Campaign by ID
+
 router.get("/:id", async (req, res) => {
   try {
     const campaign = await Campaign.findByPk(req.params.id, {
@@ -98,31 +172,65 @@ router.get("/:id", async (req, res) => {
   }
 });
 
-// ✅ Update Campaign
-router.put("/:id", async (req, res) => {
+
+router.put("/:id", csvUpload.single("file"), async (req, res) => {
   try {
-    const { name, user_id, client_id, form_id, import_lead_fields, file } = req.body;
+    const { id } = req.params;
 
-    const campaign = await Campaign.findByPk(req.params.id);
-    if (!campaign) return res.status(404).json({ error: "Campaign not found" });
+    const {
+      name,
+      user_id,
+      client_id,
+      form_id,
+      import_lead_fields,
+      leadsDataParsed,
+    } = req.body;
 
-    campaign.name = name ?? campaign.name;
-    campaign.user_id = user_id ?? campaign.user_id;
-    campaign.client_id = client_id ?? campaign.client_id;
-    campaign.form_id = form_id ?? campaign.form_id;
-    campaign.import_lead_fields = import_lead_fields ? JSON.stringify(import_lead_fields) : campaign.import_lead_fields;
-    campaign.file = file ?? campaign.file;
+    console.log("Received body:", req.body);
+    console.log("Received file:", req.file);
 
-    await campaign.save();
+    // 1️⃣ Find campaign
+    const campaign = await Campaign.findByPk(id);
+    if (!campaign) {
+      return res.status(404).json({ error: "Campaign not found" });
+    }
 
-    res.json({ message: "Campaign updated successfully", campaign });
-  } catch (err) {
-    console.error("Error updating campaign:", err);
+    // 2️⃣ Update campaign
+    await campaign.update({
+      name: name || campaign.name,
+      user_id: user_id || campaign.user_id,
+      client_id: client_id || campaign.client_id,
+      form_id: form_id || campaign.form_id,
+      import_lead_fields: import_lead_fields
+        ? JSON.parse(import_lead_fields)
+        : campaign.import_lead_fields,
+      file: req.file ? `/uploads/campaigns/${req.file.filename}` : campaign.file,
+    });
+
+    // 3️⃣ Add leads if provided
+    if (leadsDataParsed) {
+      const leads = typeof leadsDataParsed === "string"
+        ? JSON.parse(leadsDataParsed)
+        : leadsDataParsed;
+
+      if (Array.isArray(leads) && leads.length > 0) {
+        const entries = leads.map((lead) => ({
+          campaign_id: campaign.id,
+          data: lead,
+        }));
+
+        await CampaignLead.bulkCreate(entries);
+      }
+    }
+
+    res.status(200).json({ message: "Campaign updated successfully", campaign });
+  } catch (error) {
+    console.error("Error updating campaign:", error);
     res.status(500).json({ error: "Internal server error" });
   }
 });
 
-// ✅ Soft Delete Campaign
+
 router.delete("/:id", async (req, res) => {
   try {
     const campaign = await Campaign.findByPk(req.params.id);

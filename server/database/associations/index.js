@@ -1,5 +1,5 @@
 function init() {
-  const { User, Campaign, Form } = global.db.models;
+  const { User, Campaign, Form, CampaignLead } = global.db.models;
 
   // A User (creator) has many Campaigns (user_id)
   User.hasMany(Campaign, {
@@ -34,6 +34,17 @@ function init() {
     foreignKey: 'form_id',
     constraints: false,
   });
+
+  Campaign.hasMany(CampaignLead, {
+    foreignKey: 'campaign_id',
+    as: 'leads',
+    onDelete: 'CASCADE',
+  });
+  
+  CampaignLead.belongsTo(Campaign, {
+    foreignKey: 'campaign_id',
+  });
 }
+
 
 module.exports = init;

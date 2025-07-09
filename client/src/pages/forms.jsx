@@ -3,6 +3,7 @@ import axios from "axios";
 import NavBar from "../components/NavBar";
 import SideBar from "../components/SideBar";
 import { toast } from "react-toastify";
+const API_BASE_URL = import.meta.env.VITE_API_URL;
 import { FaEdit, FaTrash } from "react-icons/fa";
 import "react-toastify/dist/ReactToastify.css";
 
@@ -20,7 +21,7 @@ function FormBuilder() {
 
   const fetchForms = async () => {
     try {
-      const res = await axios.get("http://localhost:3000/api/form");
+      const res = await axios.get(`${API_BASE_URL}/api/form`);
       setFormList(res.data);
     } catch (err) {
       console.error("Failed to fetch forms", err);
@@ -46,7 +47,7 @@ const handleDelete = async (formId) => {
   if (!confirmDelete) return;
 
   try {
-    await axios.delete(`http://localhost:3000/api/form/${formId}`);
+    await axios.delete(`${API_BASE_URL}/api/form/${formId}`);
     toast.success("Form deleted successfully!");
     fetchForms();
   } catch (error) {
@@ -61,7 +62,7 @@ const handleDelete = async (formId) => {
     const updatedStatus = form.status === "active" ? "inactive" : "active";
 
     try {
-      await axios.put(`http://localhost:3000/api/form/${formId}`, {
+      await axios.put(`${API_BASE_URL}/api/form/${formId}`, {
         status: updatedStatus,
       });
       toast.success("Form status updated!");
@@ -98,12 +99,12 @@ const handleDelete = async (formId) => {
 
       if (editingFormId) {
         await axios.put(
-          `http://localhost:3000/api/form/${editingFormId}`,
+          `${API_BASE_URL}/api/form/${editingFormId}`,
           payload
         );
         toast.success("Form updated successfully!");
       } else {
-        await axios.post("http://localhost:3000/api/form", payload);
+        await axios.post(`${API_BASE_URL}/api/form`, payload);
         toast.success("Form created successfully!");
       }
 
