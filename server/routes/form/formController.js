@@ -13,7 +13,7 @@ router.post("/", async (req, res) => {
     const newForm = await global.db.models.Form.create({
       name,
       status,
-      fields: JSON.stringify(fields),
+      fields,
     });
 
     res.status(201).json(newForm);

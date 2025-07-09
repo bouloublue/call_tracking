@@ -25,7 +25,7 @@ const applyCors = (app) => {
     const allowedOrigins = [
       "http://localhost:5173",
       "http://localhost:5174",
-      "*"
+      "https://test1.aegiiz.us",
     ];
     
     // Configure CORS middleware

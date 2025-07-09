@@ -4,6 +4,7 @@ import SideBar from "../components/SideBar";
 import NavBar from "../components/NavBar";
 import { toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
+const API_BASE_URL = import.meta.env.VITE_API_URL;
 
 function Manager() {
   const [showModal, setShowModal] = useState(false);
@@ -24,9 +25,12 @@ function Manager() {
     fetchUsers();
   }, []);
 
+  console.log("API Base URL:", API_BASE_URL);
+  console.log("Environment:", import.meta.env.MODE);
+
   const fetchUsers = async () => {
     try {
-      const res = await axios.get("http://localhost:3000/api/user");
+      const res = await axios.get(`${API_BASE_URL}/api/user`);
       const filtered = res.data.filter((user) => user.role !== "client");
       setUsers(filtered);
     } catch (error) {
@@ -37,7 +41,7 @@ function Manager() {
   const handleDelete = async (id) => {
     if (window.confirm("Are you sure you want to delete this user?")) {
       try {
-        await axios.delete(`http://localhost:3000/api/user/${id}`);
+        await axios.delete(`${API_BASE_URL}/api/user/${id}`);
         toast.success("User deleted successfully!");
         fetchUsers();
       } catch (error) {
@@ -57,7 +61,7 @@ function Manager() {
       });
       if (editingUserId) {
         await axios.put(
-          `http://localhost:3000/api/user/${editingUserId}`,
+          `${API_BASE_URL}/api/user/${editingUserId}`,
           data,
           {
             headers: { "Content-Type": "multipart/form-data" },
@@ -65,7 +69,7 @@ function Manager() {
         );
         toast.success("User updated successfully!");
       } else {
-        await axios.post("http://localhost:3000/api/user", data, {
+        await axios.post(`${API_BASE_URL}/api/user`, data, {
           headers: { "Content-Type": "multipart/form-data" },
         });
         toast.success("User created successfully!");

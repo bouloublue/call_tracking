@@ -4,6 +4,7 @@ import SideBar from "../components/SideBar";
 import NavBar from "../components/NavBar";
 import { toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
+const API_BASE_URL = import.meta.env.VITE_API_URL;
 
 function Agents() {
   const [showModal, setShowModal] = useState(false);
@@ -26,7 +27,7 @@ function Agents() {
 
   const fetchAgents = async () => {
     try {
-      const res = await axios.get("http://localhost:3000/api/user/clients");
+      const res = await axios.get(`${API_BASE_URL}/api/user/clients`);
       setAgents(res.data);
       console.log(res.data)
     } catch (error) {
@@ -51,12 +52,12 @@ function Agents() {
       if (formData.profile_img) data.append("profile_img", formData.profile_img);
 
       if (editMode) {
-        await axios.put(`http://localhost:3000/api/user/${editId}`, data, {
+        await axios.put(`${API_BASE_URL}/api/user/${editId}`, data, {
           headers: { "Content-Type": "multipart/form-data" },
         });
         toast.success("Agent updated successfully");
       } else {
-        await axios.post("http://localhost:3000/api/user", data, {
+        await axios.post(`${API_BASE_URL}/api/user`, data, {
           headers: { "Content-Type": "multipart/form-data" },
         });
         toast.success("Agent added successfully");
@@ -96,7 +97,7 @@ function Agents() {
   const handleDelete = async (id) => {
     if (window.confirm("Are you sure you want to delete this agent?")) {
       try {
-        await axios.delete(`http://localhost:3000/api/user/${id}`);
+        await axios.delete(`${API_BASE_URL}/api/user/${id}`);
         toast.success("Agent deleted successfully");
         fetchAgents();
       } catch (error) {

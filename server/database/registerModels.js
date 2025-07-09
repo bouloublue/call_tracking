@@ -3,6 +3,7 @@ function init(){
     require('./models/users');
     require('./models/campaign');
     require('./models/form');
+    require('./models/campaignLead')
 }
 
 module.exports = init;
