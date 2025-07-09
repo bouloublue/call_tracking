@@ -145,6 +145,7 @@ import React, { useEffect, useState } from "react";
 import SideBar from "../components/SideBar";
 import NavBar from "../components/NavBar";
 const VITE_API_URL = import.meta.env.VITE_API_URL;
+const API_BASE_URL2 = import.meta.env.VITE_API_URL2;
 
 function Leads() {
   const [leadsList, setLeadsList] = useState([]);
