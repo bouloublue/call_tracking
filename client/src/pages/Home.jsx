@@ -7,7 +7,7 @@ import Chart6 from "../components/charts/Chart6";
 function Home() {
     const [isMenuOpen, setIsMenuOpen] = useState(false);
 
-  const handleToggleMenu = () => {
+  const handleToggleMenu = () => { 
     setIsMenuOpen(prev => !prev);
   };
   return (
