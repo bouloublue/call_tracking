@@ -3,6 +3,7 @@ import axios from "axios";
 import SideBar from "../components/SideBar";
 import NavBar from "../components/NavBar";
 import { toast } from "react-toastify";
+import styles from "../pages/Home.module.css";
 import "react-toastify/dist/ReactToastify.css";
 const API_BASE_URL = import.meta.env.VITE_API_URL;
 
@@ -107,81 +108,87 @@ function Agents() {
   };
 
   return (
-    <div>
-      <NavBar />
-      <SideBar />
-            <div className="page-title-box">
-        <div className="container-fluid">
-          <div className="row gap-0">
-            <div className="col-sm-12">
-              <div className="page-title-content d-sm-flex justify-content-sm-between align-items-center">
-                <ol className="breadcrumb mb-0">
-                  <li className="breadcrumb-item">
-                    <a href="/manager">Call Tracking</a>
-                  </li>
-                  <li className="breadcrumb-item active">Company</li>
-                </ol>
+    <>
+      <div className={styles.pageTitleBox}>
+        <div className={styles.pageTitleContainer}>
+          <div className={`${styles.row} ${styles.gap0}`}>
+            <div className={styles.col12}>
+              <div className={`${styles.pageTitleContent} ${styles.dSmFlex} ${styles.justifyContentSmBetween} ${styles.alignItemsCenter}`}>
+                <div>
+                  <ol className={styles.breadcrumb}>
+                    <li className={styles.breadcrumbItem}>
+                      <a href="/">Call Tracking</a>
+                    </li>
+                    <li className={`${styles.breadcrumbItem} ${styles.active}`}>Agents</li>
+                  </ol>
+                  <h1 className={styles.pageTitle}>Agents</h1>
+                </div>
+
               </div>
             </div>
           </div>
         </div>
       </div>
-      <div className="page-wrapper">
-        <div className="page-content container-fluid">
-          <div className="d-flex justify-content-between align-items-center mb-3">
-            <h4>Agents</h4>
-            <button className="btn btn-primary" onClick={() => setShowModal(true)}>
-              New Agent
-            </button>
-          </div>
+      <SideBar />
 
-          <div className="card">
-            <div className="card-body">
-              <table className="table">
-                <thead>
-                  <tr>
-                    <th>Name</th>
-                    <th>Email</th>
-                    <th>Phone</th>
-                    <th>Status</th>
-                    <th>Action</th>
-                  </tr>
-                </thead>
-                <tbody>
-                  {agents.map((agent) => (
-                    <tr key={agent.id}>
-                      <td>
-                        <img
-                          src={
-                            agent.profile_img
-                              ? `http://localhost:3000${agent.profile_img.replace(/\\/g, "/")}`
-                              : "/assets/images/users/avatar-1.jpg"
-                          }
-                          alt="Avatar"
-                          className="rounded-circle me-2"
-                          style={{ width: "30px", height: "30px" }}
-                        />
-                        {agent.name}
-                      </td>
-                      <td>{agent.email}</td>
-                      <td>{agent.phone}</td>
-                      <td className={agent.status === "active" ? "text-success" : "text-danger"}>{agent.status}</td>
-                      <td>
-                        <button className="btn btn-sm btn-primary me-1" onClick={() => handleEdit(agent)}>
-                          Edit
-                        </button>
-                        <button className="btn btn-sm btn-danger" onClick={() => handleDelete(agent.id)}>
-                          Delete
-                        </button>
-                      </td>
-                    </tr>
-                  ))}
-                </tbody>
-              </table>
+      <div>
+        <div className="page-wrapper">
+          <div className="page-content container-fluid">
+            <div className="d-flex justify-content-between align-items-center mb-3">
+              {/* <h4>Agents</h4> */}
+              <button className="btn btn-primary" style={{ alignItems: "left", padding: "15px 20px", fontSize: "16px", backgroundColor: "#2E6F6E" }}
+              onClick={() => setShowModal(true)}>
+                New Agent
+              </button>
             </div>
-          </div>
 
-          {/* Modal */}
+            <div className="card">
+              <div className="card-body">
+                <table className="table">
+                  <thead>
+                    <tr>
+                      <th>Name</th>
+                      <th>Email</th>
+                      <th>Phone</th>
+                      <th>Status</th>
+                      <th>Action</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {agents.map((agent) => (
+                      <tr key={agent.id}>
+                        <td>
+                          <img
+                            src={
+                              agent.profile_img
+                                ? `http://localhost:3000${agent.profile_img.replace(/\\/g, "/")}`
+                                : "/assets/images/users/avatar-1.jpg"
+                            }
+                            alt="Avatar"
+                            className="rounded-circle me-2"
+                            style={{ width: "30px", height: "30px" }}
+                          />
+                          {agent.name}
+                        </td>
+                        <td>{agent.email}</td>
+                        <td>{agent.phone}</td>
+                        <td className={agent.status === "active" ? "text-success" : "text-danger"}>{agent.status}</td>
+                        <td>
+                          <button className="btn btn-sm btn-primary me-1" onClick={() => handleEdit(agent)}>
+                            Edit
+                          </button>
+                          <button className="btn btn-sm btn-danger" onClick={() => handleDelete(agent.id)}>
+                            Delete
+                          </button>
+                        </td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+              </div>
+            </div>
+
+            {/* Modal */}
             {showModal && (
               <>
                 {/* Overlay */}
@@ -195,14 +202,14 @@ function Agents() {
                 />
 
                 {/* Slide-in Modal */}
-                <div className="slide-in-modal">
+                <div className="slide-in-modal" style={{ width: "700px"}}>
                   <div className="p-4">
-                    <div className="d-flex justify-content-between align-items-center mb-3">
-                      <h5 className="mb-0">
-                        {editMode ? "Edit User" : "New Manager"}
+                    <div className="d-flex justify-content-between align-items-center mb-3" >
+                      <h5 className="mb-0" style={{ fontSize: "18px", fontWeight: "bold" }}> 
+                        {editMode ? "Edit User" : "New Agent"}
                       </h5>
                       <button
-                        className="btn-close"
+                        className="btn-close" style={{ fontSize: "24px" }}
                         onClick={() => {
                           setShowModal(false);
                           setEditId(null);
@@ -219,10 +226,10 @@ function Agents() {
                             ? typeof formData.profile_img === "object"
                               ? URL.createObjectURL(formData.profile_img)
                               : `http://localhost:3000${formData.profile_img.replace(
-                                  /\\/g,
-                                  "/"
-                                )}`
-                            : "/assets/images/users/avatar-10.jpg" 
+                                /\\/g,
+                                "/"
+                              )}`
+                            : "/assets/images/users/avatar-10.jpg"
                         }
                         alt="Profile"
                         className="profile-upload-img"
@@ -230,7 +237,7 @@ function Agents() {
 
                       <label
                         htmlFor="profileUpload"
-                        className="profile-upload-label"
+                        className="profile-upload-label" style={{ cursor: "pointer", padding: "10px 20px", backgroundColor: "#2E6F6E", color: "#fff", borderRadius: "5px" }}
                       >
                         {formData.profile_img ? "Change Photo" : "Upload Photo"}
                       </label>
@@ -253,7 +260,7 @@ function Agents() {
                       <label className="form-label">Name</label>
                       <input
                         type="text"
-                        className="form-control"
+                        className="form-control" style={{ padding: "15px" }}
                         value={formData.name}
                         onChange={(e) =>
                           setFormData({ ...formData, name: e.target.value })
@@ -265,7 +272,7 @@ function Agents() {
                       <label className="form-label">Phone</label>
                       <input
                         type="text"
-                        className="form-control"
+                        className="form-control" style={{ padding: "15px" }}
                         value={formData.phone}
                         onChange={(e) =>
                           setFormData({ ...formData, phone: e.target.value })
@@ -277,7 +284,7 @@ function Agents() {
                       <label className="form-label">Email</label>
                       <input
                         type="email"
-                        className="form-control"
+                        className="form-control" style={{ padding: "15px" }}
                         value={formData.email}
                         onChange={(e) =>
                           setFormData({ ...formData, email: e.target.value })
@@ -289,7 +296,7 @@ function Agents() {
                       <label className="form-label">Password</label>
                       <input
                         type="password"
-                        className="form-control"
+                        className="form-control" style={{ padding: "15px" }}
                         value={formData.password}
                         onChange={(e) =>
                           setFormData({ ...formData, password: e.target.value })
@@ -301,7 +308,7 @@ function Agents() {
                       <label className="form-label">Address</label>
                       <input
                         type="text"
-                        className="form-control"
+                        className="form-control" style={{ padding: "15px" }}
                         value={formData.address}
                         onChange={(e) =>
                           setFormData({ ...formData, address: e.target.value })
@@ -312,7 +319,7 @@ function Agents() {
                     <div className="mb-3">
                       <label className="form-label">Status</label>
                       <select
-                        className="form-control"
+                        className="form-control" style={{ padding: "15px", color: "#808080ff" }}
                         value={formData.status}
                         onChange={(e) =>
                           setFormData({ ...formData, status: e.target.value })
@@ -325,7 +332,7 @@ function Agents() {
 
                     <div className="d-flex justify-content-end gap-2 mt-4">
                       <button
-                        className="btn btn-outline-secondary"
+                        className="btn btn-outline-secondary" style={{ padding: "10px 20px", fontSize: "16px" }}
                         onClick={() => {
                           setShowModal(false);
                           setEditId(null);
@@ -335,7 +342,7 @@ function Agents() {
                         Cancel
                       </button>
                       <button
-                        className="btn btn-primary"
+                        className="btn btn-primary" style={{ padding: "10px 20px", fontSize: "16px", backgroundColor: "#2E6F6E" }}
                         onClick={handleSubmit}
                       >
                         {editMode ? "Update" : "Create"}
@@ -345,10 +352,12 @@ function Agents() {
                 </div>
               </>
             )}
+          </div>
         </div>
       </div>
-    </div>
+    </>
   );
+
 }
 
 export default Agents;
