@@ -1,89 +1,94 @@
 import NavBar from "../components/NavBar"
 import SideBar from "../components/SideBar"
+import styles from "../pages/Home.module.css";
+
 
 function Profile() {
-  return (
-    <>
-    <NavBar />
+    return (
+        <>
+            <div className={styles.pageTitleBox}>
+                <div className={styles.pageTitleContainer}>
+                    <div className={`${styles.row} ${styles.gap0}`}>
+                        <div className={styles.col12}>
+                            <div className={`${styles.pageTitleContent} ${styles.dSmFlex} ${styles.justifyContentSmBetween} ${styles.alignItemsCenter}`}>
+                                <div>
+                                    <ol className={styles.breadcrumb}>
+                                        <li className={styles.breadcrumbItem}>
+                                            <a href="/">Call Tracking</a>
+                                        </li>
+                                        <li className={`${styles.breadcrumbItem} ${styles.active}`}>Profile</li>
+                                    </ol>
+                                    <h1 className={styles.pageTitle}>Profile</h1>
+                                </div>
 
-    <SideBar />
-
-    <div className="page-title-box">
-        <div className="container-fluid">
-            <div className="row gap-0">
-                <div className="col-sm-12">
-                    <div className="page-title-content d-sm-flex justify-content-sm-between align-items-center">
-                        <h4 className="page-title mt-3 mt-md-0">Dashboard</h4>
-                        <div className="">
-                            <ol className="breadcrumb mb-0">
-                                <li className="breadcrumb-item"><a href="/">Call Tracking</a>
-                                </li>
-                                <li className="breadcrumb-item active">Profile</li>
-                            </ol>
-                        </div>                            
+                            </div>
+                        </div>
                     </div>
                 </div>
             </div>
-        </div>
-    </div>
 
-    <div className="page-wrapper">
-        <div className="page-content">
-                <div className="container-fluid">
-                    <div className="row justify-content-center">
-                        <div className="col-md-4">                            
-                            <div className="card">  
-                                <div className="card-body p-4  rounded text-center img-bg">                                   
-                                </div>
-                                <div className="position-relative">
-                                    <div className="shape overflow-hidden text-card-bg">
-                                        <svg viewBox="0 0 2880 48" fill="none" xmlns="http://www.w3.org/2000/svg">
-                                            <path d="M0 48H1437.5H2880V0H2160C1442.5 52 720 0 720 0H0V48Z" fill="currentColor"></path>
-                                        </svg>
-                                    </div>
-                                </div>
-                                <div className="card-body mt-n6">
-                                    <div className="row align-items-center">                                        
-                                        <div className="col">
-                                            <div className="d-flex align-items-center">
-                                                <div className="position-relative">
-                                                    <img src="assets/images/users/avatar-2.jpg" alt="" className="rounded-circle img-fluid" />
-                                                    <div className="position-absolute top-50 start-100 translate-middle">
-                                                        <img src="assets/images/flags/us_flag.jpg" alt="" className="rounded-circle thumb-sm border border-3  border-white" />
+            <SideBar />
+            <div>
+
+
+
+                <div className="page-wrapper">
+                    <div className="page-content">
+                        <div className="container-fluid">
+                            <div className="row justify-content-center">
+                                <div className="col-md-4">
+                                    <div className="card">
+                                        <div className="card-body p-4  rounded text-center img-bg">
+                                        </div>
+                                        <div className="position-relative">
+                                            <div className="shape overflow-hidden text-card-bg">
+                                                <svg viewBox="0 0 2880 48" fill="none" xmlns="http://www.w3.org/2000/svg">
+                                                    <path d="M0 48H1437.5H2880V0H2160C1442.5 52 720 0 720 0H0V48Z" fill="currentColor"></path>
+                                                </svg>
+                                            </div>
+                                        </div>
+                                        <div className="card-body mt-n6">
+                                            <div className="row align-items-center">
+                                                <div className="col">
+                                                    <div className="d-flex align-items-center">
+                                                        <div className="position-relative">
+                                                            <img src="assets/images/users/avatar-2.jpg" alt="" className="rounded-circle img-fluid" />
+                                                            <div className="position-absolute top-50 start-100 translate-middle">
+                                                                <img src="assets/images/flags/us_flag.jpg" alt="" className="rounded-circle thumb-sm border border-3  border-white" />
+                                                            </div>
+                                                        </div>
+                                                        <div className="flex-grow-1 text-truncate ms-3 align-self-end">
+                                                            <h5 className="m-0 fs-3 fw-bold">Admin</h5>
+                                                            <p className="text-muted mb-0 mt-n1">@admin</p>
+                                                        </div>
+                                                        <div className="align-self-center">
+                                                            <span className="badge bg-success-subtle text-success border border-success px-2">Admin</span>
+                                                        </div>
                                                     </div>
                                                 </div>
-                                                <div className="flex-grow-1 text-truncate ms-3 align-self-end"> 
-                                                    <h5 className="m-0 fs-3 fw-bold">Admin</h5>
-                                                    <p className="text-muted mb-0 mt-n1">@admin</p>                                                                                                                                 
-                                                </div>
-                                                <div className="align-self-center">
-                                                    <span className="badge bg-success-subtle text-success border border-success px-2">Admin</span>
+                                                <div class="mt-3">
+                                                    <div class="text-body mb-2  d-flex align-items-center fs-13"><i class="las la-language fs-20 me-1 text-muted"></i><span class="text-body fw-semibold">Company :</span> Call Tracking</div>
+                                                    <div class="text-muted mb-2 d-flex align-items-center fs-13"><i class="las la-envelope fs-20 me-1"></i><span class="text-body fw-semibold">Email :</span><a href="#" class="text-primary text-decoration-underline">admin@example.com</a></div>
+                                                    <div class="text-body mb-3 d-flex align-items-center fs-13"><i class="las la-phone fs-20 me-1 text-muted"></i><span class="text-body fw-semibold">Phone :</span> +1 123 456 789</div>
                                                 </div>
                                             </div>
                                         </div>
-                                         <div class="mt-3">
-                                                <div class="text-body mb-2  d-flex align-items-center fs-13"><i class="las la-language fs-20 me-1 text-muted"></i><span class="text-body fw-semibold">Company :</span> Call Tracking</div>                                    
-                                                <div class="text-muted mb-2 d-flex align-items-center fs-13"><i class="las la-envelope fs-20 me-1"></i><span class="text-body fw-semibold">Email :</span><a href="#" class="text-primary text-decoration-underline">admin@example.com</a></div>
-                                                <div class="text-body mb-3 d-flex align-items-center fs-13"><i class="las la-phone fs-20 me-1 text-muted"></i><span class="text-body fw-semibold">Phone :</span> +1 123 456 789</div>                                    
-                                            </div>
                                     </div>
                                 </div>
-                            </div>                             
-                        </div>  
-                        <div className="col-lg-8">
-                            <ul className="nav nav-tabs mb-3" role="tablist">
-                                 <li className="nav-item">
-                                    <a className="nav-link fw-medium active" data-bs-toggle="tab" href="#settings" role="tab" aria-selected="true">Settings</a>
-                                </li>
-                                <li className="nav-item">
-                                    <a className="nav-link fw-medium " data-bs-toggle="tab" href="#post" role="tab" aria-selected="false">Company Settings</a>
-                                </li>
-                                <li className="nav-item">
-                                    <a className="nav-link fw-medium" data-bs-toggle="tab" href="#gallery" role="tab" aria-selected="false">Role & Permissions</a>
-                                </li>       
-                            </ul>
-                            <div className="tab-content">
-                                {/* <div className="tab-pane active" id="post" role="tabpanel">
+                                <div className="col-lg-8">
+                                    <ul className="nav nav-tabs mb-3" role="tablist">
+                                        <li className="nav-item">
+                                            <a className="nav-link fw-medium active" data-bs-toggle="tab" href="#settings" role="tab" aria-selected="true">Settings</a>
+                                        </li>
+                                        <li className="nav-item">
+                                            <a className="nav-link fw-medium " data-bs-toggle="tab" href="#post" role="tab" aria-selected="false">Company Settings</a>
+                                        </li>
+                                        <li className="nav-item">
+                                            <a className="nav-link fw-medium" data-bs-toggle="tab" href="#gallery" role="tab" aria-selected="false">Role & Permissions</a>
+                                        </li>
+                                    </ul>
+                                    <div className="tab-content">
+                                        {/* <div className="tab-pane active" id="post" role="tabpanel">
                                     <div className="row">
                                         <div className="col-lg-6">
                                             <div className="card">
@@ -384,7 +389,7 @@ function Profile() {
                                         </div>                                                
                                     </div>
                                 </div> */}
-                                {/* <div className="tab-pane p-3" id="gallery" role="tabpanel">
+                                        {/* <div className="tab-pane p-3" id="gallery" role="tabpanel">
                                     <div id="grid" className="row g-0">
                                         <div className="col-md-6 col-lg-4 picture-item">
                                             <a href="assets/images/extra/card/img-1.jpg" className="lightbox">
@@ -418,131 +423,132 @@ function Profile() {
                                         </div>                 
                                     </div> 
                                 </div>                                                 */}
-                                <div className="tab-pane p-3 active" id="settings" role="tabpanel">
-                                    <div className="card">
-                                        <div className="card-header">
-                                            <div className="row align-items-center">
-                                                <div className="col">                      
-                                                    <h4 className="card-title">Personal Information</h4>                      
-                                                </div>                                                       
-                                            </div>                                    
-                                        </div>
-                                        <div className="card-body pt-0">                       
-                                            <div className="form-group mb-3 row">
-                                                <label className="col-xl-3 col-lg-3 text-end mb-lg-0 align-self-center form-label">Name</label>
-                                                <div className="col-lg-9 col-xl-8">
-                                                    <input className="form-control" type="text" value="Admin" />
+                                        <div className="tab-pane p-3 active" id="settings" role="tabpanel">
+                                            <div className="card">
+                                                <div className="card-header">
+                                                    <div className="row align-items-center">
+                                                        <div className="col">
+                                                            <h4 className="card-title">Personal Information</h4>
+                                                        </div>
+                                                    </div>
                                                 </div>
-                                            </div>
-                                            <div className="form-group mb-3 row">
-                                                <label className="col-xl-3 col-lg-3 text-end mb-lg-0 align-self-center form-label">Company Name</label>
-                                                <div className="col-lg-9 col-xl-8">
-                                                    <input className="form-control" type="text" value="Call Tracking" />
-                                                    <span className="form-text text-muted font-12">We'll never share your email with anyone else.</span>
-                                                </div>
-                                            </div>
-                
-                                            <div className="form-group mb-3 row">
-                                                <label className="col-xl-3 col-lg-3 text-end mb-lg-0 align-self-center form-label">Contact Phone</label>
-                                                <div className="col-lg-9 col-xl-8">
-                                                    <div className="input-group">
-                                                        <span className="input-group-text"><i className="las la-phone"></i></span>
-                                                        <input type="text" className="form-control" value="+123456789" placeholder="Phone" aria-describedby="basic-addon1" />
+                                                <div className="card-body pt-0">
+                                                    <div className="form-group mb-3 row">
+                                                        <label className="col-xl-3 col-lg-3 text-end mb-lg-0 align-self-center form-label">Name</label>
+                                                        <div className="col-lg-9 col-xl-8">
+                                                            <input className="form-control" type="text" value="Admin" />
+                                                        </div>
+                                                    </div>
+                                                    <div className="form-group mb-3 row">
+                                                        <label className="col-xl-3 col-lg-3 text-end mb-lg-0 align-self-center form-label">Company Name</label>
+                                                        <div className="col-lg-9 col-xl-8">
+                                                            <input className="form-control" type="text" value="Call Tracking" />
+                                                            <span className="form-text text-muted font-12">We'll never share your email with anyone else.</span>
+                                                        </div>
+                                                    </div>
+
+                                                    <div className="form-group mb-3 row">
+                                                        <label className="col-xl-3 col-lg-3 text-end mb-lg-0 align-self-center form-label">Contact Phone</label>
+                                                        <div className="col-lg-9 col-xl-8">
+                                                            <div className="input-group">
+                                                                <span className="input-group-text"><i className="las la-phone"></i></span>
+                                                                <input type="text" className="form-control" value="+123456789" placeholder="Phone" aria-describedby="basic-addon1" />
+                                                            </div>
+                                                        </div>
+                                                    </div>
+                                                    <div className="form-group mb-3 row">
+                                                        <label className="col-xl-3 col-lg-3 text-end mb-lg-0 align-self-center form-label">Email Address</label>
+                                                        <div className="col-lg-9 col-xl-8">
+                                                            <div className="input-group">
+                                                                <span className="input-group-text"><i className="las la-at"></i></span>
+                                                                <input type="text" className="form-control" value="call.tracking@demo.com" placeholder="Email" aria-describedby="basic-addon1" />
+                                                            </div>
+                                                        </div>
+                                                    </div>
+                                                    <div className="form-group mb-3 row">
+                                                        <label className="col-xl-3 col-lg-3 text-end mb-lg-0 align-self-center form-label">Website Link</label>
+                                                        <div className="col-lg-9 col-xl-8">
+                                                            <div className="input-group">
+                                                                <span className="input-group-text"><i className="la la-globe"></i></span>
+                                                                <input type="text" className="form-control" value="" placeholder="Email" aria-describedby="basic-addon1" />
+                                                            </div>
+                                                        </div>
+                                                    </div>
+                                                    <div className="form-group mb-3 row">
+                                                        <label className="col-xl-3 col-lg-3 text-end mb-lg-0 align-self-center form-label">Location</label>
+                                                        <div className="col-lg-9 col-xl-8">
+                                                            <select className="form-select">
+                                                                <option>USA</option>
+                                                                <option>London</option>
+                                                                <option>India</option>
+                                                                <option>Canada</option>
+                                                                <option>Thailand</option>
+                                                            </select>
+                                                        </div>
+                                                    </div>
+                                                    <div className="form-group row">
+                                                        <div className="col-lg-9 col-xl-8 offset-lg-3">
+                                                            <button type="submit" className="btn btn-primary" style={{padding:"10px 20px", background:"#2E6F6E"}}>Submit</button>
+                                                        </div>
                                                     </div>
                                                 </div>
                                             </div>
-                                            <div className="form-group mb-3 row">
-                                                <label className="col-xl-3 col-lg-3 text-end mb-lg-0 align-self-center form-label">Email Address</label>
-                                                <div className="col-lg-9 col-xl-8">
-                                                    <div className="input-group">
-                                                        <span className="input-group-text"><i className="las la-at"></i></span>
-                                                        <input type="text" className="form-control" value="call.tracking@demo.com" placeholder="Email" aria-describedby="basic-addon1" />
+                                            <div className="card">
+                                                <div className="card-header">
+                                                    <h4 className="card-title">Change Password</h4>
+                                                </div>
+                                                <div className="card-body pt-0">
+                                                    <div className="form-group mb-3 row">
+                                                        <label className="col-xl-3 col-lg-3 text-end mb-lg-0 align-self-center form-label">Current Password</label>
+                                                        <div className="col-lg-9 col-xl-8">
+                                                            <input className="form-control" type="password" placeholder="Password" />
+                                                            <a href="#" className="text-primary font-12">Forgot password ?</a>
+                                                        </div>
+                                                    </div>
+                                                    <div className="form-group mb-3 row">
+                                                        <label className="col-xl-3 col-lg-3 text-end mb-lg-0 align-self-center form-label">New Password</label>
+                                                        <div className="col-lg-9 col-xl-8">
+                                                            <input className="form-control" type="password" placeholder="New Password" />
+                                                        </div>
+                                                    </div>
+                                                    <div className="form-group mb-3 row">
+                                                        <label className="col-xl-3 col-lg-3 text-end mb-lg-0 align-self-center form-label">Confirm Password</label>
+                                                        <div className="col-lg-9 col-xl-8">
+                                                            <input className="form-control" type="password" placeholder="Re-Password" />
+                                                        </div>
+                                                    </div>
+                                                    <div className="form-group row">
+                                                        <div className="col-lg-9 col-xl-8 offset-lg-3">
+                                                            <button type="submit" className="btn btn-primary" style={{padding:"10px 20px", background:"#2E6F6E"}}>Change Password</button>
+                                                        </div>
                                                     </div>
                                                 </div>
                                             </div>
-                                            <div className="form-group mb-3 row">
-                                                <label className="col-xl-3 col-lg-3 text-end mb-lg-0 align-self-center form-label">Website Link</label>
-                                                <div className="col-lg-9 col-xl-8">
-                                                    <div className="input-group">
-                                                        <span className="input-group-text"><i className="la la-globe"></i></span>
-                                                        <input type="text" className="form-control" value="" placeholder="Email" aria-describedby="basic-addon1" />
+                                            <div className="card">
+                                                <div className="card-header">
+                                                    <h4 className="card-title">Other Settings</h4>
+                                                </div>
+                                                <div className="card-body pt-0">
+                                                    <div className="form-check">
+                                                        <input className="form-check-input" type="checkbox" value="" id="Email_Notifications" checked />
+                                                        <label className="form-check-label" for="Email_Notifications">
+                                                            Email Notifications
+                                                        </label>
+                                                        <div className="space20"></div>
+                                                        <span className="form-text text-muted fs-12 mt-0">Do you need them?</span>
                                                     </div>
                                                 </div>
                                             </div>
-                                            <div className="form-group mb-3 row">
-                                                <label className="col-xl-3 col-lg-3 text-end mb-lg-0 align-self-center form-label">Location</label>
-                                                <div className="col-lg-9 col-xl-8">
-                                                    <select className="form-select">
-                                                        <option>USA</option>
-                                                        <option>London</option>
-                                                        <option>India</option>
-                                                        <option>Canada</option>
-                                                        <option>Thailand</option>
-                                                    </select>
-                                                </div>
-                                            </div>
-                                            <div className="form-group row">
-                                                <div className="col-lg-9 col-xl-8 offset-lg-3">
-                                                    <button type="submit" className="btn btn-primary">Submit</button>
-                                                </div>
-                                            </div>                                                    
-                                        </div>                                          
-                                    </div>
-                                    <div className="card">
-                                        <div className="card-header">
-                                            <h4 className="card-title">Change Password</h4>
-                                        </div>
-                                        <div className="card-body pt-0"> 
-                                            <div className="form-group mb-3 row">
-                                                <label className="col-xl-3 col-lg-3 text-end mb-lg-0 align-self-center form-label">Current Password</label>
-                                                <div className="col-lg-9 col-xl-8">
-                                                    <input className="form-control" type="password" placeholder="Password" />
-                                                    <a href="#" className="text-primary font-12">Forgot password ?</a>
-                                                </div>
-                                            </div>
-                                            <div className="form-group mb-3 row">
-                                                <label className="col-xl-3 col-lg-3 text-end mb-lg-0 align-self-center form-label">New Password</label>
-                                                <div className="col-lg-9 col-xl-8">
-                                                    <input className="form-control" type="password" placeholder="New Password" />
-                                                </div>
-                                            </div>
-                                            <div className="form-group mb-3 row">
-                                                <label className="col-xl-3 col-lg-3 text-end mb-lg-0 align-self-center form-label">Confirm Password</label>
-                                                <div className="col-lg-9 col-xl-8">
-                                                    <input className="form-control" type="password" placeholder="Re-Password" />
-                                                </div>
-                                            </div>
-                                            <div className="form-group row">
-                                                <div className="col-lg-9 col-xl-8 offset-lg-3">
-                                                    <button type="submit" className="btn btn-primary">Change Password</button>
-                                                </div>
-                                            </div>   
-                                        </div>
-                                    </div>
-                                    <div className="card">
-                                        <div className="card-header">
-                                            <h4 className="card-title">Other Settings</h4>
-                                        </div>
-                                        <div className="card-body pt-0">
-                                            <div className="form-check">
-                                                <input className="form-check-input" type="checkbox" value="" id="Email_Notifications" checked />
-                                                <label className="form-check-label" for="Email_Notifications">
-                                                    Email Notifications
-                                                </label>
-                                                <div className="space20"></div>
-                                                <span className="form-text text-muted fs-12 mt-0">Do you need them?</span>
-                                              </div>
                                         </div>
                                     </div>
                                 </div>
                             </div>
                         </div>
-                    </div> 
-        </div>
-    </div>
- </div>
-</>
-  )
+                    </div>
+                </div>
+            </div>
+        </>
+    )
 }
 
 export default Profile

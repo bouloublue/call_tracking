@@ -1,0 +1,80 @@
+/* --- Global Base Styles (Moved from index.css) --- */
+/* Import Inter font globally (using @import in CSS modules is fine) */
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap');
+
+/* Basic CSS Reset & Global Body/HTML/Root Styles */
+html, body, #root {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box; /* Ensures padding and border are included in element's total width and height */
+  min-height: 100vh; /* Ensures the root elements take full viewport height */
+  width: 100%; /* Ensures the root elements take full viewport width */
+  font-family: 'Inter', sans-serif; /* Apply Inter font globally */
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  background-color: #FFFFFF; /* Default app background color (white) */
+  color: #1C1F24; /* Default app text color (dark charcoal) */
+}
+
+/* --- App Container Layout (ONLY for App.jsx elements) --- */
+.appContainer { /* This now also serves the purpose of the former .App global class */
+  display: flex;
+  width: 100%;
+  min-height: 100vh;
+}
+
+/* --- Main Content Area (ONLY for App.jsx elements) --- */
+.mainContent {
+  flex: 1; /* Takes up remaining space */
+  transition: margin-left 0.3s ease-in-out; /* Smooth transition for sidebar open/close */
+  min-height: 100vh; /* Ensure it takes full height */
+  padding: 1rem; /* General padding for content */
+  box-sizing: border-box; /* Include padding in element's total width and height */
+}
+
+/* Margin for main content when sidebar is open on desktop */
+@media (min-width: 769px) {
+  .mainContent.sidebarOpen {
+    margin-left: 250px; /* Matches sidebar width */
+  }
+}
+
+/* --- Mobile Overlay (ONLY for App.jsx elements) --- */
+.mobileOverlay {
+  position: fixed;
+  inset: 0; /* Top, right, bottom, left to 0 */
+  background-color: rgba(0, 0, 0, 0.5); /* Semi-transparent black */
+  z-index: 990; /* Lower than sidebar, higher than content */
+}
+
+/* --- Toggle Button (Hamburger) (ONLY for App.jsx elements) --- */
+.toggleButton {
+  position: fixed;
+  top: 1rem;
+  left: 1rem;
+  padding: 0.75rem; /* Increased padding for better touch target */
+  border-radius: 50%;
+  background-color: #7FC241; /* Bright Lime Green (hardcoded for App.jsx) */
+  color: #1C1F24; /* Dark Charcoal (hardcoded for App.jsx) */
+  z-index: 1001; /* Higher than sidebar */
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1); /* Default shadow (hardcoded for App.jsx) */
+  transition: background-color 0.3s ease;
+}
+
+.toggleButton:hover {
+  background-color: #A3D677; /* Muted Leaf Green (hardcoded for App.jsx) */
+}
+
+/* Hide the toggle button on desktop */
+@media (min-width: 769px) {
+  .toggleButton {
+    display: none;
+  }
+}
+
+/* General button styling (minimal, can be overridden by module styles) */
+button {
+  cursor: pointer;
+  border: none;
+  background: none;
+}

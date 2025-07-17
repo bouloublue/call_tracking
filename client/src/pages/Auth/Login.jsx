@@ -29,7 +29,7 @@ function Login() {
           <div className="col-12 align-self-center">
             <div className="card-body">
               <div className="row">
-                <div className="col-lg-4 mx-auto">
+                <div className="col-lg-6 mx-auto">
                   <div className="card">
                     <div className="card-body p-0 bg-black auth-header-box rounded-top">
                       <div className="text-center p-3">
@@ -90,7 +90,7 @@ function Login() {
                           <div className="col-12">
                             <div className="d-grid mt-3">
                               <button
-                                className="btn btn-primary"
+                                className="btn btn-primary" style={{ padding: "10px 20px", fontSize: "16px", backgroundColor: "#2E6F6E" } }
                                 type="button"
                                 onClick={handleLogin}
                               >
@@ -137,7 +137,8 @@ function Login() {
                                 <strong>Password:</strong> admin@123
                               </td>
                               <td>
-                                <button className="btn btn-sm btn-primary" onClick={useDemoCredentials}>
+                                <button className="btn btn-sm btn-primary" style={{ padding: "5px 10px", backgroundColor: "#2E6F6E" }}
+                                onClick={useDemoCredentials}> 
                                   Use
                                 </button>
                               </td>
@@ -151,7 +152,8 @@ function Login() {
                                 <strong>Password:</strong> manager@123
                               </td>
                               <td>
-                                <button className="btn btn-sm btn-primary" onClick={useDemoCredentials}>
+                                <button className="btn btn-sm btn-primary" style={{ padding: "5px 10px", backgroundColor: "#2E6F6E" }}
+                                onClick={useDemoCredentials}>
                                   Use
                                 </button>
                               </td>
@@ -165,7 +167,8 @@ function Login() {
                                 <strong>Password:</strong> member@123
                               </td>
                               <td>
-                                <button className="btn btn-sm btn-primary" onClick={useDemoCredentials}>
+                                <button className="btn btn-sm btn-primary" style={{ padding: "5px 10px", backgroundColor: "#2E6F6E" }}
+                                onClick={useDemoCredentials}>
                                   Use
                                 </button>
                               </td>

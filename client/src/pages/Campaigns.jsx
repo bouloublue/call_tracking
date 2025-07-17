@@ -594,8 +594,8 @@ import Papa from "papaparse";
 import axios from "axios";
 import { toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
-
 const API_BASE_URL = import.meta.env.VITE_API_URL;
+import styles from "../pages/Home.module.css";
 
 function Campaigns() {
   const [showModal, setShowModal] = useState(false);
@@ -805,34 +805,37 @@ function Campaigns() {
   return (
     <>
       {/* NavBar and SideBar */}
-      <NavBar />
-      <SideBar />
 
-      {/* Page Header */}
-      <div className="page-title-box">
-        <div className="container-fluid">
-          <div className="row gap-0">
-            <div className="col-sm-12">
-              <div className="page-title-content d-sm-flex justify-content-sm-between align-items-center">
-                <ol className="breadcrumb mb-0">
-                  <li className="breadcrumb-item">
-                    <a href="/manager">Call Tracking</a>
-                  </li>
-                  <li className="breadcrumb-item active">Campaigns</li>
-                </ol>
+
+      <div className={styles.pageTitleBox}>
+        <div className={styles.pageTitleContainer}>
+          <div className={`${styles.row} ${styles.gap0}`}>
+            <div className={styles.col12}>
+              <div className={`${styles.pageTitleContent} ${styles.dSmFlex} ${styles.justifyContentSmBetween} ${styles.alignItemsCenter}`}>
+                <div>
+                  <ol className={styles.breadcrumb}>
+                    <li className={styles.breadcrumbItem}>
+                      <a href="/">Call Tracking</a>
+                    </li>
+                    <li className={`${styles.breadcrumbItem} ${styles.active}`}>Campaigns</li>
+                  </ol>
+                  <h1 className={styles.pageTitle}>Campaigns</h1>
+                </div>
+
               </div>
             </div>
           </div>
         </div>
       </div>
 
+      <SideBar />
+
       {/* Main Content */}
       <div className="page-wrapper">
         <div className="page-content container-fluid">
           <div className="d-flex justify-content-between align-items-center mb-3">
-            <h4>Campaigns</h4>
             <button
-              className="btn btn-primary"
+              className="btn btn-primary" style={{ alignItems: "left", padding: "15px 20px", fontSize: "16px", backgroundColor: "#2E6F6E" }}
               onClick={() => setShowModal(true)}
             >
               + Add Campaign
@@ -937,7 +940,7 @@ function Campaigns() {
                   top: 0,
                   right: 0,
                   height: "100vh",
-                  width: "60%",
+                  width: "50%",
                   backgroundColor: "#fff",
                   boxShadow: "-2px 0 10px rgba(0,0,0,0.15)",
                   zIndex: 1050,
@@ -946,10 +949,10 @@ function Campaigns() {
                 }}
               >
                 {/* Header */}
-                <div className="d-flex justify-content-between align-items-center mb-4">
-                  <h5>{editMode ? "Edit Campaign" : "Create Campaign"}</h5>
+                <div className="d-flex justify-content-between align-items-center mb-4" >
+                  <h5 style={{ fontSize: "20px", fontWeight: "bold" }}>{editMode ? "Edit Campaign" : "Create Campaign"}</h5>
                   <button
-                    className="btn-close"
+                    className="btn-close" style={{ fontSize: "24px" }}
                     onClick={() => setShowModal(false)}
                   ></button>
                 </div>
@@ -963,12 +966,13 @@ function Campaigns() {
                       style={{ flex: 1 }}
                     >
                       <div
-                        className={`rounded-circle mx-auto mb-2 ${
-                          currentStep === index + 1
-                            ? "bg-primary text-white"
-                            : "bg-light"
-                        }`}
-                        style={{ width: 40, height: 40, lineHeight: "40px" }}
+                        className={`rounded-circle mx-auto mb-2 d-flex align-items-center justify-content-center ${currentStep === index + 1 ? "text-white" : "bg-light"
+                          }`}
+                        style={{
+                          width: 50,
+                          height: 50,
+                          backgroundColor: currentStep === index + 1 ? "#225352" : undefined,
+                        }}
                       >
                         {index + 1}
                       </div>
@@ -988,7 +992,7 @@ function Campaigns() {
                   <>
                     <label>Campaign Name</label>
                     <input
-                      className="form-control mb-3"
+                      className="form-control mb-3" style={{padding: "15px", marginTop: "10px" }}
                       value={formData.name}
                       onChange={(e) =>
                         setFormData({ ...formData, name: e.target.value })
@@ -996,7 +1000,7 @@ function Campaigns() {
                     />
                     <label>Select Client</label>
                     <select
-                      className="form-control mb-3"
+                      className="form-control mb-3" style={{ fontSize: "14px", padding: "15px", marginTop: "10px", color:"gray" }}
                       value={formData.client_id}
                       onChange={(e) =>
                         setFormData({ ...formData, client_id: e.target.value })
@@ -1016,7 +1020,7 @@ function Campaigns() {
                   <>
                     <label>Select Form</label>
                     <select
-                      className="form-control mb-3"
+                      className="form-control mb-3" style={{ fontSize: "14px", padding: "15px", marginTop: "10px", color:"gray" }}
                       value={formData.form_id}
                       onChange={(e) =>
                         setFormData({ ...formData, form_id: e.target.value })
@@ -1036,11 +1040,11 @@ function Campaigns() {
                   <>
                     <label>Upload Leads CSV</label>
                     <div
-                      className="border border-dashed rounded p-4 text-center"
+                      className="border border-dashed rounded p-4 text-center" 
                       onClick={() =>
                         document.getElementById("csvUpload").click()
                       }
-                      style={{ cursor: "pointer", background: "#f9f9f9" }}
+                      style={{ cursor: "pointer", background: "#f9f9f9", width: "100%", marginTop: "20px", height: "200px", display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center" }}
                     >
                       <img
                         src="/assets/images/icons/upload.png"
@@ -1058,7 +1062,7 @@ function Campaigns() {
                     </div>
 
                     <button
-                      className="btn btn-outline-primary btn-sm mt-3"
+                      className="btn btn-outline-primary btn-sm mt-3" style={{ padding: "15px 30px", fontSize: "14px", color: "#2E6F6E", borderColor: "#2E6F6E" }}
                       onClick={downloadSampleCSV}
                     >
                       📥 Download Sample Sheet
@@ -1137,14 +1141,14 @@ function Campaigns() {
                   )}
                   {currentStep < 3 ? (
                     <button
-                      className="btn btn-primary ms-auto"
+                      className="btn btn-primary ms-auto" style={{padding: "15px 25px", fontSize: "16px", backgroundColor: "#2E6F6E" }}
                       onClick={() => setCurrentStep(currentStep + 1)}
                     >
                       Next →
                     </button>
                   ) : (
                     <button
-                      className="btn btn-success ms-auto"
+                      className="btn btn-success ms-auto"  style={{padding: "15px 25px", fontSize: "16px", backgroundColor: "#2E6F6E"}}
                       onClick={handleSubmit}
                     >
                       ✅ Submit
