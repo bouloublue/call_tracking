@@ -9,6 +9,7 @@ import Leads from './pages/Leads';
 import Agents from './pages/Agents';
 import Manager from './pages/Manager';
 import Forms from './pages/forms';
+
 import CallLogs from './pages/CallLogs';
 import Profile from './pages/Profile';
 import Login from './pages/Auth/Login';

@@ -119,9 +119,9 @@ function Agents() {
                     <li className={styles.breadcrumbItem}>
                       <a href="/">Call Tracking</a>
                     </li>
-                    <li className={`${styles.breadcrumbItem} ${styles.active}`}>Agents</li>
+                    <li className={`${styles.breadcrumbItem} ${styles.active}`}>Buyer</li>
                   </ol>
-                  <h1 className={styles.pageTitle}>Agents</h1>
+                  <h1 className={styles.pageTitle}>Buyer</h1>
                 </div>
 
               </div>
@@ -137,8 +137,8 @@ function Agents() {
             <div className="d-flex justify-content-between align-items-center mb-3">
               {/* <h4>Agents</h4> */}
               <button className="btn btn-primary" style={{ alignItems: "left", padding: "15px 20px", fontSize: "16px", backgroundColor: "#2E6F6E" }}
-              onClick={() => setShowModal(true)}>
-                New Agent
+                onClick={() => setShowModal(true)}>
+                New Buyer
               </button>
             </div>
 
@@ -202,11 +202,11 @@ function Agents() {
                 />
 
                 {/* Slide-in Modal */}
-                <div className="slide-in-modal" style={{ width: "700px"}}>
+                <div className="slide-in-modal" style={{ width: "700px" }}>
                   <div className="p-4">
                     <div className="d-flex justify-content-between align-items-center mb-3" >
-                      <h5 className="mb-0" style={{ fontSize: "18px", fontWeight: "bold" }}> 
-                        {editMode ? "Edit User" : "New Agent"}
+                      <h5 className="mb-0" style={{ fontSize: "18px", fontWeight: "bold" }}>
+                        {editMode ? "Edit User" : "New Buyer"}
                       </h5>
                       <button
                         className="btn-close" style={{ fontSize: "24px" }}
@@ -281,16 +281,57 @@ function Agents() {
                     </div>
 
                     <div className="mb-3">
-                      <label className="form-label">Email</label>
-                      <input
-                        type="email"
-                        className="form-control" style={{ padding: "15px" }}
-                        value={formData.email}
-                        onChange={(e) =>
-                          setFormData({ ...formData, email: e.target.value })
-                        }
-                      />
+                      <label className="form-label" style={{ fontWeight: 600, fontSize: "16px" }}>
+                        Phone
+                      </label>
+                      <div className="input-group" style={{ alignItems: "center" }}>
+                        {/* Country Code Dropdown */}
+                        <select
+                          className="form-select" 
+                          style={{ maxWidth: "100px", padding:"15px 10px" }}
+                          value={formData.countryCode}
+                          onChange={(e) =>
+                            setFormData({ ...formData, countryCode: e.target.value })
+                          }
+                        >
+                          <option value="+91">IN +91</option>
+                          <option value="+1">US +1</option>
+                          <option value="+44">GB +44</option>
+                          <option value="+61">AU +61</option>
+                        </select>
+
+                        {/* Phone Input */}
+                        <input
+                          type="text"
+                          className="form-control"
+                          placeholder="Enter phone number"
+                          style={{ padding: "15px" }}
+                          value={formData.phone}
+                          onChange={(e) =>
+                            setFormData({ ...formData, phone: e.target.value })
+                          }
+                        />
+
+                        {/* Get OTP Button */}
+                        <button
+                          className="btn btn-primary" style={{padding:"15px 10px", background:"#2E6F6E"}}
+                          type="button"
+                          onClick={() => {
+                            const { countryCode, phone } = formData;
+                            if (!countryCode || !phone.trim()) {
+                              alert("❌ Please enter country code and phone number.");
+                            } else if (!/^\d{6,15}$/.test(phone)) {
+                              alert("❌ Invalid phone number format.");
+                            } else {
+                              alert(`✅ OTP sent successfully to ${countryCode}${phone}`);
+                            }
+                          }}
+                        >
+                          Get OTP
+                        </button>
+                      </div>
                     </div>
+
 
                     <div className="mb-3">
                       <label className="form-label">Password</label>
