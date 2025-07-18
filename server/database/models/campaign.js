@@ -15,32 +15,26 @@ Campaign.init({
     allowNull: false,
   },
 
-  user_id: {
-    type: DataTypes.UUID,
-    allowNull: false,
-    comment: 'Created by (Admin/Staff)',
-  },
-
-  client_id: {
-    type: DataTypes.UUID,
-    allowNull: false,
-    comment: 'Client who owns the campaign',
-  },
-
-  form_id: {
-    type: DataTypes.UUID,
-    allowNull: false,
-    comment: 'Linked form',
-  },
-
-  import_lead_fields: {
-    type: DataTypes.JSON, // parsed JSON
+  description: {
+    type: DataTypes.STRING,
     allowNull: true,
   },
 
-  file: {
-    type: DataTypes.STRING, // file path or URL
-    allowNull: true,
+  created_by: {
+    type: DataTypes.UUID,
+    allowNull: false,
+    comment: 'Created by Admin',
+  },
+
+  routing_method:{
+    type: DataTypes.ENUM('manual', 'smart'),
+    defaultValue: 'manual',
+    allowNull: false,
+  },
+
+  is_active: {
+    type: DataTypes.BOOLEAN, 
+    defaultValue: true,
   },
 
   deleted_at: {

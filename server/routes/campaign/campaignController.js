@@ -55,49 +55,6 @@ router.post("/", csvUpload.single("file"), async (req, res) => {
   }
 });
 
-
-// router.get("/", async (req, res) => {
-//   try {
-//     const campaigns = await Campaign.findAll({
-//       include: [
-//         {
-//           model: User,
-//           as: 'creator', // user_id
-//           required: false,
-//           attributes: ['id', 'name', 'email'],
-//         },
-//         {
-//           model: User,
-//           as: 'client', // client_id
-//           required: false,
-//           attributes: ['id', 'name', 'email'],
-//         },
-//         {
-//           model: Form,
-//           required: false,
-//           attributes: ['id', 'name'],
-//         }
-//       ],
-//       order: [['created_at', 'DESC']],
-//     });
-
-//     const formatted = campaigns.map((campaign) => {
-//       const obj = campaign.toJSON();
-//       return {
-//         ...obj,
-//         import_lead_fields: typeof obj.import_lead_fields === 'string'
-//           ? JSON.parse(obj.import_lead_fields)
-//           : obj.import_lead_fields || [],
-//       };
-//     });
-
-//     res.json(formatted);
-//   } catch (err) {
-//     console.error("Error fetching campaigns:", err);
-//     res.status(500).json({ error: "Internal server error" });
-//   }
-// });
-
 router.get("/", async (req, res) => {
   try {
     const campaigns = await Campaign.findAll({
