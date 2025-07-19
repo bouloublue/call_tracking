@@ -29,9 +29,6 @@ function Profile() {
 
             <SideBar />
             <div>
-
-
-
                 <div className="page-wrapper">
                     <div className="page-content">
                         <div className="container-fluid">

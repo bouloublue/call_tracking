@@ -1,463 +1,743 @@
 import React, { useState, useEffect } from "react";
 import SideBar from "../components/SideBar";
-import NavBar from "../components/NavBar";
-import Papa from "papaparse";
-import axios from "axios";
 import { toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
-const API_BASE_URL = import.meta.env.VITE_API_URL;
 import styles from "../pages/Home.module.css";
 
 function Campaigns() {
-  const [showModal, setShowModal] = useState(false);
-  const [currentStep, setCurrentStep] = useState(1);
+  const [showSidePanel, setShowSidePanel] = useState(false);
   const [editMode, setEditMode] = useState(false);
   const [editingCampaignId, setEditingCampaignId] = useState(null);
-  const [formData, setFormData] = useState({
+  const [activeTab, setActiveTab] = useState("settings");
+
+  // Simple form for side panel
+  const [newCampaign, setNewCampaign] = useState({
     name: "",
-    client_id: "",
-    form_id: "",
-    user_id: "67c7a808-038a-4b5c-b24f-216908ecb715",
-    leadsData: null,
-    leadsDataParsed: [],
-    fieldMap: {},
-    file: "",
+    country: "US",
   });
 
-  const [clients, setClients] = useState([]);
-  const [forms, setForms] = useState([]);
-  const [campaigns, setCampaigns] = useState([]);
+  // Detailed form for edit view
+  const [campaignDetails, setCampaignDetails] = useState({
+    name: "",
+    number: "",
+    payoutOncePerCall: false,
+    recordCalls: false,
+  });
+
+  const [campaigns, setCampaigns] = useState(() => {
+    return JSON.parse(localStorage.getItem("campaigns")) || [];
+  });
 
   useEffect(() => {
-    axios
-      .get(`${API_BASE_URL}/api/user/clients`)
-      .then((res) => setClients(res.data));
-    axios.get(`${API_BASE_URL}/api/form`).then((res) => setForms(res.data));
-    axios
-      .get(`${API_BASE_URL}/api/campaign`)
-      .then((res) => setCampaigns(res.data));
-  }, [showModal]);
+    localStorage.setItem("campaigns", JSON.stringify(campaigns));
+  }, [campaigns]);
 
-  const handleFileUpload = (e) => {
-    const file = e.target.files[0];
-    if (!file) return;
-
-    const fileName = `/uploads/campaigns/${Date.now()}-${file.name}`;
-
-    Papa.parse(file, {
-      header: true,
-      complete: (results) => {
-        const headers = results.meta.fields;
-        const filtered = results.data.filter((row) =>
-          Object.values(row).some((v) => v?.trim() !== "")
-        );
-        const initialMap = {};
-        headers.forEach((header) => (initialMap[header] = ""));
-        setFormData((prev) => ({
-          ...prev,
-          leadsData: file,
-          leadsDataParsed: filtered,
-          fieldMap: initialMap,
-          file: fileName,
-        }));
-      },
-    });
-  };
-
-  const downloadSampleCSV = () => {
-    const csvContent =
-      "data:text/csv;charset=utf-8," +
-      "name,email,company,phone\nJohn Doe,john@example.com,ABC Corp,1234567890";
-    const encodedUri = encodeURI(csvContent);
-    const link = document.createElement("a");
-    link.setAttribute("href", encodedUri);
-    link.setAttribute("download", "sample_leads.csv");
-    document.body.appendChild(link);
-    link.click();
-    document.body.removeChild(link);
-  };
-
-  // const handleSubmit = async () => {
-  //   if (Object.values(formData.fieldMap).filter((v) => v).length < 3) {
-  //     alert("Please map at least 3 fields.");
-  //     return;
-  //   }
-
-  //   const payload = {
-  //     name: formData.name,
-  //     user_id: formData.user_id,
-  //     client_id: formData.client_id,
-  //     form_id: formData.form_id,
-  //     import_lead_fields: JSON.stringify(formData.fieldMap),
-  //     file: formData.file,
-  //     leadsDataParsed: formData.leadsDataParsed,
-  //   };
-
-  //   try {
-  //     if (editMode && editingCampaignId) {
-  //       await axios.put(
-  //         `${API_BASE_URL}/api/campaign/${editingCampaignId}`,
-  //         payload
-  //       );
-  //     } else {
-  //       await axios.post(`${API_BASE_URL}/api/campaign`, payload);
-
-  //       // Save leads to localStorage for now
-  //       const savedLeads = JSON.parse(localStorage.getItem("leads")) || [];
-  //       const updatedLeads = [
-  //         ...savedLeads,
-  //         ...formData.leadsDataParsed.map((lead) => ({
-  //           campaignName: formData.name,
-  //           ...lead,
-  //         })),
-  //       ];
-  //       localStorage.setItem("leads", JSON.stringify(updatedLeads));
-  //     }
-
-  //     setShowModal(false);
-  //     setEditMode(false);
-  //     setEditingCampaignId(null);
-  //     setCurrentStep(1);
-  //     setFormData({
-  //       name: "",
-  //       client_id: "",
-  //       form_id: "",
-  //       user_id: formData.user_id,
-  //       leadsData: null,
-  //       leadsDataParsed: [],
-  //       fieldMap: {},
-  //       file: "",
-  //     });
-  //   } catch (err) {
-  //     console.error("Submission error", err);
-  //     alert("Failed to save campaign.");
-  //   }
-  // };
-
-  const handleSubmit = async () => {
-    if (Object.values(formData.fieldMap).filter((v) => v).length < 3) {
-      alert("Please map at least 3 fields.");
+  const createCampaign = () => {
+    if (!newCampaign.name) {
+      toast.error("Please enter a campaign name");
       return;
     }
 
-    try {
-      const payload = new FormData();
-      payload.append("name", formData.name);
-      payload.append("user_id", formData.user_id);
-      payload.append("client_id", formData.client_id);
-      payload.append("form_id", formData.form_id);
-      payload.append("import_lead_fields", JSON.stringify(formData.fieldMap));
-      if (formData.leadsData) {
-        payload.append("file", formData.leadsData);
-      }
-      payload.append(
-        "leadsDataParsed",
-        JSON.stringify(formData.leadsDataParsed)
-      );
+    const campaign = {
+      id: Date.now().toString(),
+      name: newCampaign.name,
+      country: newCampaign.country,
+      // Don't include other details yet
+    };
 
-      if (editMode && editingCampaignId) {
-        await axios.put(
-          `${API_BASE_URL}/api/campaign/${editingCampaignId}`,
-          payload,
-          {
-            headers: { "Content-Type": "multipart/form-data" },
-          }
-        );
-        toast.success("Campaign updated successfully");
-      } else {
-        await axios.post(`${API_BASE_URL}/api/campaign`, payload, {
-          headers: { "Content-Type": "multipart/form-data" },
-        });
-        toast.success("Campaign addes successfully");
-      }
-
-      // Reset
-      setShowModal(false);
-      setEditMode(false);
-      setEditingCampaignId(null);
-      setCurrentStep(1);
-      setFormData({
-        name: "",
-        client_id: "",
-        form_id: "",
-        user_id: formData.user_id,
-        leadsData: null,
-        leadsDataParsed: [],
-        fieldMap: {},
-        file: "",
-      });
-    } catch (err) {
-      console.error("Submission error", err);
-      toast.error("Failed to save campaigny");
-    }
+    setCampaigns([...campaigns, campaign]);
+    toast.success("Campaign created successfully");
+    setNewCampaign({ name: "", country: "US" });
+    setShowSidePanel(false);
   };
 
-  const handleDelete = async (id) => {
+  const updateCampaign = () => {
+    setCampaigns(
+      campaigns.map((c) =>
+        c.id === editingCampaignId ? { ...c, ...campaignDetails } : c
+      )
+    );
+    toast.success("Campaign updated successfully");
+    setEditMode(false);
+  };
+
+  const deleteCampaign = (id) => {
     if (!window.confirm("Are you sure you want to delete this campaign?"))
       return;
-    try {
-      await axios.delete(`${API_BASE_URL}/api/campaign/${id}`);
-      setCampaigns((prev) => prev.filter((c) => c.id !== id));
-      toast.success("Campaign Deleted Successfully");
-    } catch (err) {
-      console.error("Delete failed", err);
-      toast.error("Failed to delete campaign");
-    }
+    setCampaigns(campaigns.filter((c) => c.id !== id));
+    toast.success("Campaign deleted successfully");
   };
 
-  // Handle parsing selected form fields
-  const selectedForm = forms.find((f) => f.id === formData.form_id);
-  const selectedFields =
-    selectedForm?.fields && typeof selectedForm.fields === "string"
-      ? JSON.parse(selectedForm.fields)
-      : selectedForm?.fields || [];
-  // const selectedFields = ["Name", "Email", "Phone number", "Company"];
+  const toggleSetting = (field) => {
+    setCampaignDetails((prev) => ({ ...prev, [field]: !prev[field] }));
+  };
 
   return (
     <>
-      {/* NavBar and SideBar */}
+      <div className={styles.homePageContainer}>
+        {/* Page Title Section */}
+        <div className={styles.pageTitleBox}>
+          <div className={styles.pageTitleContainer}>
+            <div className={`${styles.row} ${styles.gap0}`}>
+              <div className={styles.col12}>
+                <div className={`${styles.pageTitleContent} ${styles.dSmFlex} ${styles.justifyContentSmBetween} ${styles.alignItemsCenter}`}>
+                  {/* Left Section - Title & Breadcrumb */}
+                  <div>
+                    <ol className={styles.breadcrumb}>
+                      <li className={styles.breadcrumbItem}>
+                        <a href="/">Call Tracking</a>
+                      </li>
+                      <li className={`${styles.breadcrumbItem} ${styles.active}`}>campaign</li>
+                    </ol>
+                    <h1 className={styles.pageTitle}>Campaign </h1>
+                  </div>
 
+                  {/* Right Section - Notification + Date Filter */}
+                  <div className={styles.dateFilter} style={{ display: "flex", alignItems: "center" }}>
+                    {/* 🔔 Notification Button */}
+                    <button
+                      style={{
+                        width: "38px",
+                        height: "38px",
+                        borderRadius: "50%",
+                        border: "none",
+                        backgroundColor: "#f2f2f2",
+                        marginRight: "10px",
+                        position: "relative",
+                        display: "flex",
+                        alignItems: "center",
+                        justifyContent: "center",
+                        cursor: "pointer",
+                      }}
+                    >
+                      <img
+                        src="/assets/images/notification.png"
+                        alt="Notify"
+                        style={{ width: "18px", height: "18px" }}
+                      />
+                      {/* Red Dot */}
+                      <span
+                        style={{
+                          position: "absolute",
+                          top: "6px",
+                          right: "6px",
+                          width: "8px",
+                          height: "8px",
+                          backgroundColor: "red",
+                          borderRadius: "50%",
+                        }}
+                      ></span>
+                    </button>
 
-      <div className={styles.pageTitleBox}>
-        <div className={styles.pageTitleContainer}>
-          <div className={`${styles.row} ${styles.gap0}`}>
-            <div className={styles.col12}>
-              <div className={`${styles.pageTitleContent} ${styles.dSmFlex} ${styles.justifyContentSmBetween} ${styles.alignItemsCenter}`}>
-                <div>
-                  <ol className={styles.breadcrumb}>
-                    <li className={styles.breadcrumbItem}>
-                      <a href="/">Call Tracking</a>
-                    </li>
-                    <li className={`${styles.breadcrumbItem} ${styles.active}`}>Campaigns</li>
-                  </ol>
-                  <h1 className={styles.pageTitle}>Campaigns</h1>
+                    {/* 📅 Date Range */}
+                    <span className={styles.dateRange}>Jun 16, 2025 - Jul 10, 2025</span>
+
+                    {/* Filter Button */}
+                    <button className={styles.filterBtn} style={{ marginLeft: "10px" }}>
+                      Filter
+                    </button>
+                  </div>
                 </div>
-
               </div>
             </div>
           </div>
         </div>
-      </div>
 
-      <SideBar />
-
-      {/* Main Content */}
       <div className="page-wrapper">
         <div className="page-content container-fluid">
-          <div className="d-flex justify-content-between align-items-center mb-3">
-            <button
-              className="btn btn-primary" style={{ alignItems: "left", padding: "15px 20px", fontSize: "16px", backgroundColor: "#2E6F6E" }}
-              onClick={() => setShowModal(true)}
-            >
-              + Add Campaign
-            </button>
-          </div>
+          {!editMode ? (
+            <>
+              <div className="d-flex justify-content-between align-items-center mb-3">
+                <button
+                  className="btn btn-primary"
+                  style={{
+                    padding: "12px 20px",
+                    backgroundColor: "#2E6F6E",
+                    border: "none",
+                    borderRadius: "8px",
+                  }}
+                  onClick={() => setShowSidePanel(true)}
+                >
+                  + Add Campaign
+                </button>
+              </div>
 
-          {/* Campaign List Table Styled Like Screenshot */}
-          {/* Campaign List Table Styled Like Screenshot */}
-          <div className="card shadow-sm border-0">
-            <div className="card-body p-4">
-              <table className="table table-hover align-middle mb-0">
-                <thead className="table-light">
-                  <tr>
-                    <th style={{ fontSize: "14px", fontWeight: 600, color: "#aca9a9ff" }}>CAMPAIGN</th>
-                    <th style={{ fontSize: "14px", fontWeight: 600, color: "#aca9a9ff" }}>AGENT</th>
-                    <th style={{ fontSize: "14px", fontWeight: 600, color: "#aca9a9ff" }}>FORM</th>
-                    <th style={{ fontSize: "14px", fontWeight: 600, color: "#aca9a9ff" }}>LAST ACTIONER</th>
-                    <th style={{ fontSize: "14px", fontWeight: 600, color: "#aca9a9ff" }}>ACTIONS</th>
-                  </tr>
-                </thead>
-                <tbody>
-                  {campaigns.map((c) => (
-                    <tr key={c.id}>
-                      <td>
-                        <span className="badge bg-light text-dark px-3 py-2 rounded-pill text-capitalize fw-medium">
-                          {c.name}
-                        </span>
-                      </td>
-                      <td className="d-flex align-items-center gap-2">
-                        <div
-                          className="rounded-circle bg-primary text-white d-flex justify-content-center align-items-center"
-                          style={{ width: 35, height: 35, fontWeight: 600 }}
-                        >
-                          {getInitials(c.client?.name)}
-                        </div>
-                        <span>{c.client?.name}</span>
-                      </td>
-                      <td>{c.form?.name || "N/A"}</td>
-                      <td>Admin</td>
-                      <td>
-                        <button
-                          className="btn btn-sm me-2 p-1"
-                          title="Edit"
-                          onClick={() => {
-                            setEditMode(true);
-                            setShowModal(true);
-                            setEditingCampaignId(c.id);
-                            setFormData({
-                              name: c.name,
-                              client_id: c.client_id,
-                              form_id: c.form_id,
-                              user_id: c.user_id,
-                              fieldMap:
-                                typeof c.import_lead_fields === "string"
-                                  ? JSON.parse(c.import_lead_fields)
-                                  : c.import_lead_fields || {},
-                              file: c.file || "",
-                              leadsData: null,
-                              leadsDataParsed: [],
-                            });
+              <div className="card shadow-sm border-0">
+                <div className="card-body p-4">
+                  <table className="table table-hover align-middle mb-0">
+                    <thead className="table-light">
+                      <tr>
+                        <th
+                          style={{
+                            fontSize: "14px",
+                            fontWeight: 600,
+                            color: "#aca9a9ff",
                           }}
                         >
-                          <img src="/assets/images/icons/edit.png" alt="Edit" width="16" />
-                        </button>
-                        <button
-                          className="btn btn-sm p-1"
-                          title="Delete"
-                          onClick={() => handleDelete(c.id)}
+                          CAMPAIGN
+                        </th>
+                        <th
+                          style={{
+                            fontSize: "14px",
+                            fontWeight: 600,
+                            color: "#aca9a9ff",
+                          }}
                         >
-                          <img src="/assets/images/icons/delete.png" alt="Delete" width="16" />
-                        </button>
-                      </td>
-                    </tr>
-                  ))}
-                </tbody>
-              </table>
+                          COUNTRY
+                        </th>
+                        <th
+                          style={{
+                            fontSize: "14px",
+                            fontWeight: 600,
+                            color: "#aca9a9ff",
+                          }}
+                        >
+                          ACTIONS
+                        </th>
+                      </tr>
+                    </thead>
+                    <tbody>
+                      {campaigns.map((c) => (
+                        <tr key={c.id}>
+                          <td style={{ fontSize: "18px" }}>
+                            <span className="badge bg-light text-dark px-3 py-2 rounded-pill">
+                              {c.name}
+                            </span>
+                          </td>
+                          <td style={{ fontSize: "18px" }}>{c.country}</td>
+                          <td>
+                            <button
+                              className="btn btn-sm me-2 p-1"
+                              onClick={() => {
+                                setEditingCampaignId(c.id);
+                                setEditMode(true);
+                                // Only load basic info initially
+                                setCampaignDetails({
+                                  name: c.name,
+                                  number: c.number || "",
+                                  reportDuplicateCalls:
+                                    c.reportDuplicateCalls || "connect",
+                                  readPreviouslyConnectedCalls:
+                                    c.readPreviouslyConnectedCalls ||
+                                    "normally",
+                                  handleAnonymousCalls:
+                                    c.handleAnonymousCalls || false,
+                                  payoutOncePerCall:
+                                    c.payoutOncePerCall || false,
+                                  recordCalls: c.recordCalls || false,
+                                });
+                              }}
+                            >
+                              <img
+                                src="/assets/images/icons/edit.png"
+                                alt="Edit"
+                                width="16"
+                              />
+                            </button>
+                            <button
+                              className="btn btn-sm p-1"
+                              onClick={() => deleteCampaign(c.id)}
+                            >
+                              <img
+                                src="/assets/images/icons/delete.png"
+                                alt="Delete"
+                                width="16"
+                              />
+                            </button>
+                          </td>
+                        </tr>
+                      ))}
+                    </tbody>
+                  </table>
+                </div>
+              </div>
+            </>
+          ) : (
+            /* EDIT CAMPAIGN VIEW - Two Column Layout */
+            <div className="card shadow-sm border-0">
+              <div className="card-body p-4">
+                <div className="d-flex justify-content-between align-items-center mb-4">
+                  <h4 style={{ fontSize: "20px", fontWeight: "bold" }}>
+                    Edit Campaign
+                  </h4>
+                  <button
+                  className="btn btn-primary"
+                        style={{
+                          padding: "10px 24px",
+                          backgroundColor: "#2E6F6E",
+                          border: "none",
+                          borderRadius: "6px",
+                          fontWeight: "500",
+                          fontSize: "14px",
+                        }}
+                    onClick={() => setEditMode(false)}
+                  >Back to Campaigns</button>
+                </div>
+
+                {/* Tabs */}
+                <div className="d-flex border-bottom mb-4">
+                  <button
+                    className={`btn btn-link ${
+                      activeTab === "settings" ? "text-dark" : "text-muted"
+                    }`}
+                    style={{
+                      borderBottom:
+                        activeTab === "settings" ? "2px solid #2E6F6E" : "none",
+                      padding: "10px 15px",
+                    }}
+                    onClick={() => setActiveTab("settings")}
+                  >
+                    Campaign Settings
+                  </button>
+                  <button
+                    className={`btn btn-link ${
+                      activeTab === "performance" ? "text-dark" : "text-muted"
+                    }`}
+                    style={{
+                      borderBottom:
+                        activeTab === "performance"
+                          ? "2px solid #2E6F6E"
+                          : "none",
+                      padding: "10px 15px",
+                    }}
+                    onClick={() => setActiveTab("performance")}
+                  >
+                    Performance Summary
+                  </button>
+                </div>
+
+                {activeTab === "settings" ? (
+                  <div>
+                    {/* General Info Section */}
+                    <div className="mb-5">
+                      <div
+                        className="d-flex align-items-center mb-3"
+                        style={{
+                          borderBottom: "1px solid #eee",
+                          paddingBottom: "8px",
+                        }}
+                      >
+                        <div
+                          style={{
+                            width: "4px",
+                            height: "20px",
+                            backgroundColor: "#2E6F6E",
+                            marginRight: "12px",
+                            borderRadius: "2px",
+                          }}
+                        ></div>
+                        <h5
+                          style={{
+                            fontSize: "16px",
+                            fontWeight: "600",
+                            margin: 0,
+                          }}
+                        >
+                          General Info
+                        </h5>
+                      </div>
+
+                      <div className="row mb-3">
+                        <div className="col-md-4">
+                          <label
+                            className="form-label"
+                            style={{
+                              fontSize: "14px",
+                              color: "#6c757d",
+                              fontWeight: "500",
+                              display: "flex",
+                              alignItems: "center",
+                              height: "100%",
+                            }}
+                          >
+                            Campaign ID
+                          </label>
+                        </div>
+                        <div className="col-md-8">
+                          <div
+                            style={{
+                              padding: "10px 12px",
+                              backgroundColor: "#f8f9fa",
+                              borderRadius: "6px",
+                              fontSize: "14px",
+                              border: "1px solid #e9ecef",
+                            }}
+                          >
+                            {editingCampaignId || "N/A"}
+                          </div>
+                        </div>
+                      </div>
+
+                      <div className="row mb-3">
+                        <div className="col-md-4">
+                          <label
+                            className="form-label"
+                            style={{
+                              fontSize: "14px",
+                              color: "#6c757d",
+                              fontWeight: "500",
+                              display: "flex",
+                              alignItems: "center",
+                              height: "100%",
+                            }}
+                          >
+                            Campaign Name
+                          </label>
+                        </div>
+                        <div className="col-md-8">
+                          <input
+                            type="text"
+                            className="form-control"
+                            style={{
+                              padding: "10px 12px",
+                              fontSize: "14px",
+                              borderRadius: "6px",
+                              border: "1px solid #e9ecef",
+                            }}
+                            value={campaignDetails.name}
+                            onChange={(e) =>
+                              setCampaignDetails({
+                                ...campaignDetails,
+                                name: e.target.value,
+                              })
+                            }
+                          />
+                        </div>
+                      </div>
+
+                      <div className="row mb-3">
+                        <div className="col-md-4">
+                          <label
+                            className="form-label"
+                            style={{
+                              fontSize: "14px",
+                              color: "#6c757d",
+                              fontWeight: "500",
+                              display: "flex",
+                              alignItems: "center",
+                              height: "100%",
+                            }}
+                          >
+                            Number
+                          </label>
+                        </div>
+                        <div className="col-md-8">
+                          <select
+                            className="form-select"
+                            style={{
+                              padding: "10px 12px",
+                              fontSize: "14px",
+                              borderRadius: "6px",
+                              border: "1px solid #e9ecef",
+                            }}
+                            value={campaignDetails.number}
+                            onChange={(e) =>
+                              setCampaignDetails({
+                                ...campaignDetails,
+                                number: e.target.value,
+                              })
+                            }
+                          >
+                            <option value="">Select a number</option>
+                            <option value="7012345678">7012345678</option>
+                            <option value="7023456789">7023456789</option>
+                            <option value="7034567890">7034567890</option>
+                          </select>
+                        </div>
+                      </div>
+
+                      <div className="row">
+                        <div className="col-md-4">
+                          <label
+                            className="form-label"
+                            style={{
+                              fontSize: "14px",
+                              color: "#6c757d",
+                              fontWeight: "500",
+                              display: "flex",
+                              alignItems: "center",
+                              height: "100%",
+                            }}
+                          >
+                            Routing Method
+                          </label>
+                        </div>
+                        <div className="col-md-8">
+                          <select
+                            className="form-select"
+                            style={{
+                              padding: "10px 12px",
+                              fontSize: "14px",
+                              borderRadius: "6px",
+                              border: "1px solid #e9ecef",
+                            }}
+                            value={campaignDetails.routingMethod}
+                            onChange={(e) =>
+                              setCampaignDetails({
+                                ...campaignDetails,
+                                routingMethod: e.target.value,
+                              })
+                            }
+                          >
+                            <option value="manual">Manual</option>
+                            <option value="smart">Smart</option>
+                          </select>
+                        </div>
+                      </div>
+                    </div>
+
+                    {/* Call Settings Section */}
+                    <div className="mb-5">
+                      <div
+                        className="d-flex align-items-center mb-3"
+                        style={{
+                          borderBottom: "1px solid #eee",
+                          paddingBottom: "8px",
+                        }}
+                      >
+                        <div
+                          style={{
+                            width: "4px",
+                            height: "20px",
+                            backgroundColor: "#2E6F6E",
+                            marginRight: "12px",
+                            borderRadius: "2px",
+                          }}
+                        ></div>
+                        <h5
+                          style={{
+                            fontSize: "16px",
+                            fontWeight: "600",
+                            margin: 0,
+                          }}
+                        >
+                          Call Settings
+                        </h5>
+                      </div>
+
+                      <div className="row mb-3">
+                        <div className="col-md-4">
+                          <label
+                            className="form-label"
+                            style={{
+                              fontSize: "14px",
+                              color: "#6c757d",
+                              fontWeight: "500",
+                              display: "flex",
+                              alignItems: "center",
+                              height: "100%",
+                            }}
+                          >
+                            Payout Once Per Call
+                          </label>
+                        </div>
+                        <div className="col-md-8 d-flex align-items-center">
+                          <div
+                            onClick={() => toggleSetting("payoutOncePerCall")}
+                            style={{
+                              width: "40px",
+                              height: "20px",
+                              borderRadius: "10px",
+                              backgroundColor: campaignDetails.payoutOncePerCall
+                                ? "#2E6F6E"
+                                : "#e9ecef",
+                              position: "relative",
+                              cursor: "pointer",
+                              transition: "background-color 0.2s",
+                            }}
+                          >
+                            <div
+                              style={{
+                                width: "16px",
+                                height: "16px",
+                                borderRadius: "50%",
+                                backgroundColor: "#fff",
+                                position: "absolute",
+                                top: "2px",
+                                left: campaignDetails.payoutOncePerCall
+                                  ? "22px"
+                                  : "2px",
+                                transition: "left 0.2s",
+                                boxShadow: "0 1px 3px rgba(0,0,0,0.1)",
+                              }}
+                            ></div>
+                          </div>
+                        </div>
+                      </div>
+
+                      <div className="row">
+                        <div className="col-md-4">
+                          <label
+                            className="form-label"
+                            style={{
+                              fontSize: "14px",
+                              color: "#6c757d",
+                              fontWeight: "500",
+                              display: "flex",
+                              alignItems: "center",
+                              height: "100%",
+                            }}
+                          >
+                            Record Calls
+                          </label>
+                        </div>
+                        <div className="col-md-8 d-flex align-items-center">
+                          <div
+                            onClick={() => toggleSetting("recordCalls")}
+                            style={{
+                              width: "40px",
+                              height: "20px",
+                              borderRadius: "10px",
+                              backgroundColor: campaignDetails.recordCalls
+                                ? "#2E6F6E"
+                                : "#e9ecef",
+                              position: "relative",
+                              cursor: "pointer",
+                              transition: "background-color 0.2s",
+                            }}
+                          >
+                            <div
+                              style={{
+                                width: "16px",
+                                height: "16px",
+                                borderRadius: "50%",
+                                backgroundColor: "#fff",
+                                position: "absolute",
+                                top: "2px",
+                                left: campaignDetails.recordCalls
+                                  ? "22px"
+                                  : "2px",
+                                transition: "left 0.2s",
+                                boxShadow: "0 1px 3px rgba(0,0,0,0.1)",
+                              }}
+                            ></div>
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+
+                    {/* Save Button */}
+                    <div className="d-flex justify-content-end mt-4">
+                      <button
+                        className="btn btn-primary"
+                        style={{
+                          padding: "10px 24px",
+                          backgroundColor: "#2E6F6E",
+                          border: "none",
+                          borderRadius: "6px",
+                          fontWeight: "500",
+                          fontSize: "14px",
+                        }}
+                        onClick={updateCampaign}
+                      >
+                        Save
+                      </button>
+                    </div>
+                  </div>
+                ) : (
+                  <div className="text-center py-4">
+                    <p style={{ color: "#6c757d" }}>
+                      Performance summary will appear here
+                    </p>
+                  </div>
+                )}
+              </div>
             </div>
-          </div>
+          )}
 
+          {/* ADD CAMPAIGN SIDE PANEL */}
+          {showSidePanel && (
+            <>
+              <div
+                className="offcanvas-backdrop show"
+                onClick={() => setShowSidePanel(false)}
+                style={{
+                  position: "fixed",
+                  top: 0,
+                  left: 0,
+                  width: "100vw",
+                  height: "100vh",
+                  backgroundColor: "rgba(0,0,0,0.5)",
+                  zIndex: 1040,
+                }}
+              ></div>
 
+              <div
+                className="offcanvas-panel"
+                style={{
+                  position: "fixed",
+                  top: 0,
+                  right: 0,
+                  height: "100vh",
+                  width: "400px",
+                  backgroundColor: "#fff",
+                  boxShadow: "-2px 0 10px rgba(0,0,0,0.1)",
+                  zIndex: 1050,
+                  padding: "20px",
+                  overflowY: "auto",
+                }}
+              >
+                <div className="d-flex justify-content-between align-items-center mb-4">
+                  <h4 style={{ fontSize: "20px", fontWeight: "bold" }}>
+                    New Campaign
+                  </h4>
+                  <button
+                    className="btn-close"
+                    onClick={() => setShowSidePanel(false)}
+                  ></button>
+                </div>
 
-{/* Modal Drawer */}
-{showModal && (
-  <>
-    {/* Overlay */}
-    <div
-      className="offcanvas-backdrop show"
-      onClick={() => {
-        setShowModal(false);
-        setCurrentStep(1);
-      }}
-      style={{
-        position: "fixed",
-        top: 0,
-        left: 0,
-        width: "100vw",
-        height: "100vh",
-        backgroundColor: "rgba(0,0,0,0.5)",
-        zIndex: 1040,
-      }}
-    ></div>
+                <div className="mb-4">
+                  <label className="form-label">Campaign Name</label>
+                  <input
+                    type="text"
+                    className="form-control"
+                    value={newCampaign.name}
+                    onChange={(e) =>
+                      setNewCampaign({ ...newCampaign, name: e.target.value })
+                    }
+                  />
+                </div>
 
-    {/* Modal */}
-    <div
-      className="offcanvas-panel"
-      style={{
-        position: "fixed",
-        top: 0,
-        right: 0,
-        height: "100vh",
-        width: "30%",
-        backgroundColor: "#fff",
-        boxShadow: "-2px 0 10px rgba(0,0,0,0.15)",
-        zIndex: 1050,
-        overflowY: "auto",
-        padding: "10px",
-      }}
-    >
-      <div className="p-4">
-        <div className="d-flex justify-content-between align-items-center mb-3">
-          <h5 className="mb-0" style={{ fontSize: "20px", fontWeight: "bold", marginBottom: "24px" }}>
-            {editMode ? "Edit Campaign" : "New Campaign"}
-          </h5>
-          <button
-            className="btn-close"
-            style={{ fontSize: "24px" }}
-            onClick={() => {
-              setShowModal(false);
-              setEditMode(false);
-              setEditingCampaignId(null);
-              resetForm();
-            }}
-          ></button>
-        </div>
+                <div className="mb-4">
+                  <label className="form-label">Country</label>
+                  <select
+                    className="form-select"
+                    value={newCampaign.country}
+                    onChange={(e) =>
+                      setNewCampaign({
+                        ...newCampaign,
+                        country: e.target.value,
+                      })
+                    }
+                  >
+                    <option value="US">United States</option>
+                    <option value="UK">United Kingdom</option>
+                    <option value="CA">Canada</option>
+                    <option value="AU">Australia</option>
+                  </select>
+                </div>
 
-        {/* 👇 Description Field */}
-        <div className="mb-3">
-          <label className="form-label" style={{ marginBottom: "10px", fontSize: "18px" }}>Description</label>
-          <textarea
-            className="form-control"
-            style={{ padding: "15px" }}
-            rows={3}
-            value={formData.description || ""}
-            onChange={(e) =>
-              setFormData({ ...formData, description: e.target.value })
-            }
-          ></textarea>
-        </div>
-
-        {/* 👇 Numbers Multi-select Dropdown */}
-        <div className="mb-3">
-          <label className="form-label" style={{ marginBottom: "10px", fontSize: "18px" }}>Numbers</label>
-          <select
-            className="form-select"
-            multiple
-            style={{ padding: "15px", height: "120px" }}
-            value={formData.numbers || []}
-            onChange={(e) => {
-              const selectedOptions = Array.from(e.target.selectedOptions).map(opt => opt.value);
-              setFormData({ ...formData, numbers: selectedOptions });
-            }}
-          >
-
-            <option value="7012345678">7012345678</option>
-          </select>
-          <small className="text-muted">Hold Ctrl (Windows) or Command (Mac) to select multiple numbers.</small>
-        </div>
-
-        {/* 👇 Campaign Name Field */}
-        <div className="mb-3">
-          <label className="form-label" style={{ marginBottom: "20px", fontSize: "20px" }}>
-            Name Campaign
-          </label>
-          <input
-            type="text"
-            className="form-control"
-            style={{ padding: "15px" }}
-            value={formData.name}
-            onChange={(e) =>
-              setFormData({ ...formData, name: e.target.value })
-            }
-          />
-        </div>
-
-        {/* 👇 Action Buttons */}
-        <div className="d-flex justify-content-end gap-2 mt-4">
-          <button
-            className="btn btn-outline-secondary"
-            onClick={() => {
-              setShowModal(false);
-              setEditMode(false);
-              setEditingCampaignId(null);
-              resetForm();
-            }}
-          >
-            Cancel
-          </button>
-          <button
-            className="btn btn-primary"
-            style={{ backgroundColor: "#2E6F6E" }}
-            onClick={handleSubmit}
-          >
-            {editMode ? "Update" : "Create"}
-          </button>
+                <div className="d-flex justify-content-end gap-2">
+                  <button
+                    className="btn btn-outline-secondary"
+                    onClick={() => setShowSidePanel(false)}
+                  >
+                    Cancel
+                  </button>
+                  <button
+                    className="btn btn-primary"
+                    style={{ backgroundColor: "#2E6F6E", border: "none" }}
+                    onClick={createCampaign}
+                  >
+                    Add
+                  </button>
+                </div>
+              </div>
+            </>
+          )}
         </div>
       </div>
-    </div>
-  </>
-)}
-
-        </div>
       </div>
     </>
   );
