@@ -253,8 +253,8 @@ function Campaigns() {
             </button>
           </div>
 
-          {/* Campaign List Table Styled Like Screenshot */}
-          {/* Campaign List Table Styled Like Screenshot */}
+       
+          {/* Campaign List Table Style */}
           <div className="card shadow-sm border-0">
             <div className="card-body p-4">
               <table className="table table-hover align-middle mb-0">
@@ -328,134 +328,134 @@ function Campaigns() {
 
 
 
-{/* Modal Drawer */}
-{showModal && (
-  <>
-    {/* Overlay */}
-    <div
-      className="offcanvas-backdrop show"
-      onClick={() => {
-        setShowModal(false);
-        setCurrentStep(1);
-      }}
-      style={{
-        position: "fixed",
-        top: 0,
-        left: 0,
-        width: "100vw",
-        height: "100vh",
-        backgroundColor: "rgba(0,0,0,0.5)",
-        zIndex: 1040,
-      }}
-    ></div>
+          {/* Modal Drawer */}
+          {showModal && (
+            <>
+              {/* Overlay */}
+              <div
+                className="offcanvas-backdrop show"
+                onClick={() => {
+                  setShowModal(false);
+                  setCurrentStep(1);
+                }}
+                style={{
+                  position: "fixed",
+                  top: 0,
+                  left: 0,
+                  width: "100vw",
+                  height: "100vh",
+                  backgroundColor: "rgba(0,0,0,0.5)",
+                  zIndex: 1040,
+                }}
+              ></div>
 
-    {/* Modal */}
-    <div
-      className="offcanvas-panel"
-      style={{
-        position: "fixed",
-        top: 0,
-        right: 0,
-        height: "100vh",
-        width: "30%",
-        backgroundColor: "#fff",
-        boxShadow: "-2px 0 10px rgba(0,0,0,0.15)",
-        zIndex: 1050,
-        overflowY: "auto",
-        padding: "10px",
-      }}
-    >
-      <div className="p-4">
-        <div className="d-flex justify-content-between align-items-center mb-3">
-          <h5 className="mb-0" style={{ fontSize: "20px", fontWeight: "bold", marginBottom: "24px" }}>
-            {editMode ? "Edit Campaign" : "New Campaign"}
-          </h5>
-          <button
-            className="btn-close"
-            style={{ fontSize: "24px" }}
-            onClick={() => {
-              setShowModal(false);
-              setEditMode(false);
-              setEditingCampaignId(null);
-              resetForm();
-            }}
-          ></button>
-        </div>
+              {/* Modal */}
+              <div
+                className="offcanvas-panel"
+                style={{
+                  position: "fixed",
+                  top: 0,
+                  right: 0,
+                  height: "100vh",
+                  width: "30%",
+                  backgroundColor: "#fff",
+                  boxShadow: "-2px 0 10px rgba(0,0,0,0.15)",
+                  zIndex: 1050,
+                  overflowY: "auto",
+                  padding: "10px",
+                }}
+              >
+                <div className="p-4">
+                  <div className="d-flex justify-content-between align-items-center mb-3">
+                    <h5 className="mb-0" style={{ fontSize: "20px", fontWeight: "bold", marginBottom: "24px" }}>
+                      {editMode ? "Edit Campaign" : "New Campaign"}
+                    </h5>
+                    <button
+                      className="btn-close"
+                      style={{ fontSize: "24px" }}
+                      onClick={() => {
+                        setShowModal(false);
+                        setEditMode(false);
+                        setEditingCampaignId(null);
+                        resetForm();
+                      }}
+                    ></button>
+                  </div>
 
-        {/* 👇 Description Field */}
-        <div className="mb-3">
-          <label className="form-label" style={{ marginBottom: "10px", fontSize: "18px" }}>Description</label>
-          <textarea
-            className="form-control"
-            style={{ padding: "15px" }}
-            rows={3}
-            value={formData.description || ""}
-            onChange={(e) =>
-              setFormData({ ...formData, description: e.target.value })
-            }
-          ></textarea>
-        </div>
+                  {/* 👇 Description Field */}
+                  <div className="mb-3">
+                    <label className="form-label" style={{ marginBottom: "10px", fontSize: "18px" }}>Description</label>
+                    <textarea
+                      className="form-control"
+                      style={{ padding: "15px" }}
+                      rows={3}
+                      value={formData.description || ""}
+                      onChange={(e) =>
+                        setFormData({ ...formData, description: e.target.value })
+                      }
+                    ></textarea>
+                  </div>
 
-        {/* 👇 Numbers Multi-select Dropdown */}
-        <div className="mb-3">
-          <label className="form-label" style={{ marginBottom: "10px", fontSize: "18px" }}>Numbers</label>
-          <select
-            className="form-select"
-            multiple
-            style={{ padding: "15px", height: "120px" }}
-            value={formData.numbers || []}
-            onChange={(e) => {
-              const selectedOptions = Array.from(e.target.selectedOptions).map(opt => opt.value);
-              setFormData({ ...formData, numbers: selectedOptions });
-            }}
-          >
+                  {/* 👇 Numbers Multi-select Dropdown */}
+                  <div className="mb-3">
+                    <label className="form-label" style={{ marginBottom: "10px", fontSize: "18px" }}>Numbers</label>
+                    <select
+                      className="form-select"
+                      multiple
+                      style={{ padding: "15px", height: "120px" }}
+                      value={formData.numbers || []}
+                      onChange={(e) => {
+                        const selectedOptions = Array.from(e.target.selectedOptions).map(opt => opt.value);
+                        setFormData({ ...formData, numbers: selectedOptions });
+                      }}
+                    >
 
-            <option value="7012345678">7012345678</option>
-          </select>
-          <small className="text-muted">Hold Ctrl (Windows) or Command (Mac) to select multiple numbers.</small>
-        </div>
+                      <option value="7012345678">7012345678</option>
+                    </select>
+                    <small className="text-muted">Hold Ctrl (Windows) or Command (Mac) to select multiple numbers.</small>
+                  </div>
 
-        {/* 👇 Campaign Name Field */}
-        <div className="mb-3">
-          <label className="form-label" style={{ marginBottom: "20px", fontSize: "20px" }}>
-            Name Campaign
-          </label>
-          <input
-            type="text"
-            className="form-control"
-            style={{ padding: "15px" }}
-            value={formData.name}
-            onChange={(e) =>
-              setFormData({ ...formData, name: e.target.value })
-            }
-          />
-        </div>
+                  {/* 👇 Campaign Name Field */}
+                  <div className="mb-3">
+                    <label className="form-label" style={{ marginBottom: "20px", fontSize: "20px" }}>
+                      Name Campaign
+                    </label>
+                    <input
+                      type="text"
+                      className="form-control"
+                      style={{ padding: "15px" }}
+                      value={formData.name}
+                      onChange={(e) =>
+                        setFormData({ ...formData, name: e.target.value })
+                      }
+                    />
+                  </div>
 
-        {/* 👇 Action Buttons */}
-        <div className="d-flex justify-content-end gap-2 mt-4">
-          <button
-            className="btn btn-outline-secondary"
-            onClick={() => {
-              setShowModal(false);
-              setEditMode(false);
-              setEditingCampaignId(null);
-              resetForm();
-            }}
-          >
-            Cancel
-          </button>
-          <button
-            className="btn btn-primary"
-            style={{ backgroundColor: "#2E6F6E" }}
-            onClick={handleSubmit}
-          >
-            {editMode ? "Update" : "Create"}
-          </button>
-        </div>
-      </div>
-    </div>
-  </>
-)}
+                  {/* 👇 Action Buttons */}
+                  <div className="d-flex justify-content-end gap-2 mt-4">
+                    <button
+                      className="btn btn-outline-secondary"
+                      onClick={() => {
+                        setShowModal(false);
+                        setEditMode(false);
+                        setEditingCampaignId(null);
+                        resetForm();
+                      }}
+                    >
+                      Cancel
+                    </button>
+                    <button
+                      className="btn btn-primary"
+                      style={{ backgroundColor: "#2E6F6E" }}
+                      onClick={handleSubmit}
+                    >
+                      {editMode ? "Update" : "Create"}
+                    </button>
+                  </div>
+                </div>
+              </div>
+            </>
+          )}
 
         </div>
       </div>

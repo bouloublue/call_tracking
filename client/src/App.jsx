@@ -9,12 +9,13 @@ import Leads from './pages/Leads';
 import Agents from './pages/Agents';
 import Manager from './pages/Manager';
 import Forms from './pages/forms';
-
 import CallLogs from './pages/CallLogs';
 import Profile from './pages/Profile';
 import Login from './pages/Auth/Login';
 import SignUp from './pages/Auth/SignUp';
 import CampaignOverview from './pages/CampaignOverview';
+import BillingLogic from './pages/BillingLogic';
+import BillingReport from './pages/BillingReport';
 
 import { FaBars } from 'react-icons/fa';
 import appStyles from './App.module.css';
@@ -84,7 +85,8 @@ function AppLayout() {
             <Route path="/forms" element={<ProtectedRoute><Forms /></ProtectedRoute>} />
             <Route path="/call-logs" element={<ProtectedRoute><CallLogs /></ProtectedRoute>} />
             <Route path="/profile" element={<ProtectedRoute><Profile /></ProtectedRoute>} />
-
+            <Route path="/billing-logic" element={<ProtectedRoute><BillingLogic /></ProtectedRoute>} />
+            <Route path="/billing-reports" element={<ProtectedRoute><BillingReport/></ProtectedRoute>} />
             {/* Catch-all 404 */}
             <Route path="*" element={<div>404 Not Found</div>} />
           </Routes>

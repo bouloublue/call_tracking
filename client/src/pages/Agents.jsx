@@ -297,7 +297,7 @@ function Agents() {
                           <option value="+91">IN +91</option>
                           <option value="+1">US +1</option>
                           <option value="+44">GB +44</option>
-                          <option value="+61">AU +61</option>
+                          <option value="+61">🇦🇺 +61</option>
                         </select>
 
                         {/* Phone Input */}

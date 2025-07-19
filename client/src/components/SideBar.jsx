@@ -83,33 +83,32 @@ const SideBar = ({ isOpen, toggleSidebar }) => {
       name: 'Numbers',
       icon: <FaHashtag />,
       submenu: [
-        { name: 'Active', path: '/numbers/active' },
-        { name: 'Released', path: '/numbers/released' },
+        { name: 'Active', path: '/forms' },
+        { name: 'Released', path: '/Leads' },
       ],
     },
     {
       name: 'Call Routing',
       icon: <FaRandom />,
       submenu: [
-        { name: 'Routing Rules', path: '/calllogs' },
-        { name: 'Routing History', path: '/CallLogs' },
-        { name: 'Notifications', path: '/CallLogs' },
+        { name: 'Routing Rules', path: '/forms' },
+        { name: 'Routing History', path: '/Leads' },
+        { name: 'Notifications', path: '/Leads' },
       ],
     },
     {
       name: 'Billing',
       icon: <FaMoneyBill />,
       submenu: [
-        { name: 'Billing Logic', path: '/forms' },
-        { name: 'Billing Reports', path: '/forms' },
+        { name: 'Billing Logic', path: '/billing-logic' },
+        { name: 'Billing Reports', path: '/billing-reports' },
       ],
     },
     {
       name: 'Call Handling',
       icon: <FaPhone />,
       submenu: [
-        { name: 'Call Logs', path: '/leads' },
-        { name: 'Call Recordings', path: '/leads' },
+        { name: 'Call Logs', path: '/call-logs' },
       ],
     },
     {

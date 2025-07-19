@@ -6,30 +6,30 @@ import styles from "../pages/Home.module.css";
 const VITE_API_URL = import.meta.env.VITE_API_URL;
 const API_BASE_URL2 = import.meta.env.VITE_API_URL2;
 
-function CallLogs() {
-    const [CallLogsList, setCallLogsList] = useState([]);
+function Reports() {
+    const [ReportsList, setReportsList] = useState([]);
     const [calling, setCalling] = useState(null);
 
     useEffect(() => {
-        const fetchCallLogs = async () => {
+        const fetchReports = async () => {
             try {
                 const response = await fetch(`${VITE_API_URL}/api/campaign`);
                 const campaigns = await response.json();
 
-                const allCallLogs = campaigns.flatMap((campaign) =>
-                    (campaign.CallLogs || []).map((lead) => ({
+                const allReports = campaigns.flatMap((campaign) =>
+                    (campaign.Reports || []).map((lead) => ({
                         campaignName: campaign.name,
                         ...lead.data,
                     }))
                 );
 
-                setCallLogsList(allCallLogs);
+                setReportsList(allReports);
             } catch (err) {
-                console.error("Failed to load CallLogs:", err);
+                console.error("Failed to load Reports:", err);
             }
         };
 
-        fetchCallLogs();
+        fetchReports();
     }, []);
 
     const handleCall = async (phone) => {
@@ -63,9 +63,9 @@ function CallLogs() {
                                         <li className={styles.breadcrumbItem}>
                                             <a href="/">Call Tracking</a>
                                         </li>
-                                        <li className={`${styles.breadcrumbItem} ${styles.active}`}>Call Handling</li>
+                                        <li className={`${styles.breadcrumbItem} ${styles.active}`}>Billing</li>
                                     </ol>
-                                    <h1 className={styles.pageTitle}>Call Logs</h1>
+                                    <h1 className={styles.pageTitle}>Billing Reports</h1>
                                 </div>
                             </div>
                         </div>
@@ -105,16 +105,16 @@ function CallLogs() {
                                             <tr>
                                                 <th style={{ fontSize: "14px", fontWeight: 600, color: "#aca9a9ff" }}>S.No</th>
                                                 <th style={{ fontSize: "14px", fontWeight: 600, color: "#aca9a9ff" }}>Campaign Name</th>
-                                                <th style={{ fontSize: "14px", fontWeight: 600, color: "#aca9a9ff" }}>Buyer</th>
-                                                <th style={{ fontSize: "14px", fontWeight: 600, color: "#aca9a9ff" }}>Caller</th>
-                                                <th style={{ fontSize: "14px", fontWeight: 600, color: "#aca9a9ff" }}>Duration</th>
-                                                <th style={{ fontSize: "14px", fontWeight: 600, color: "#aca9a9ff" }}>Buyer Number</th>
-                                                {/* <th style={{ fontSize: "14px", fontWeight: 600, color: "#aca9a9ff" }}>Call</th> */}
+                                                <th style={{ fontSize: "14px", fontWeight: 600, color: "#aca9a9ff" }}>Name</th>
+                                                <th style={{ fontSize: "14px", fontWeight: 600, color: "#aca9a9ff" }}>Email</th>
+                                                <th style={{ fontSize: "14px", fontWeight: 600, color: "#aca9a9ff" }}>Phone</th>
+                                                <th style={{ fontSize: "14px", fontWeight: 600, color: "#aca9a9ff" }}>Company</th>
+                                                <th style={{ fontSize: "14px", fontWeight: 600, color: "#aca9a9ff" }}>Call</th>
                                             </tr>
                                         </thead>
                                         <tbody>
-                                            {CallLogsList.length > 0 ? (
-                                                CallLogsList.map((lead, index) => (
+                                            {ReportsList.length > 0 ? (
+                                                ReportsList.map((lead, index) => (
                                                     <tr key={index}>
                                                         <td>{index + 1}</td>
                                                         <td>{lead.campaignName}</td>
@@ -140,7 +140,7 @@ function CallLogs() {
                                             ) : (
                                                 <tr>
                                                     <td colSpan="7" className="text-center">
-                                                        No CallLogs available.
+                                                        No Reports available.
                                                     </td>
                                                 </tr>
                                             )}
@@ -157,4 +157,4 @@ function CallLogs() {
     );
 }
 
-export default CallLogs;
+export default Reports;
