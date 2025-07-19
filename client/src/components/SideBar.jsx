@@ -14,6 +14,8 @@ import {
   FaPhone,
   FaHeadset,
   FaSignOutAlt,
+  FaUserCircle,
+  FaHashtag, // for Numbers menu
 } from 'react-icons/fa';
 import styles from './Sidebar.module.css';
 
@@ -22,7 +24,7 @@ const SideBar = ({ isOpen, toggleSidebar }) => {
   const location = useLocation();
   const [user, setUser] = useState(null);
   const [openMenu, setOpenMenu] = useState(null);
-  const [activeMainMenu, setActiveMainMenu] = useState(null); // 👈 New state
+  const [activeMainMenu, setActiveMainMenu] = useState(null);
 
   useEffect(() => {
     const loggedInUser = {
@@ -32,6 +34,27 @@ const SideBar = ({ isOpen, toggleSidebar }) => {
     };
     setUser(loggedInUser);
   }, []);
+
+  useEffect(() => {
+    const currentPath = location.pathname;
+
+    for (let item of navStructure) {
+      if (item.submenu) {
+        if (item.submenu.some((sub) => sub.path === currentPath)) {
+          setActiveMainMenu(item.name);
+          setOpenMenu(item.name);
+          return;
+        }
+      } else if (item.path === currentPath) {
+        setActiveMainMenu(item.name);
+        setOpenMenu(null);
+        return;
+      }
+    }
+
+    setActiveMainMenu(null);
+    setOpenMenu(null);
+  }, [location.pathname]);
 
   const handleLogout = () => {
     navigate('/login');
@@ -44,26 +67,33 @@ const SideBar = ({ isOpen, toggleSidebar }) => {
       icon: <FaTachometerAlt />,
     },
     {
-      name: 'Campaign Management',
+      name: 'Campaign',
+      path: '/campaigns',
       icon: <FaBullhorn />,
-      submenu: [{ name: 'Campaign', path: '/campaigns' }],
     },
     {
       name: 'Buyer Management',
       icon: <FaUsers />,
       submenu: [
         { name: 'Buyer', path: '/agents' },
-        { name: 'Rule Configuration', path: '/agents' },
+        { name: 'Buyer Activities', path: '/buyer-activities' },
+      ],
+    },
+    {
+      name: 'Numbers',
+      icon: <FaHashtag />,
+      submenu: [
+        { name: 'Active', path: '/numbers/active' },
+        { name: 'Released', path: '/numbers/released' },
       ],
     },
     {
       name: 'Call Routing',
       icon: <FaRandom />,
       submenu: [
-        { name: 'Call Routing Rules', path: '/calllogs' },
-        { name: 'Smart Routing', path: '/CallLogs' },
-        { name: 'Call Routing History', path: '/CallLogs' },
-        { name: 'Notifications & Alerts', path: '/CallLogs' },
+        { name: 'Routing Rules', path: '/calllogs' },
+        { name: 'Routing History', path: '/CallLogs' },
+        { name: 'Notifications', path: '/CallLogs' },
       ],
     },
     {
@@ -78,14 +108,16 @@ const SideBar = ({ isOpen, toggleSidebar }) => {
       name: 'Call Handling',
       icon: <FaPhone />,
       submenu: [
-        { name: 'Call Recording Settings', path: '/leads' },
-        // { name: 'IVR Configuration (Optional)', path: '/leads' },
+        { name: 'Call Logs', path: '/leads' },
+        { name: 'Call Recordings', path: '/leads' },
       ],
     },
+    {
+      name: 'Profile',
+      path: '/profile',
+      icon: <FaUserCircle />,
+    },
   ];
-
-  const isSubmenuActive = (submenu) =>
-    submenu?.some((subItem) => location.pathname === subItem.path);
 
   return (
     <div className={`${styles.sidebarContainer} ${!isOpen ? styles.hidden : ''}`}>
@@ -108,8 +140,7 @@ const SideBar = ({ isOpen, toggleSidebar }) => {
       <IconContext.Provider value={{ className: styles.navIcon }}>
         <ul className={styles.sidebarNav}>
           {navStructure.map((item) => {
-            const isActiveSubmenu = isSubmenuActive(item.submenu);
-            const isActiveParent = activeMainMenu === item.name || isActiveSubmenu;
+            const isActiveParent = activeMainMenu === item.name;
 
             return (
               <li key={item.name} className={styles.navItem}>
@@ -121,7 +152,7 @@ const SideBar = ({ isOpen, toggleSidebar }) => {
                     }
                     onClick={() => {
                       setOpenMenu(null);
-                      setActiveMainMenu(null);
+                      setActiveMainMenu(item.name);
                     }}
                   >
                     <div className={styles.navIconWrapper}>{item.icon}</div>
@@ -130,13 +161,11 @@ const SideBar = ({ isOpen, toggleSidebar }) => {
                 ) : (
                   <>
                     <div
-                      className={`${styles.navLink} ${
-                        isActiveParent ? styles.active : ''
-                      }`}
+                      className={`${styles.navLink} ${isActiveParent ? styles.active : ''}`}
                       onClick={() => {
                         const isOpening = openMenu !== item.name;
                         setOpenMenu(isOpening ? item.name : null);
-                        setActiveMainMenu(isOpening ? item.name : null);
+                        setActiveMainMenu(item.name);
                       }}
                     >
                       <div className={styles.navIconWrapper}>{item.icon}</div>
