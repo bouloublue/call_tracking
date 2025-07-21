@@ -1,7 +1,7 @@
 const { sequelize } = require('../sequelizeDB');
 const { DataTypes, Model } = require('sequelize');
 
-class Campaign extends Model {}
+class Campaign extends Model { }
 
 Campaign.init({
   id: {
@@ -15,25 +15,33 @@ Campaign.init({
     allowNull: false,
   },
 
-  description: {
+  country: {
     type: DataTypes.STRING,
+    allowNull: false
+  },
+
+  number_id: {
+    type: DataTypes.UUID,
+    allowNull: true,
+    references:{
+      model: 'numbers',
+      key: 'id',
+    }
+  },
+  
+  routing_method: {
+    type: DataTypes.ENUM('manual', 'smart'),
+    defaultValue: 'manual',
     allowNull: true,
   },
 
-  created_by: {
-    type: DataTypes.UUID,
-    allowNull: false,
-    comment: 'Created by Admin',
-  },
-
-  routing_method:{
-    type: DataTypes.ENUM('manual', 'smart'),
-    defaultValue: 'manual',
-    allowNull: false,
+  isCallRecordingEnabled: {
+    type: DataTypes.BOOLEAN,
+    allowNull: true,
   },
 
   is_active: {
-    type: DataTypes.BOOLEAN, 
+    type: DataTypes.BOOLEAN,
     defaultValue: true,
   },
 

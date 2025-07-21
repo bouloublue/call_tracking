@@ -199,12 +199,12 @@ function Campaigns() {
                     <tbody>
                       {campaigns.map((c) => (
                         <tr key={c.id}>
-                          <td style={{ fontSize: "18px" }}>
-                            <span className="badge bg-light text-dark px-3 py-2 rounded-pill">
+                          <td style={{ fontSize: "14px" }}>
+                            <span >
                               {c.name}
                             </span>
                           </td>
-                          <td style={{ fontSize: "18px" }}>{c.country}</td>
+                          <td style={{ fontSize: "14px" }}>{c.country}</td>
                           <td>
                             <button
                               className="btn btn-sm me-2 p-1"
