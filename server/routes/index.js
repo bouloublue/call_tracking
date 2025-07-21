@@ -20,7 +20,7 @@ function init() {
 //   const authRouter = require("./auth");
   const userRouter = require("./user");
   const campaignRouter = require("./campaign")
-  const formController =  require("./form")
+  const numberController =  require("./number")
 
   global.logger?.routes?.info("Initializing API Routes");
 
@@ -30,7 +30,7 @@ function init() {
   // Secured API routes (passport middleware can be added later here)
   router.use("/user", userRouter());
   router.use("/campaign", campaignRouter());
-  router.use("/form",formController());
+  router.use("/number", numberController());
 
   // Catch-all for 404s
   router.use((req, res) => {

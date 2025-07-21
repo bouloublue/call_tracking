@@ -42,6 +42,10 @@ User.init({
     type: DataTypes.STRING,
     allowNull: true,
   },
+  is_verified: {
+    type: DataTypes.BOOLEAN,
+    defaultValue: true,
+  },
   deleted_at: {
     type: DataTypes.DATE,
     allowNull: true,

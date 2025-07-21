@@ -14,8 +14,13 @@ import Profile from './pages/Profile';
 import Login from './pages/Auth/Login';
 import SignUp from './pages/Auth/SignUp';
 import CampaignOverview from './pages/CampaignOverview';
+<<<<<<< HEAD
 import BillingLogic from './pages/BillingLogic';
 import BillingReport from './pages/BillingReport';
+=======
+import BuyerActivities from './pages/buyer-activities';
+import ActiveNumbers from './pages/ActiveNumbers';
+>>>>>>> 565cd98ce4ab139f6446e19b17fbd13898858087
 
 import { FaBars } from 'react-icons/fa';
 import appStyles from './App.module.css';
@@ -81,12 +86,18 @@ function AppLayout() {
             <Route path="/campaigns/:id" element={<ProtectedRoute><CampaignOverview /></ProtectedRoute>} />
             <Route path="/leads" element={<ProtectedRoute><Leads /></ProtectedRoute>} />
             <Route path="/agents" element={<ProtectedRoute><Agents /></ProtectedRoute>} />
+            <Route path="/numbers/active-numbers" element={<ProtectedRoute><ActiveNumbers /></ProtectedRoute>} />
             <Route path="/manager" element={<ProtectedRoute><Manager /></ProtectedRoute>} />
             <Route path="/forms" element={<ProtectedRoute><Forms /></ProtectedRoute>} />
             <Route path="/call-logs" element={<ProtectedRoute><CallLogs /></ProtectedRoute>} />
             <Route path="/profile" element={<ProtectedRoute><Profile /></ProtectedRoute>} />
+<<<<<<< HEAD
             <Route path="/billing-logic" element={<ProtectedRoute><BillingLogic /></ProtectedRoute>} />
             <Route path="/billing-reports" element={<ProtectedRoute><BillingReport/></ProtectedRoute>} />
+=======
+            <Route path="/buyer-activities" element={<ProtectedRoute><BuyerActivities /></ProtectedRoute>} />
+
+>>>>>>> 565cd98ce4ab139f6446e19b17fbd13898858087
             {/* Catch-all 404 */}
             <Route path="*" element={<div>404 Not Found</div>} />
           </Routes>

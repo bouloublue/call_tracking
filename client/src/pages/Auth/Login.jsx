@@ -1,6 +1,8 @@
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { FiEye, FiEyeOff } from "react-icons/fi";
+import { toast } from "react-toastify";
+import "react-toastify/dist/ReactToastify.css";
 
 function Login() {
   const [username, setUsername] = useState("");
@@ -14,15 +16,14 @@ function Login() {
       localStorage.setItem("auth", "true");
       navigate("/");
     } else {
-      setError("Invalid username or password");
+      toast.error("Invalid username or password");
     }
   };
 
   const useDemoCredentials = (role) => {
     const creds = {
       admin: "admin@123",
-      manager: "manager@123",
-      member: "member@123",
+      buyer: "buyer @123",
     };
     setUsername(role);
     setPassword(creds[role]);
@@ -125,17 +126,16 @@ function Login() {
     <div style={containerStyle}>
       {/* Left Side */}
       <div style={leftStyle}>
-        <div style={{ textAlign: "center", marginBottom: "20px", marginRight:"700px" }}>
-          <img
-            src="/assets/images/logo-main1.png"
-            alt="Logo"
-            style={{ height: "60px", marginBottom: "20px" }}
-          />
-        </div>
-
         {/* Login Form */}
         <div style={formStyle}>
-           <h2 style={{ fontWeight: "600" }}>Welcome Back!</h2>
+          <div style={{ textAlign: "center", marginBottom: "20px"}}>
+            <img
+              src="/assets/images/logo-main2.png"
+              alt="Logo"
+              style={{ height: "60px", marginBottom: "20px" }}
+            />
+          </div>
+          <h2 style={{ fontWeight: "600" }}>Welcome Back!</h2>
           <p style={{ color: "#888" }}>Please log in to continue</p>
           <label style={labelStyle}>Username</label>
           <input
@@ -197,9 +197,23 @@ function Login() {
             Login
           </button>
 
+          <div style={{ marginTop: "20px", fontSize: "16px" }}>
+            Don't have an account?{" "}
+            <a 
+              href="/signup" 
+              style={{ 
+                color: "#2E6F6E", 
+                textDecoration: "none",
+                fontWeight: "600"
+              }}
+            >
+              Sign up
+            </a>
+          </div>
+
           <hr style={{ margin: "30px 0" }} />
 
-          <p style={{ fontWeight: "600" }}>Demo account login credentials</p>
+          {/* <p style={{ fontWeight: "600" }}>Demo account login credentials</p>
           <table style={{ width: "100%", marginTop: "10px", fontSize: "13px" }}>
             <thead>
               <tr style={{ backgroundColor: "#e0e0e0" }}>
@@ -208,7 +222,7 @@ function Login() {
               </tr>
             </thead>
             <tbody>
-              {["admin", "manager", "member"].map((role) => (
+              {["admin", "Buyer"].map((role) => (
                 <tr key={role}>
                   <td style={tdStyle}>
                     <strong>{role.charAt(0).toUpperCase() + role.slice(1)}</strong><br />
@@ -233,7 +247,7 @@ function Login() {
                 </tr>
               ))}
             </tbody>
-          </table>
+          </table> */}
         </div>
       </div>
 
@@ -256,7 +270,6 @@ function Login() {
           src="/assets/images/Right-top.png"
           alt="Decor Top Right"
           style={cornerImageStyleTopRight}
-          
         />
         <img
           src="/assets/images/bottom-left.png"

@@ -26,7 +26,8 @@ async function syncDb() {
       global.logger.db.info(`Syncing DB model: ${key}`);
 
       await global.db.models[key].sync({
-        alter: useAlter, // 🔄 Reflect changes automatically if enabled
+        alter: useAlter,
+        // force: true // 🔄 Reflect changes automatically if enabled
       });
     }
 
