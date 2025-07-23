@@ -11,12 +11,12 @@ function ActiveNumbers() {
   const [numbers, setNumbers] = useState([]);
   const [editMode, setEditMode] = useState(false);
   const [editId, setEditId] = useState(null);
- const [formData, setFormData] = useState({
-  number: "",
-  friendly_name: "",
-  type: "toll",
-  status: "active"
-});
+  const [formData, setFormData] = useState({
+    number: "",
+    friendlyName: "",
+    type: "local", // default to local
+    status: "active"
+  });
 
   useEffect(() => {
     fetchNumbers();
@@ -32,18 +32,17 @@ function ActiveNumbers() {
   };
 
   const handleSubmit = async () => {
-    console.log("Form Data:", formData);
-    if (!formData.number || !formData.friendly_name) {
+    if (!formData.number || !formData.friendlyName) {
       toast.error("Please fill all required fields");
       return;
     }
 
     try {
       if (editMode) {
-        await axios.put(`${API_BASE_URL}/api/number/${editId}`, formData);
+        await axios.put(`${API_BASE_URL}/api/numbers/${editId}`, formData);
         toast.success("Number updated successfully");
       } else {
-        await axios.post(`${API_BASE_URL}/api/number`, formData);
+        await axios.post(`${API_BASE_URL}/api/numbers`, formData);
         toast.success("Number added successfully");
       }
 
@@ -58,7 +57,7 @@ function ActiveNumbers() {
   const handleEdit = (number) => {
     setFormData({
       number: number.number,
-      friendly_name: number.friendly_name,
+      friendlyName: number.friendlyName,
       type: number.type,
       status: number.status
     });
@@ -70,7 +69,7 @@ function ActiveNumbers() {
   const handleDelete = async (id) => {
     if (window.confirm("Are you sure you want to delete this number?")) {
       try {
-        await axios.delete(`${API_BASE_URL}/api/number/${id}`);
+        await axios.delete(`${API_BASE_URL}/api/numbers/${id}`);
         toast.success("Number deleted successfully");
         fetchNumbers();
       } catch (error) {
@@ -82,9 +81,9 @@ function ActiveNumbers() {
   const resetForm = () => {
     setFormData({
       number: "",
-      friendly_name: "",
-      type: "",
-      status: ""
+      friendlyName: "",
+      type: "local",
+      status: "active"
     });
     setEditMode(false);
     setEditId(null);
@@ -109,7 +108,7 @@ function ActiveNumbers() {
                     </ol>
                     <h1 className={styles.pageTitle}>Active Numbers</h1>
                   </div>
-    
+
                   {/* Right Section - Notification + Date Filter */}
                   <div className={styles.dateFilter} style={{ display: "flex", alignItems: "center" }}>
                     {/* 🔔 Notification Button */}
@@ -146,10 +145,10 @@ function ActiveNumbers() {
                         }}
                       ></span>
                     </button>
-    
+
                     {/* 📅 Date Range */}
                     <span className={styles.dateRange}>Jun 16, 2025 - Jul 10, 2025</span>
-    
+
                     {/* Filter Button */}
                     <button className={styles.filterBtn} style={{ marginLeft: "10px" }}>
                       Filter
@@ -165,9 +164,9 @@ function ActiveNumbers() {
           <div className="page-wrapper">
             <div className="page-content container-fluid">
               <div className="d-flex justify-content-between align-items-center mb-3">
-                <button 
-                  className="btn btn-primary" 
-                  style={{backgroundColor: "#2E6F6E" }}
+                <button
+                  className="btn btn-primary"
+                  style={{ backgroundColor: "#2E6F6E" }}
                   onClick={() => setShowModal(true)}
                 >
                   Add New Number
@@ -179,11 +178,11 @@ function ActiveNumbers() {
                   <table className="table">
                     <thead>
                       <tr>
-                        <th>Number</th>
-                        <th>Friendly Name</th>
-                        <th>Type</th>
-                        <th>Status</th>
-                        <th>Action</th>
+                        <th className="text-muted">Number</th>
+                        <th className="text-muted">Friendly Name</th>
+                        <th className="text-muted">Type</th>
+                        <th className="text-muted">Status</th>
+                        <th className="text-muted">Action</th>
                       </tr>
                     </thead>
                     <tbody>
@@ -192,21 +191,28 @@ function ActiveNumbers() {
                           <td>{number.number}</td>
                           <td>{number.friendly_name}</td>
                           <td>{number.type}</td>
-                          <td className={number.status === "active" ? "text-success" : "text-danger"}>
-                            {number.status}
+                          <td>
+                            <span
+                              className={`badge ${number.status === "active" ? "bg-success bg-opacity-10 text-success" : "bg-danger bg-opacity-10 text-danger"} p-2`}
+                              style={{ fontSize: "0.85rem" }}
+                            >
+                              {number.status}
+                            </span>
                           </td>
                           <td>
-                            <button 
-                              className="btn btn-sm btn-primary me-1" 
+                            <button
+                              className="btn btn-sm me-1 bg-primary bg-opacity-10 text-primary"
                               onClick={() => handleEdit(number)}
+                              title="Edit"
                             >
-                              Edit
+                              <i className="fas fa-edit"></i>
                             </button>
-                            <button 
-                              className="btn btn-sm btn-danger" 
+                            <button
+                              className="btn btn-sm bg-danger bg-opacity-10 text-danger"
                               onClick={() => handleDelete(number.id)}
+                              title="Delete"
                             >
-                              Delete
+                              <i className="fas fa-trash-alt"></i>
                             </button>
                           </td>
                         </tr>
@@ -236,7 +242,7 @@ function ActiveNumbers() {
                           {editMode ? "Edit Number" : "Add New Number"}
                         </h5>
                         <button
-                          className="btn-close" 
+                          className="btn-close"
                           style={{ fontSize: "24px" }}
                           onClick={() => {
                             setShowModal(false);
@@ -250,7 +256,7 @@ function ActiveNumbers() {
                         <label className="form-label">Phone Number</label>
                         <input
                           type="text"
-                          className="form-control" 
+                          className="form-control"
                           style={{ padding: "15px" }}
                           value={formData.number}
                           onChange={(e) =>
@@ -264,11 +270,11 @@ function ActiveNumbers() {
                         <label className="form-label">Friendly Name</label>
                         <input
                           type="text"
-                          className="form-control" 
+                          className="form-control"
                           style={{ padding: "15px" }}
-                          value={formData.friendly_name}
+                          value={formData.friendlyName}
                           onChange={(e) =>
-                            setFormData({ ...formData, friendly_name: e.target.value })
+                            setFormData({ ...formData, friendlyName: e.target.value })
                           }
                           placeholder="Enter friendly name"
                         />
@@ -277,7 +283,7 @@ function ActiveNumbers() {
                       <div className="mb-3">
                         <label className="form-label">Type</label>
                         <select
-                          className="form-control" 
+                          className="form-control"
                           style={{ padding: "15px", color: "#808080ff" }}
                           value={formData.type}
                           onChange={(e) =>
@@ -285,14 +291,14 @@ function ActiveNumbers() {
                           }
                         >
                           <option value="local">Local</option>
-                          <option value="toll">Toll Free</option>
+                          <option value="toll-free">Toll Free</option>
                         </select>
                       </div>
 
                       <div className="mb-3">
                         <label className="form-label">Status</label>
                         <select
-                          className="form-control" 
+                          className="form-control"
                           style={{ padding: "15px", color: "#808080ff" }}
                           value={formData.status}
                           onChange={(e) =>
@@ -306,7 +312,7 @@ function ActiveNumbers() {
 
                       <div className="d-flex justify-content-end gap-2 mt-4">
                         <button
-                          className="btn btn-outline-secondary" 
+                          className="btn btn-outline-secondary"
                           style={{ padding: "10px 20px", fontSize: "16px" }}
                           onClick={() => {
                             setShowModal(false);
@@ -316,11 +322,11 @@ function ActiveNumbers() {
                           Cancel
                         </button>
                         <button
-                          className="btn btn-primary" 
-                          style={{ 
-                            padding: "10px 20px", 
-                            fontSize: "16px", 
-                            backgroundColor: "#2E6F6E" 
+                          className="btn btn-primary"
+                          style={{
+                            padding: "10px 20px",
+                            fontSize: "16px",
+                            backgroundColor: "#2E6F6E"
                           }}
                           onClick={handleSubmit}
                         >
