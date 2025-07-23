@@ -47,8 +47,8 @@ BillingRule.init({
   paranoid: true,
   deletedAt: 'deleted_at',
   sequelize: global.db.sequelizeConfig,
-  modelName: 'billingRule',
-  tableName: 'billingrules',
+  modelName: 'billing_rule',
+  tableName: 'billing_rules',
   defaultScope: {
     where: {
       deleted_at: null,

@@ -263,8 +263,7 @@ function Agents() {
                             {agent.name}
                           </td>
                           <td>{agent.email}</td>
-                          <td>
-                            {agent.countryCode} {agent.phone}
+                          <td>{agent.phone}
                           </td>
                           <td>{agent.company || "N/A"}</td>
                           <td

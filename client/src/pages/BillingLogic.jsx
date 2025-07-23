@@ -63,8 +63,26 @@ function BillingLogic() {
 
   const fetchBillingLogs = async () => {
     try {
-      const res = await axios.get(`${API_BASE_URL}/api/billing/logs`);
-      setLogs(res.data);
+      const res = await axios.get(`${API_BASE_URL}/api/call/billing-logs`);
+      const logs = res.data;
+
+      const flattenedLogs = logs.map((log) => ({
+        id: log.id,
+        call_log_id: log.call_log_id,
+        rule_id: log.rule_id,
+        amount_charged: log.amount_charged,
+        override_rate: log.override_rate,
+        duration_sec: log.duration_sec,
+        created_at: log.created_at,
+        caller_number: log.call_log?.caller_number || null,
+        call_status: log.call_log?.status || null,
+        buyer_id: log.call_log?.buyer_id || null,
+        buyer_name: log.call_log?.buyer?.name || null,
+        buyer_phone: log.call_log?.buyer?.phone || null,
+        campaign_name: log.call_log?.campaign?.name || null,
+      }));
+
+      setLogs(flattenedLogs);
     } catch (error) {
       console.error("Error fetching billing logs:", error);
     }
@@ -326,6 +344,7 @@ function BillingLogic() {
                     <table className="table">
                       <thead>
                         <tr>
+                          <th>Campaign</th>
                           <th>Caller</th>
                           <th>Buyer</th>
                           <th>Duration</th>
@@ -336,8 +355,9 @@ function BillingLogic() {
                       <tbody>
                         {logs.map((log) => (
                           <tr key={log.id}>
+                            <td>{log.campaign_name}</td>
                             <td>{log.caller_number}</td>
-                            <td>{log.buyer_number}</td>
+                            <td>{log.buyer_name}</td>
                             <td>{log.duration_sec} sec</td>
                             <td>${log.amount_charged.toFixed(4)}</td>
                             <td>{new Date(log.created_at).toLocaleString()}</td>

@@ -42,16 +42,6 @@ CallLog.init({
     allowNull: false,
   },
 
-  start_time: {
-    type: DataTypes.DATE,
-    allowNull: true,
-  },
-
-  end_time: {
-    type: DataTypes.DATE,
-    allowNull: true,
-  },
-
   status: {
     type: DataTypes.STRING(20),
     allowNull: true, // e.g., 'completed', 'no-answer'
@@ -64,6 +54,11 @@ CallLog.init({
 
   is_converted: {
     type: DataTypes.BOOLEAN,
+    allowNull: true,
+  },
+
+  recording_duration:{
+    type: DataTypes.INTEGER,
     allowNull: true,
   },
 

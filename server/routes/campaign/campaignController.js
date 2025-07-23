@@ -213,11 +213,13 @@ router.get("/", async (req, res) => {
         {
           model: global.db.models.CampaignMapping,
           as: 'buyer_mappings',
+          required: false,
           include: [
             {
               model: global.db.models.User,
               as: 'buyer',
-              attributes: ['id', 'name', 'email'], 
+              attributes: ['id', 'name', 'email'],
+              required: false,
               where: {
                 role: 'buyer',
               },
@@ -227,6 +229,7 @@ router.get("/", async (req, res) => {
         {
           model: global.db.models.Number,
           as: 'number',
+          required: false,
           attributes: ['id', 'number'], 
         }
       ],
@@ -245,11 +248,13 @@ router.get("/:id", async (req, res) => {
         {
           model: global.db.models.CampaignMapping,
           as: 'buyer_mappings',
+          required: false,
           include: [
             {
               model: global.db.models.User,
               as: 'buyer',
               attributes: ['id', 'name', 'email'],
+              required: false,
               where: {
                 role: 'buyer',
               },
@@ -259,6 +264,7 @@ router.get("/:id", async (req, res) => {
         {
           model: global.db.models.Number,
           as: 'number',
+          required: false,
           attributes: ['id', 'number'],
         }
       ],

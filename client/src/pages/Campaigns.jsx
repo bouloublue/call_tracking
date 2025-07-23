@@ -44,11 +44,10 @@ function Campaigns() {
 
   const fetchCampaigns = async () => {
     try {
-      const res = await axios.get(`${API_BASE_URL}/api/campaign`);
-      setCampaigns(res.data);
+      const response = await axios.get(`${API_BASE_URL}/api/campaign`);
+      setCampaigns(response.data); // depends on your response shape
     } catch (error) {
-      console.error("Error fetching campaigns:", error);
-      toast.error("Failed to fetch campaigns");
+      console.error("Failed to fetch campaigns:", error);
     }
   };
 
@@ -83,47 +82,37 @@ function Campaigns() {
     }
   };
 
-  const createCampaign = () => {
+  const createCampaign = async () => {
     if (!newCampaign.name) {
       toast.error("Please enter a campaign name");
       return;
     }
 
-    const campaign = {
-      id: Date.now().toString(),
-      name: newCampaign.name,
-      country: newCampaign.country,
-    };
+    try {
+      const response = await axios.post(`${API_BASE_URL}/api/campaign`, {
+        name: newCampaign.name,
+        country: newCampaign.country,
+      });
 
-    setCampaigns([...campaigns, campaign]);
-    toast.success("Campaign created successfully");
-    setNewCampaign({ name: "", country: "US" });
-    setShowSidePanel(false);
+      const createdCampaign = response.data.campaign;
+
+      if (!createdCampaign || !createdCampaign.id) {
+        toast.error("API did not return a valid campaign");
+        return;
+      }
+
+      setCampaigns((prevCampaigns) => [...prevCampaigns, createdCampaign]);
+
+      toast.success("Campaign created successfully");
+      setNewCampaign({ name: "", country: "US" });
+      setShowSidePanel(false);
+    } catch (error) {
+      console.error(error);
+      toast.error(
+        error?.response?.data?.message || "Failed to create campaign"
+      );
+    }
   };
-
-  // const updateCampaign = async () => {
-  //   const payload = {
-  //     name: campaignDetails.name,
-  //     number_id: campaignDetails.number,
-  //     routing_method: campaignDetails.routingMethod,
-  //     isCallRecordingEnabled: campaignDetails.recordCalls,
-  //     is_active: true,
-  //     buyers: campaignDetails.buyers,
-  //   };
-
-  //   try {
-  //     await axios.put(
-  //       `${API_BASE_URL}/api/campaign/${editingCampaignId}`,
-  //       payload
-  //     );
-  //     toast.success("Campaign updated successfully");
-  //     setEditMode(false);
-  //     fetchCampaigns();
-  //   } catch (error) {
-  //     console.error("Error updating campaign:", error);
-  //     toast.error("Failed to update campaign");
-  //   }
-  // };
 
   const updateCampaign = async () => {
     const payload = {
@@ -301,7 +290,7 @@ function Campaigns() {
                         </tr>
                       </thead>
                       <tbody>
-                        {campaigns.map((c) => (
+                        {Array.isArray(campaigns) && campaigns.map((c) => (
                           <tr key={c.id}>
                             <td style={{ fontSize: "14px" }}>
                               <span>{c.name}</span>
@@ -315,6 +304,7 @@ function Campaigns() {
                                     const res = await axios.get(
                                       `${API_BASE_URL}/api/campaign/${c.id}`
                                     );
+                                    
                                     const campaignData = res.data;
 
                                     setEditingCampaignId(campaignData.id);

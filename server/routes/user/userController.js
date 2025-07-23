@@ -19,10 +19,12 @@ router.post('/', upload.single('profile_img'), async (req, res) => {
     // Save image path if uploaded
     const profileImgPath = req.file ? `/uploads/${req.file.filename}` : null;
 
+    const fullPhoneNumber = `${countryCode}${phone}`;
+
     const newUser = await global.db.models.User.create({
       name,
       email,
-      phone,
+      phone: fullPhoneNumber,
       countryCode,
       company,
       password: hashedPassword,
@@ -38,7 +40,6 @@ router.post('/', upload.single('profile_img'), async (req, res) => {
       name: newUser.name,
       email: newUser.email,
       phone: newUser.phone,
-      countryCode: newUser.countryCode,
       company: newUser.company,
       address: newUser.address,
       profile_img: newUser.profile_img,
@@ -101,6 +102,37 @@ router.get('/:id', async (req, res) => {
 
 // Update user details
 
+// router.put('/:id', upload.single('profile_img'), async (req, res) => {
+//   try {
+//     const { id } = req.params;
+//     const { name, email, phone, countryCode, role, company, address, status, zipCode } = req.body;
+
+//     const user = await global.db.models.User.findByPk(id);
+//     if (!user) {
+//       return res.status(404).json({ error: 'User not found' });
+//     }
+
+//     // Update user details
+//     await user.update({
+//       name,
+//       email,
+//       phone,
+//       countryCode,
+//       company,
+//       role,
+//       address,
+//       status,
+//       zipCode,
+//       profile_img: req.file ? `/uploads/${req.file.filename}` : user.profile_img,
+//     });
+
+//     res.status(200).json({ message: 'User updated successfully' });
+//   } catch (error) {
+//     console.error('Error updating user:', error);
+//     res.status(500).json({ error: 'Internal server error' });
+//   }
+// });
+
 router.put('/:id', upload.single('profile_img'), async (req, res) => {
   try {
     const { id } = req.params;
@@ -111,12 +143,14 @@ router.put('/:id', upload.single('profile_img'), async (req, res) => {
       return res.status(404).json({ error: 'User not found' });
     }
 
+    // Combine country code and phone into one
+    const fullPhone = `${countryCode}${phone}`;
+
     // Update user details
     await user.update({
       name,
       email,
-      phone,
-      countryCode,
+      phone: fullPhone,
       company,
       role,
       address,
@@ -131,6 +165,7 @@ router.put('/:id', upload.single('profile_img'), async (req, res) => {
     res.status(500).json({ error: 'Internal server error' });
   }
 });
+
 
 router.delete('/:id', async (req, res) => {
   try {
