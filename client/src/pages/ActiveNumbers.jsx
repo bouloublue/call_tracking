@@ -11,12 +11,12 @@ function ActiveNumbers() {
   const [numbers, setNumbers] = useState([]);
   const [editMode, setEditMode] = useState(false);
   const [editId, setEditId] = useState(null);
-  const [formData, setFormData] = useState({
-    number: "",
-    friendlyName: "",
-    type: "local", // default to local
-    status: "active"
-  });
+ const [formData, setFormData] = useState({
+  number: "",
+  friendly_name: "",
+  type: "toll",
+  status: "active"
+});
 
   useEffect(() => {
     fetchNumbers();
@@ -24,7 +24,7 @@ function ActiveNumbers() {
 
   const fetchNumbers = async () => {
     try {
-      const res = await axios.get(`${API_BASE_URL}/api/numbers`);
+      const res = await axios.get(`${API_BASE_URL}/api/number`);
       setNumbers(res.data);
     } catch (error) {
       toast.error("Failed to fetch numbers");
@@ -32,17 +32,18 @@ function ActiveNumbers() {
   };
 
   const handleSubmit = async () => {
-    if (!formData.number || !formData.friendlyName) {
+    console.log("Form Data:", formData);
+    if (!formData.number || !formData.friendly_name) {
       toast.error("Please fill all required fields");
       return;
     }
 
     try {
       if (editMode) {
-        await axios.put(`${API_BASE_URL}/api/numbers/${editId}`, formData);
+        await axios.put(`${API_BASE_URL}/api/number/${editId}`, formData);
         toast.success("Number updated successfully");
       } else {
-        await axios.post(`${API_BASE_URL}/api/numbers`, formData);
+        await axios.post(`${API_BASE_URL}/api/number`, formData);
         toast.success("Number added successfully");
       }
 
@@ -57,7 +58,7 @@ function ActiveNumbers() {
   const handleEdit = (number) => {
     setFormData({
       number: number.number,
-      friendlyName: number.friendlyName,
+      friendly_name: number.friendly_name,
       type: number.type,
       status: number.status
     });
@@ -69,7 +70,7 @@ function ActiveNumbers() {
   const handleDelete = async (id) => {
     if (window.confirm("Are you sure you want to delete this number?")) {
       try {
-        await axios.delete(`${API_BASE_URL}/api/numbers/${id}`);
+        await axios.delete(`${API_BASE_URL}/api/number/${id}`);
         toast.success("Number deleted successfully");
         fetchNumbers();
       } catch (error) {
@@ -81,9 +82,9 @@ function ActiveNumbers() {
   const resetForm = () => {
     setFormData({
       number: "",
-      friendlyName: "",
-      type: "local",
-      status: "active"
+      friendly_name: "",
+      type: "",
+      status: ""
     });
     setEditMode(false);
     setEditId(null);
@@ -189,7 +190,7 @@ function ActiveNumbers() {
                       {numbers.map((number) => (
                         <tr key={number.id}>
                           <td>{number.number}</td>
-                          <td>{number.friendlyName}</td>
+                          <td>{number.friendly_name}</td>
                           <td>{number.type}</td>
                           <td className={number.status === "active" ? "text-success" : "text-danger"}>
                             {number.status}
@@ -265,9 +266,9 @@ function ActiveNumbers() {
                           type="text"
                           className="form-control" 
                           style={{ padding: "15px" }}
-                          value={formData.friendlyName}
+                          value={formData.friendly_name}
                           onChange={(e) =>
-                            setFormData({ ...formData, friendlyName: e.target.value })
+                            setFormData({ ...formData, friendly_name: e.target.value })
                           }
                           placeholder="Enter friendly name"
                         />
@@ -284,7 +285,7 @@ function ActiveNumbers() {
                           }
                         >
                           <option value="local">Local</option>
-                          <option value="toll-free">Toll Free</option>
+                          <option value="toll">Toll Free</option>
                         </select>
                       </div>
 

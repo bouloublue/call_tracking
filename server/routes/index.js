@@ -21,6 +21,8 @@ function init() {
   const userRouter = require("./user");
   const campaignRouter = require("./campaign")
   const numberController =  require("./number")
+  const billingController = require("./billing");
+  const callController = require("./call");
 
   global.logger?.routes?.info("Initializing API Routes");
 
@@ -31,6 +33,8 @@ function init() {
   router.use("/user", userRouter());
   router.use("/campaign", campaignRouter());
   router.use("/number", numberController());
+  router.use("/billing", billingController());
+  router.use("/call", callController());
 
   // Catch-all for 404s
   router.use((req, res) => {

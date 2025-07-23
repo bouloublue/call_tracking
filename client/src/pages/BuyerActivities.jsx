@@ -1,111 +1,11 @@
 import React, { useState, useEffect } from "react";
 import axios from "axios";
-import SideBar from "../components/SideBar";
-import NavBar from "../components/NavBar";
 import { toast } from "react-toastify";
 import styles from "../pages/Home.module.css";
 import "react-toastify/dist/ReactToastify.css";
 const API_BASE_URL = import.meta.env.VITE_API_URL;
 
 function BuyerActivities() {
-  const [showModal, setShowModal] = useState(false);
-  const [agents, setAgents] = useState([]);
-  const [editMode, setEditMode] = useState(false);
-  const [editId, setEditId] = useState(null);
-  const [formData, setFormData] = useState({
-    name: "",
-    phone: "",
-    email: "",
-    status: "active",
-    address: "",
-    password: "",
-    profile_img: null,
-  });
-
-  useEffect(() => {
-    fetchAgents();
-  }, []);
-
-  const fetchAgents = async () => {
-    try {
-      const res = await axios.get(`${API_BASE_URL}/api/user/clients`);
-      setAgents(res.data);
-      console.log(res.data)
-    } catch (error) {
-      toast.error("Failed to fetch agents");
-    }
-  };
-
-  const handleSubmit = async () => {
-    if (!formData.name || !formData.email || !formData.phone) {
-      toast.error("Please fill all required fields");
-      return;
-    }
-
-    try {
-      const data = new FormData();
-      data.append("name", formData.name);
-      data.append("email", formData.email);
-      data.append("phone", formData.phone);
-      data.append("status", formData.status);
-      data.append("password", formData.password)
-      data.append("address", formData.address);
-      if (formData.profile_img) data.append("profile_img", formData.profile_img);
-
-      if (editMode) {
-        await axios.put(`${API_BASE_URL}/api/user/${editId}`, data, {
-          headers: { "Content-Type": "multipart/form-data" },
-        });
-        toast.success("Agent updated successfully");
-      } else {
-        await axios.post(`${API_BASE_URL}/api/user`, data, {
-          headers: { "Content-Type": "multipart/form-data" },
-        });
-        toast.success("Agent added successfully");
-      }
-
-      fetchAgents();
-      setFormData({
-        name: "",
-        phone: "",
-        email: "",
-        status: "active",
-        address: "",
-        profile_img: null,
-      });
-      setShowModal(false);
-      setEditMode(false);
-      setEditId(null);
-    } catch (error) {
-      toast.error("Failed to save agent");
-    }
-  };
-
-  const handleEdit = (agent) => {
-    setFormData({
-      name: agent.name,
-      phone: agent.phone,
-      email: agent.email,
-      status: agent.status,
-      address: agent.address,
-      profile_img: agent.profile_img,
-    });
-    setEditId(agent.id);
-    setEditMode(true);
-    setShowModal(true);
-  };
-
-  const handleDelete = async (id) => {
-    if (window.confirm("Are you sure you want to delete this agent?")) {
-      try {
-        await axios.delete(`${API_BASE_URL}/api/user/${id}`);
-        toast.success("Agent deleted successfully");
-        fetchAgents();
-      } catch (error) {
-        toast.error("Failed to delete agent");
-      }
-    }
-  };
 
   return (
     <>

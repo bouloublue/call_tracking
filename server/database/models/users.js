@@ -22,14 +22,30 @@ User.init({
     type: DataTypes.STRING,
     allowNull: false,
   },
+  countryCode: {
+    type: DataTypes.STRING,
+    allowNull: false,
+  },
+
+  zipCode: {
+    type: DataTypes.STRING,
+    allowNull: true,
+  },
+
   password: {
     type: DataTypes.STRING,
     allowNull: false,
   },
   role: {
-    type: DataTypes.ENUM('admin', 'client', 'manager', 'staff'),
-    defaultValue: 'client',
+    type: DataTypes.ENUM('admin', 'buyer'),
+    defaultValue: 'buyer',
   },
+
+  company: {
+    type: DataTypes.STRING,
+    allowNull: true,
+  },
+  
   address: {
     type: DataTypes.STRING,
     allowNull: true,

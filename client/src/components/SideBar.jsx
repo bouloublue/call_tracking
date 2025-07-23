@@ -114,7 +114,7 @@ const SideBar = ({ isOpen, toggleSidebar }) => {
       name: 'Billing',
       icon: <FaMoneyBill />,
       submenu: [
-        { name: 'Billing Logic', path: '/forms', icon: <FaCalculator /> },
+        { name: 'Billing Logic', path: '/billing-logic', icon: <FaCalculator /> },
         { name: 'Billing Reports', path: '/forms', icon: <FaChartLine /> },
       ],
     },
