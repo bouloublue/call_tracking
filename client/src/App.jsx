@@ -16,6 +16,7 @@ import CampaignOverview from './pages/CampaignOverview';
 import BuyerActivities from './pages/BuyerActivities';
 import ActiveNumbers from './pages/ActiveNumbers';
 import BillingLogic from './pages/BillingLogic';
+import BillingReport from './pages/BillingReport';
 
 import { FaBars } from 'react-icons/fa';
 import appStyles from './App.module.css';
@@ -90,6 +91,7 @@ function AppLayout() {
             <Route path="/profile" element={<ProtectedRoute><Profile /></ProtectedRoute>} />
             <Route path="/buyer-activities" element={<ProtectedRoute><BuyerActivities /></ProtectedRoute>} />
             <Route path="/billing-logic" element={<ProtectedRoute><BillingLogic /></ProtectedRoute>} />
+            <Route path="/billing-report" element={<ProtectedRoute><BillingReport /></ProtectedRoute>} />
 
             {/* Catch-all 404 */}
             <Route path="*" element={<div>404 Not Found</div>} />

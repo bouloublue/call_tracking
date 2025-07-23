@@ -6,6 +6,7 @@ import { toast } from "react-toastify";
 import styles from "../pages/Home.module.css";
 import "react-toastify/dist/ReactToastify.css";
 const API_BASE_URL = import.meta.env.VITE_API_URL;
+import { HiBadgeCheck   } from "react-icons/hi";
 
 function Agents() {
   const [showModal, setShowModal] = useState(false);
@@ -88,21 +89,58 @@ function Agents() {
     }
   };
 
-  const handleEdit = (agent) => {
-    setFormData({
-      name: agent.name,
-      phone: agent.phone,
-      countryCode: agent.countryCode || "+91",
-      email: agent.email,
-      company: agent.company || "",
-      status: agent.status,
-      address: agent.address,
-      profile_img: agent.profile_img,
-    });
-    setEditId(agent.id);
-    setEditMode(true);
-    setShowModal(true);
-  };
+  // const handleEdit = (agent) => {
+    
+  //   setFormData({
+  //     name: agent.name,
+  //     phone: agent.phone,
+  //     countryCode: agent.countryCode || "+91",
+  //     email: agent.email,
+  //     company: agent.company || "",
+  //     status: agent.status,
+  //     address: agent.address,
+  //     profile_img: agent.profile_img,
+  //   });
+  //   setEditId(agent.id);
+  //   setEditMode(true);
+  //   setShowModal(true);
+  // };
+const handleEdit = (agent) => {
+let fullPhone = agent.phone || "";
+let countryCode = "+91"; // default fallback
+let phoneNumber = "";
+
+if (fullPhone.startsWith("+")) {
+  // Match country code (1–4 digits after +), rest is phone
+  const match = fullPhone.match(/^(\+\d{1,1})(\d{6,15})$/);
+  if (match) {
+    countryCode = match[1];
+    phoneNumber = match[2];
+  } else {
+    // fallback if regex fails
+    phoneNumber = fullPhone;
+  }
+} else {
+  phoneNumber = fullPhone;
+}
+
+
+  setFormData({
+    name: agent.name || "",
+    email: agent.email || "",
+    phone: phoneNumber,
+    countryCode: countryCode,
+    company: agent.company || "",
+    status: agent.status || "active",
+    address: agent.address || "",
+    password: "",
+    profile_img: agent.profile_img || null,
+  });
+
+  setEditId(agent.id);
+  setEditMode(true);
+  setShowModal(true);
+};
 
   const handleDelete = async (id) => {
     if (window.confirm("Are you sure you want to delete this agent?")) {
@@ -251,9 +289,9 @@ function Agents() {
                               src={
                                 agent.profile_img
                                   ? `http://localhost:3000${agent.profile_img.replace(
-                                    /\\/g,
-                                    "/"
-                                  )}`
+                                      /\\/g,
+                                      "/"
+                                    )}`
                                   : "/assets/images/users/avatar-1.jpg"
                               }
                               alt="Avatar"
@@ -263,12 +301,18 @@ function Agents() {
                             {agent.name}
                           </td>
                           <td>{agent.email}</td>
-                          <td>{agent.phone}
+                          <td className="flex items-center gap-2 text-blue-600">
+                            {agent.phone}
+                            <HiBadgeCheck   style={{ color: 'blue', marginBottom: '4px', marginLeft: '4px', fontSize: '16px' }} />
                           </td>
                           <td>{agent.company || "N/A"}</td>
                           <td>
                             <span
-                              className={`badge ${agent.status === "active" ? "bg-success bg-opacity-10 text-success" : "bg-danger bg-opacity-10 text-danger"} p-2`}
+                              className={`badge ${
+                                agent.status === "active"
+                                  ? "bg-success bg-opacity-10 text-success"
+                                  : "bg-danger bg-opacity-10 text-danger"
+                              } p-2`}
                               style={{ fontSize: "0.85rem" }}
                             >
                               {agent.status}
@@ -276,18 +320,26 @@ function Agents() {
                           </td>
                           <td>
                             <button
-                              className="btn btn-sm me-1 bg-primary bg-opacity-10 text-primary"
+                              className="btn btn-sm me-2 p-1"
                               onClick={() => handleEdit(agent)}
                               title="Edit"
                             >
-                              <i className="fas fa-edit"></i>
+                              <img
+                                src="/assets/images/icons/edit.png"
+                                alt="Edit"
+                                width="16"
+                              />
                             </button>
                             <button
-                              className="btn btn-sm bg-danger bg-opacity-10 text-danger"
+                              className="btn btn-sm p-1"
                               onClick={() => handleDelete(agent.id)}
                               title="Delete"
                             >
-                              <i className="fas fa-trash-alt"></i>
+                              <img
+                                src="/assets/images/icons/delete.png"
+                                alt="Delete"
+                                width="16"
+                              />
                             </button>
                           </td>
                         </tr>
@@ -339,9 +391,9 @@ function Agents() {
                               ? typeof formData.profile_img === "object"
                                 ? URL.createObjectURL(formData.profile_img)
                                 : `http://localhost:3000${formData.profile_img.replace(
-                                  /\\/g,
-                                  "/"
-                                )}`
+                                    /\\/g,
+                                    "/"
+                                  )}`
                               : "/assets/images/users/avatar-10.jpg"
                           }
                           alt="Profile"
@@ -460,7 +512,7 @@ function Agents() {
                               const { countryCode, phone } = formData;
                               if (!countryCode || !phone.trim()) {
                                 alert(
-                                  "❌ Please enter country code and phone number."
+                                  "❌ OTP feature is not available yet. Please enter a valid phone number."
                                 );
                               } else if (!/^\d{6,15}$/.test(phone)) {
                                 alert("❌ Invalid phone number format.");

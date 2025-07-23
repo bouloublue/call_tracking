@@ -13,7 +13,7 @@ function ActiveNumbers() {
   const [editId, setEditId] = useState(null);
   const [formData, setFormData] = useState({
     number: "",
-    friendlyName: "",
+    friendly_name: "",
     type: "local", // default to local
     status: "active"
   });
@@ -32,17 +32,17 @@ function ActiveNumbers() {
   };
 
   const handleSubmit = async () => {
-    if (!formData.number || !formData.friendlyName) {
+    if (!formData.number || !formData.friendly_name) {
       toast.error("Please fill all required fields");
       return;
     }
 
     try {
       if (editMode) {
-        await axios.put(`${API_BASE_URL}/api/numbers/${editId}`, formData);
+        await axios.put(`${API_BASE_URL}/api/number/${editId}`, formData);
         toast.success("Number updated successfully");
       } else {
-        await axios.post(`${API_BASE_URL}/api/numbers`, formData);
+        await axios.post(`${API_BASE_URL}/api/number`, formData);
         toast.success("Number added successfully");
       }
 
@@ -57,7 +57,7 @@ function ActiveNumbers() {
   const handleEdit = (number) => {
     setFormData({
       number: number.number,
-      friendlyName: number.friendlyName,
+      friendly_name: number.friendly_name,
       type: number.type,
       status: number.status
     });
@@ -81,7 +81,7 @@ function ActiveNumbers() {
   const resetForm = () => {
     setFormData({
       number: "",
-      friendlyName: "",
+      friendly_name: "",
       type: "local",
       status: "active"
     });
@@ -201,18 +201,27 @@ function ActiveNumbers() {
                           </td>
                           <td>
                             <button
-                              className="btn btn-sm me-1 bg-primary bg-opacity-10 text-primary"
+                              className="btn btn-sm me-2 p-1"
                               onClick={() => handleEdit(number)}
                               title="Edit"
                             >
-                              <i className="fas fa-edit"></i>
+                              {/* <i className="fas fa-edit"></i> */}
+                              <img
+                                  src="/assets/images/icons/edit.png"
+                                  alt="Edit"
+                                  width="16"
+                                />
                             </button>
                             <button
-                              className="btn btn-sm bg-danger bg-opacity-10 text-danger"
+                              className="btn btn-sm p-1"
                               onClick={() => handleDelete(number.id)}
                               title="Delete"
                             >
-                              <i className="fas fa-trash-alt"></i>
+                              <img
+                                  src="/assets/images/icons/delete.png"
+                                  alt="Delete"
+                                  width="16"
+                                />
                             </button>
                           </td>
                         </tr>
@@ -272,9 +281,9 @@ function ActiveNumbers() {
                           type="text"
                           className="form-control"
                           style={{ padding: "15px" }}
-                          value={formData.friendlyName}
+                          value={formData.friendly_name}
                           onChange={(e) =>
-                            setFormData({ ...formData, friendlyName: e.target.value })
+                            setFormData({ ...formData, friendly_name: e.target.value })
                           }
                           placeholder="Enter friendly name"
                         />
