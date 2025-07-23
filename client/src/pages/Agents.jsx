@@ -235,12 +235,12 @@ function Agents() {
                   <table className="table">
                     <thead>
                       <tr>
-                        <th>Name</th>
-                        <th>Email</th>
-                        <th>Phone</th>
-                        <th>Company</th>
-                        <th>Status</th>
-                        <th>Action</th>
+                        <th className="text-muted">Name</th>
+                        <th className="text-muted">Email</th>
+                        <th className="text-muted">Phone</th>
+                        <th className="text-muted">Company</th>
+                        <th className="text-muted">Status</th>
+                        <th className="text-muted">Action</th>
                       </tr>
                     </thead>
                     <tbody>
@@ -251,9 +251,9 @@ function Agents() {
                               src={
                                 agent.profile_img
                                   ? `http://localhost:3000${agent.profile_img.replace(
-                                      /\\/g,
-                                      "/"
-                                    )}`
+                                    /\\/g,
+                                    "/"
+                                  )}`
                                   : "/assets/images/users/avatar-1.jpg"
                               }
                               alt="Avatar"
@@ -266,27 +266,28 @@ function Agents() {
                           <td>{agent.phone}
                           </td>
                           <td>{agent.company || "N/A"}</td>
-                          <td
-                            className={
-                              agent.status === "active"
-                                ? "text-success"
-                                : "text-danger"
-                            }
-                          >
-                            {agent.status}
+                          <td>
+                            <span
+                              className={`badge ${agent.status === "active" ? "bg-success bg-opacity-10 text-success" : "bg-danger bg-opacity-10 text-danger"} p-2`}
+                              style={{ fontSize: "0.85rem" }}
+                            >
+                              {agent.status}
+                            </span>
                           </td>
                           <td>
                             <button
-                              className="btn btn-sm btn-primary me-1"
+                              className="btn btn-sm me-1 bg-primary bg-opacity-10 text-primary"
                               onClick={() => handleEdit(agent)}
+                              title="Edit"
                             >
-                              Edit
+                              <i className="fas fa-edit"></i>
                             </button>
                             <button
-                              className="btn btn-sm btn-danger"
+                              className="btn btn-sm bg-danger bg-opacity-10 text-danger"
                               onClick={() => handleDelete(agent.id)}
+                              title="Delete"
                             >
-                              Delete
+                              <i className="fas fa-trash-alt"></i>
                             </button>
                           </td>
                         </tr>
@@ -338,9 +339,9 @@ function Agents() {
                               ? typeof formData.profile_img === "object"
                                 ? URL.createObjectURL(formData.profile_img)
                                 : `http://localhost:3000${formData.profile_img.replace(
-                                    /\\/g,
-                                    "/"
-                                  )}`
+                                  /\\/g,
+                                  "/"
+                                )}`
                               : "/assets/images/users/avatar-10.jpg"
                           }
                           alt="Profile"

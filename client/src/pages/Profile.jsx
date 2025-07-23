@@ -80,9 +80,6 @@ function Profile() {
                                         <li className="nav-item">
                                             <a className="nav-link fw-medium " data-bs-toggle="tab" href="#post" role="tab" aria-selected="false">Company Settings</a>
                                         </li>
-                                        <li className="nav-item">
-                                            <a className="nav-link fw-medium" data-bs-toggle="tab" href="#gallery" role="tab" aria-selected="false">Role & Permissions</a>
-                                        </li>
                                     </ul>
                                     <div className="tab-content">
                                         {/* <div className="tab-pane active" id="post" role="tabpanel">
@@ -440,7 +437,6 @@ function Profile() {
                                                         <label className="col-xl-3 col-lg-3 text-end mb-lg-0 align-self-center form-label">Company Name</label>
                                                         <div className="col-lg-9 col-xl-8">
                                                             <input className="form-control" type="text" value="Call Tracking" />
-                                                            <span className="form-text text-muted font-12">We'll never share your email with anyone else.</span>
                                                         </div>
                                                     </div>
 
@@ -462,7 +458,7 @@ function Profile() {
                                                             </div>
                                                         </div>
                                                     </div>
-                                                    <div className="form-group mb-3 row">
+                                                    {/* <div className="form-group mb-3 row">
                                                         <label className="col-xl-3 col-lg-3 text-end mb-lg-0 align-self-center form-label">Website Link</label>
                                                         <div className="col-lg-9 col-xl-8">
                                                             <div className="input-group">
@@ -470,7 +466,7 @@ function Profile() {
                                                                 <input type="text" className="form-control" value="" placeholder="Email" aria-describedby="basic-addon1" />
                                                             </div>
                                                         </div>
-                                                    </div>
+                                                    </div> */}
                                                     <div className="form-group mb-3 row">
                                                         <label className="col-xl-3 col-lg-3 text-end mb-lg-0 align-self-center form-label">Location</label>
                                                         <div className="col-lg-9 col-xl-8">
@@ -485,7 +481,7 @@ function Profile() {
                                                     </div>
                                                     <div className="form-group row">
                                                         <div className="col-lg-9 col-xl-8 offset-lg-3">
-                                                            <button type="submit" className="btn btn-primary" style={{padding:"10px 20px", background:"#2E6F6E"}}>Submit</button>
+                                                            <button type="submit" className="btn btn-primary" style={{ padding: "10px 20px", background: "#2E6F6E" }}>Submit</button>
                                                         </div>
                                                     </div>
                                                 </div>
@@ -495,13 +491,6 @@ function Profile() {
                                                     <h4 className="card-title">Change Password</h4>
                                                 </div>
                                                 <div className="card-body pt-0">
-                                                    <div className="form-group mb-3 row">
-                                                        <label className="col-xl-3 col-lg-3 text-end mb-lg-0 align-self-center form-label">Current Password</label>
-                                                        <div className="col-lg-9 col-xl-8">
-                                                            <input className="form-control" type="password" placeholder="Password" />
-                                                            <a href="#" className="text-primary font-12">Forgot password ?</a>
-                                                        </div>
-                                                    </div>
                                                     <div className="form-group mb-3 row">
                                                         <label className="col-xl-3 col-lg-3 text-end mb-lg-0 align-self-center form-label">New Password</label>
                                                         <div className="col-lg-9 col-xl-8">
@@ -516,23 +505,8 @@ function Profile() {
                                                     </div>
                                                     <div className="form-group row">
                                                         <div className="col-lg-9 col-xl-8 offset-lg-3">
-                                                            <button type="submit" className="btn btn-primary" style={{padding:"10px 20px", background:"#2E6F6E"}}>Change Password</button>
+                                                            <button type="submit" className="btn btn-primary" style={{ padding: "10px 20px", background: "#2E6F6E" }}>Change Password</button>
                                                         </div>
-                                                    </div>
-                                                </div>
-                                            </div>
-                                            <div className="card">
-                                                <div className="card-header">
-                                                    <h4 className="card-title">Other Settings</h4>
-                                                </div>
-                                                <div className="card-body pt-0">
-                                                    <div className="form-check">
-                                                        <input className="form-check-input" type="checkbox" value="" id="Email_Notifications" checked />
-                                                        <label className="form-check-label" for="Email_Notifications">
-                                                            Email Notifications
-                                                        </label>
-                                                        <div className="space20"></div>
-                                                        <span className="form-text text-muted fs-12 mt-0">Do you need them?</span>
                                                     </div>
                                                 </div>
                                             </div>
