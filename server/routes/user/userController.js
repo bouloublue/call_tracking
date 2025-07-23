@@ -6,7 +6,7 @@ const router = express.Router();
 // Create a new user
 router.post('/', upload.single('profile_img'), async (req, res) => {
   try {
-    const { name, email, phone, password, role, address, status } = req.body;
+    const { name, email, phone, countryCode, password, role, company, address, status, zipCode } = req.body;
 
     if (!req.body) {
       return res.status(400).json({ error: 'User data is required' });
@@ -23,9 +23,12 @@ router.post('/', upload.single('profile_img'), async (req, res) => {
       name,
       email,
       phone,
+      countryCode,
+      company,
       password: hashedPassword,
       role: role,
-      address: address ,
+      address: address,
+      zipCode: zipCode,
       profile_img: profileImgPath,
       status: status,
     });
@@ -35,10 +38,14 @@ router.post('/', upload.single('profile_img'), async (req, res) => {
       name: newUser.name,
       email: newUser.email,
       phone: newUser.phone,
+      countryCode: newUser.countryCode,
+      company: newUser.company,
+      address: newUser.address,
       profile_img: newUser.profile_img,
       role: newUser.role,
       status: newUser.status,
-      created_at: newUser.created_at
+      created_at: newUser.created_at,
+      zipCode: newUser.zipCode
     });
   } catch (error) {
     console.error('Error creating user:', error);
@@ -49,16 +56,15 @@ router.post('/', upload.single('profile_img'), async (req, res) => {
   }
 });
 
-// Get all clients
-
-router.get('/clients', async (req, res) => {
+// Get all buyers
+router.get('/buyers', async (req, res) => {
   try {
-    const clients = await global.db.models.User.findAll({
-      where: { role: 'client' },
+    const buyers = await global.db.models.User.findAll({
+      where: { role: 'buyer' },
     });
-    res.status(200).json(clients);
+    res.status(200).json(buyers);
   } catch (error) {
-    console.error('Error fetching clients:', error);
+    console.error('Error fetching buyers:', error);
     res.status(500).json({ error: 'Internal server error' });
   }
 });
@@ -98,7 +104,7 @@ router.get('/:id', async (req, res) => {
 router.put('/:id', upload.single('profile_img'), async (req, res) => {
   try {
     const { id } = req.params;
-    const { name, email, phone, role, address, status } = req.body;
+    const { name, email, phone, countryCode, role, company, address, status, zipCode } = req.body;
 
     const user = await global.db.models.User.findByPk(id);
     if (!user) {
@@ -110,9 +116,12 @@ router.put('/:id', upload.single('profile_img'), async (req, res) => {
       name,
       email,
       phone,
+      countryCode,
+      company,
       role,
       address,
       status,
+      zipCode,
       profile_img: req.file ? `/uploads/${req.file.filename}` : user.profile_img,
     });
 

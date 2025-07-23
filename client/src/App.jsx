@@ -5,21 +5,23 @@ import SideBar from './components/SideBar';
 import ProtectedRoute from './components/ProtectedRoute';
 import Home from './pages/Home';
 import Campaigns from './pages/Campaigns';
-import Leads from './pages/Leads';
 import Agents from './pages/Agents';
 import Manager from './pages/Manager';
-import Forms from './pages/forms';
 
 import CallLogs from './pages/CallLogs';
 import Profile from './pages/Profile';
 import Login from './pages/Auth/Login';
 import SignUp from './pages/Auth/SignUp';
 import CampaignOverview from './pages/CampaignOverview';
-import BuyerActivities from './pages/buyer-activities';
+import BuyerActivities from './pages/BuyerActivities';
 import ActiveNumbers from './pages/ActiveNumbers';
+import BillingLogic from './pages/BillingLogic';
 
 import { FaBars } from 'react-icons/fa';
 import appStyles from './App.module.css';
+
+import { ToastContainer } from "react-toastify";
+import "react-toastify/dist/ReactToastify.css";
 
 function AppLayout() {
   const [isSidebarOpen, setIsSidebarOpen] = useState(window.innerWidth >= 768);
@@ -71,6 +73,7 @@ function AppLayout() {
         }`}
       >
         <main>
+          <ToastContainer position="top-right" autoClose={2000} />
           <Routes>
             {/* Public Routes */}
             <Route path="/login" element={<Login />} />
@@ -80,14 +83,13 @@ function AppLayout() {
             <Route path="/" element={<ProtectedRoute><Home /></ProtectedRoute>} />
             <Route path="/campaigns" element={<ProtectedRoute><Campaigns /></ProtectedRoute>} />
             <Route path="/campaigns/:id" element={<ProtectedRoute><CampaignOverview /></ProtectedRoute>} />
-            <Route path="/leads" element={<ProtectedRoute><Leads /></ProtectedRoute>} />
             <Route path="/agents" element={<ProtectedRoute><Agents /></ProtectedRoute>} />
             <Route path="/numbers/active-numbers" element={<ProtectedRoute><ActiveNumbers /></ProtectedRoute>} />
             <Route path="/manager" element={<ProtectedRoute><Manager /></ProtectedRoute>} />
-            <Route path="/forms" element={<ProtectedRoute><Forms /></ProtectedRoute>} />
             <Route path="/call-logs" element={<ProtectedRoute><CallLogs /></ProtectedRoute>} />
             <Route path="/profile" element={<ProtectedRoute><Profile /></ProtectedRoute>} />
             <Route path="/buyer-activities" element={<ProtectedRoute><BuyerActivities /></ProtectedRoute>} />
+            <Route path="/billing-logic" element={<ProtectedRoute><BillingLogic /></ProtectedRoute>} />
 
             {/* Catch-all 404 */}
             <Route path="*" element={<div>404 Not Found</div>} />
