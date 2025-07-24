@@ -20,6 +20,8 @@
     "react-router-dom": "^7.6.2",
     "react-select": "^5.10.2",
     "react-toastify": "^11.0.5",
+    "swal": "^0.1.0",
+    "sweetalert2": "^11.22.2",
     "telnyx": "^2.0.1-beta.0",
     "twilio": "^5.7.3"
   },

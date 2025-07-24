@@ -1,6 +1,8 @@
 import { useState, useEffect } from "react";
 import axios from "axios";
+import { toast } from 'react-toastify';
 import styles from "../pages/Home.module.css";
+import Swal from "sweetalert2";
 
 const API_BASE_URL = import.meta.env.VITE_API_URL;
 
@@ -72,11 +74,25 @@ function BillingLogic() {
   };
 
   const handleDeleteRule = async (ruleId) => {
+    const result = await Swal.fire({
+      title: 'Are you sure?',
+      text: "You won't be able to revert this!",
+      icon: 'warning',
+      showCancelButton: true,
+      confirmButtonColor: '#3085d6',
+      cancelButtonColor: '#d33',
+      confirmButtonText: 'Yes, delete it!'
+    });
+
+    if (!result.isConfirmed) return;
+
     try {
       await axios.delete(`${API_BASE_URL}/api/billing/rules/${ruleId}`);
+      toast.success("Billing rule deleted successfully");
       fetchBillingRules(selectedCampaign);
     } catch (error) {
       console.error("Error deleting billing rule:", error);
+      toast.error("Failed to delete billing rule");
     }
   };
 
@@ -197,7 +213,7 @@ function BillingLogic() {
               <span
                 style={{
                   backgroundColor: "#eff6ff",
-                  color: "#3b82f6",
+                  color: "#0D9488",
                   fontSize: "13px",
                   padding: "4px 10px",
                   borderRadius: "999px",
@@ -238,13 +254,34 @@ function BillingLogic() {
                     border: "1px solid #e2e8f0",
                     fontSize: "14px",
                     backgroundColor: "#ffffff",
+                    // Remove default focus outline
+                    outline: "none",
+                    // Custom hover effect
+                    ":hover": {
+                      backgroundColor: "#f8fafc",
+                      borderColor: "#cbd5e1"
+                    },
+                    // Custom focus effect
+                    ":focus": {
+                      borderColor: "#94a3b8",
+                      boxShadow: "0 0 0 1px #e2e8f0"
+                    }
                   }}
                   value={selectedCampaign || ""}
                   onChange={(e) => setSelectedCampaign(e.target.value)}
                 >
                   <option value="">Select a campaign...</option>
                   {campaigns.map((campaign) => (
-                    <option key={campaign.id} value={campaign.id}>
+                    <option
+                      key={campaign.id}
+                      value={campaign.id}
+                      style={{
+                        // Gray background on option hover
+                        ":hover": {
+                          backgroundColor: "#f1f5f9"
+                        }
+                      }}
+                    >
                       {campaign.name}
                     </option>
                   ))}
@@ -345,6 +382,8 @@ function BillingLogic() {
                         width: "18px",
                         height: "18px",
                         marginRight: "8px",
+                        cursor: "pointer",
+                        accentColor: "#0D9488", // This changes the checkbox color
                       }}
                       checked={newRule.allow_override}
                       onChange={(e) =>
@@ -368,7 +407,7 @@ function BillingLogic() {
                     style={{
                       width: "100%",
                       padding: "10px",
-                      backgroundColor: "#3b82f6",
+                      backgroundColor: "#0D9488",
                       color: "white",
                       border: "none",
                       borderRadius: "6px",
@@ -416,7 +455,7 @@ function BillingLogic() {
                   <span
                     style={{
                       backgroundColor: "#eff6ff",
-                      color: "#3b82f6",
+                      color: "#0D9488",
                       fontSize: "13px",
                       padding: "4px 10px",
                       borderRadius: "999px",
@@ -507,68 +546,117 @@ function BillingLogic() {
                       </tr>
                     </thead>
                     {selectedCampaign && (
-                    <tbody>
-                      {rules.map((rule) => (
-                        <tr
-                          key={rule.id}
-                          style={{
-                            borderBottom: "1px solid #e2e8f0",
-                            transition: "background-color 0.2s",
-                          }}
-                          onMouseEnter={(e) =>
-                            (e.currentTarget.style.backgroundColor = "#f9fbfd")
-                          }
-                          onMouseLeave={(e) =>
+                      <tbody>
+                        {rules.map((rule) => (
+                          <tr
+                            key={rule.id}
+                            style={{
+                              borderBottom: "1px solid #e2e8f0",
+                              transition: "background-color 0.2s",
+                            }}
+                            onMouseEnter={(e) =>
+                              (e.currentTarget.style.backgroundColor = "#f9fbfd")
+                            }
+                            onMouseLeave={(e) =>
                             (e.currentTarget.style.backgroundColor =
                               "transparent")
-                          }
-                        >
-                          <td
-                            style={{
-                              padding: "12px 16px",
-                              color: "#1e293b",
-                            }}
+                            }
                           >
-                            {rule.min_duration_sec} sec
-                          </td>
-                          <td
-                            style={{
-                              padding: "12px 16px",
-                              color: "#1e293b",
-                              fontWeight: "500",
-                            }}
-                          >
-                            ${rule.rate_per_min.toFixed(4)}
-                          </td>
-                          <td
-                            style={{
-                              padding: "12px 16px",
-                              color: rule.allow_override
-                                ? "#10b981"
-                                : "#ef4444",
-                            }}
-                          >
-                            {rule.allow_override ? "Allowed" : "Not Allowed"}
-                          </td>
-                          <td style={{ padding: "12px 16px" }}>
-                            <button
+                            <td
                               style={{
-                                padding: "6px 12px",
-                                backgroundColor: "#fee2e2",
-                                color: "#dc2626",
-                                border: "none",
-                                borderRadius: "6px",
-                                fontSize: "13px",
-                                cursor: "pointer",
+                                padding: "12px 16px",
+                                color: "#1e293b",
                               }}
-                              onClick={() => handleDeleteRule(rule.id)}
                             >
-                              Delete
-                            </button>
-                          </td>
-                        </tr>
-                      ))}
-                    </tbody>
+                              {rule.min_duration_sec} sec
+                            </td>
+                            <td
+                              style={{
+                                padding: "12px 16px",
+                                color: "#1e293b",
+                                fontWeight: "500",
+                              }}
+                            >
+                              ${rule.rate_per_min.toFixed(4)}
+                            </td>
+                            <td
+                              style={{
+                                padding: "12px 16px",
+                                color: rule.allow_override
+                                  ? "#10b981"
+                                  : "#ef4444",
+                              }}
+                            >
+                              {rule.allow_override ? "Allowed" : "Not Allowed"}
+                            </td>
+                            <td style={{ padding: "12px 16px", display: "flex", gap: "8px" }}>
+                              {rule.allow_override ? (
+                                <button
+                                  style={{
+                                    padding: "6px",
+                                    backgroundColor: "transparent",
+                                    border: "none",
+                                    borderRadius: "6px",
+                                    cursor: "pointer",
+                                    display: "flex",
+                                    alignItems: "center",
+                                    justifyContent: "center"
+                                  }}
+                                  onClick={() => handleEditRule(rule.id)}
+                                  aria-label="Edit"
+                                >
+                                  <svg
+                                    xmlns="http://www.w3.org/2000/svg"
+                                    width="16"
+                                    height="16"
+                                    viewBox="0 0 24 24"
+                                    fill="none"
+                                    stroke="#3b82f6"
+                                    strokeWidth="2"
+                                    strokeLinecap="round"
+                                    strokeLinejoin="round"
+                                  >
+                                    <path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"></path>
+                                    <path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"></path>
+                                  </svg>
+                                </button>
+                              ) : null}
+
+                              <button
+                                style={{
+                                  padding: "6px",
+                                  backgroundColor: "transparent",
+                                  border: "none",
+                                  borderRadius: "6px",
+                                  cursor: "pointer",
+                                  display: "flex",
+                                  alignItems: "center",
+                                  justifyContent: "center"
+                                }}
+                                onClick={() => handleDeleteRule(rule.id)}
+                                aria-label="Delete"
+                              >
+                                <svg
+                                  xmlns="http://www.w3.org/2000/svg"
+                                  width="16"
+                                  height="16"
+                                  viewBox="0 0 24 24"
+                                  fill="none"
+                                  stroke="#dc2626"
+                                  strokeWidth="2"
+                                  strokeLinecap="round"
+                                  strokeLinejoin="round"
+                                >
+                                  <path d="M3 6h18"></path>
+                                  <path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path>
+                                  <line x1="10" y1="11" x2="10" y2="17"></line>
+                                  <line x1="14" y1="11" x2="14" y2="17"></line>
+                                </svg>
+                              </button>
+                            </td>
+                          </tr>
+                        ))}
+                      </tbody>
                     )}
                   </table>
                 )}

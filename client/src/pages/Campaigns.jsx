@@ -4,6 +4,7 @@ import "react-toastify/dist/ReactToastify.css";
 import styles from "../pages/Home.module.css";
 import axios from "axios";
 import Select from "react-select";
+import Swal from 'sweetalert2';
 
 const API_BASE_URL = import.meta.env.VITE_API_URL;
 
@@ -139,11 +140,36 @@ function Campaigns() {
     }
   };
 
-  const deleteCampaign = (id) => {
-    if (!window.confirm("Are you sure you want to delete this campaign?"))
-      return;
-    setCampaigns(campaigns.filter((c) => c.id !== id));
-    toast.success("Campaign deleted successfully");
+  // const deleteCampaign = (id) => {
+  //   if (!window.confirm("Are you sure you want to delete this campaign?"))
+  //     return;
+  //   setCampaigns(campaigns.filter((c) => c.id !== id));
+  //   toast.success("Campaign deleted successfully");
+  // };
+
+
+  const deleteCampaign = async (id) => {
+    const result = await Swal.fire({
+      title: 'Are you sure?',
+      text: "You won't be able to revert this!",
+      icon: 'warning',
+      showCancelButton: true,
+      confirmButtonColor: '#3085d6',
+      cancelButtonColor: '#d33',
+      confirmButtonText: 'Yes, delete it!'
+    });
+
+    if (!result.isConfirmed) return;
+
+    // Rest of your existing code
+    try {
+      await axios.delete(`${API_BASE_URL}/api/campaign/${id}`);
+      setCampaigns(campaigns.filter((c) => c.id !== id));
+      toast.success("Campaign deleted successfully");
+    } catch (error) {
+      console.error("Error deleting campaign:", error);
+      toast.error("Failed to delete campaign");
+    }
   };
 
   const toggleSetting = (field) => {
@@ -304,7 +330,7 @@ function Campaigns() {
                                     const res = await axios.get(
                                       `${API_BASE_URL}/api/campaign/${c.id}`
                                     );
-                                    
+
                                     const campaignData = res.data;
 
                                     setEditingCampaignId(campaignData.id);
@@ -386,9 +412,8 @@ function Campaigns() {
                   {/* Tabs */}
                   <div className="d-flex border-bottom mb-4">
                     <button
-                      className={`btn btn-link ${
-                        activeTab === "settings" ? "text-dark" : "text-muted"
-                      }`}
+                      className={`btn btn-link ${activeTab === "settings" ? "text-dark" : "text-muted"
+                        }`}
                       style={{
                         borderBottom:
                           activeTab === "settings"
@@ -401,9 +426,8 @@ function Campaigns() {
                       Campaign Settings
                     </button>
                     <button
-                      className={`btn btn-link ${
-                        activeTab === "performance" ? "text-dark" : "text-muted"
-                      }`}
+                      className={`btn btn-link ${activeTab === "performance" ? "text-dark" : "text-muted"
+                        }`}
                       style={{
                         borderBottom:
                           activeTab === "performance"

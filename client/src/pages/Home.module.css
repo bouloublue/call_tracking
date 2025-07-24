@@ -98,6 +98,37 @@
   font-weight: 400;
 }
 
+
+/* Custom select dropdown */
+.custom-select {
+  width: 100%;
+  padding: 10px 12px;
+  border-radius: 6px;
+  border: 1px solid #e2e8f0;
+  font-size: 14px;
+  background-color: #ffffff;
+  outline: none;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.custom-select:hover {
+  background-color: #f8fafc !important;
+  border-color: #cbd5e1;
+}
+
+.custom-select:focus {
+  border-color: #94a3b8;
+  box-shadow: 0 0 0 1px #e2e8f0;
+}
+
+/* Options hover style */
+.custom-select option:hover {
+  background-color: #f1f5f9 !important;
+}
+
+
+
 .pageTitle {
   font-size: 1.75rem;
   font-weight: 700;

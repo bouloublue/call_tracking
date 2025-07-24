@@ -6,7 +6,8 @@ import { toast } from "react-toastify";
 import styles from "../pages/Home.module.css";
 import "react-toastify/dist/ReactToastify.css";
 const API_BASE_URL = import.meta.env.VITE_API_URL;
-import { HiBadgeCheck   } from "react-icons/hi";
+import { HiBadgeCheck } from "react-icons/hi";
+import Swal from 'sweetalert2';
 
 function Agents() {
   const [showModal, setShowModal] = useState(false);
@@ -90,7 +91,7 @@ function Agents() {
   };
 
   // const handleEdit = (agent) => {
-    
+
   //   setFormData({
   //     name: agent.name,
   //     phone: agent.phone,
@@ -105,55 +106,64 @@ function Agents() {
   //   setEditMode(true);
   //   setShowModal(true);
   // };
-const handleEdit = (agent) => {
-let fullPhone = agent.phone || "";
-let countryCode = "+91"; // default fallback
-let phoneNumber = "";
+  const handleEdit = (agent) => {
+    let fullPhone = agent.phone || "";
+    let countryCode = "+91"; // default fallback
+    let phoneNumber = "";
 
-if (fullPhone.startsWith("+")) {
-  // Match country code (1–4 digits after +), rest is phone
-  const match = fullPhone.match(/^(\+\d{1,1})(\d{6,15})$/);
-  if (match) {
-    countryCode = match[1];
-    phoneNumber = match[2];
-  } else {
-    // fallback if regex fails
-    phoneNumber = fullPhone;
-  }
-} else {
-  phoneNumber = fullPhone;
-}
-
-
-  setFormData({
-    name: agent.name || "",
-    email: agent.email || "",
-    phone: phoneNumber,
-    countryCode: countryCode,
-    company: agent.company || "",
-    status: agent.status || "active",
-    address: agent.address || "",
-    password: "",
-    profile_img: agent.profile_img || null,
-  });
-
-  setEditId(agent.id);
-  setEditMode(true);
-  setShowModal(true);
-};
-
-  const handleDelete = async (id) => {
-    if (window.confirm("Are you sure you want to delete this agent?")) {
-      try {
-        await axios.delete(`${API_BASE_URL}/api/user/${id}`);
-        toast.success("Buyer deleted successfully");
-        fetchAgents();
-      } catch (error) {
-        toast.error("Failed to delete buyer");
+    if (fullPhone.startsWith("+")) {
+      // Match country code (1–4 digits after +), rest is phone
+      const match = fullPhone.match(/^(\+\d{1,1})(\d{6,15})$/);
+      if (match) {
+        countryCode = match[1];
+        phoneNumber = match[2];
+      } else {
+        // fallback if regex fails
+        phoneNumber = fullPhone;
       }
+    } else {
+      phoneNumber = fullPhone;
     }
+
+
+    setFormData({
+      name: agent.name || "",
+      email: agent.email || "",
+      phone: phoneNumber,
+      countryCode: countryCode,
+      company: agent.company || "",
+      status: agent.status || "active",
+      address: agent.address || "",
+      password: "",
+      profile_img: agent.profile_img || null,
+    });
+
+    setEditId(agent.id);
+    setEditMode(true);
+    setShowModal(true);
   };
 
+  const handleDelete = async (id) => {
+    const result = await Swal.fire({
+      title: 'Are you sure?',
+      text: "You won't be able to revert this!",
+      icon: 'warning',
+      showCancelButton: true,
+      confirmButtonColor: '#3085d6',
+      cancelButtonColor: '#d33',
+      confirmButtonText: 'Yes, delete it!'
+    });
+
+    if (!result.isConfirmed) return;
+
+    try {
+      await axios.delete(`${API_BASE_URL}/api/user/${id}`);
+      toast.success("Buyer deleted successfully");
+      fetchAgents();
+    } catch (error) {
+      toast.error("Failed to delete buyer");
+    }
+  };
   return (
     <>
       <div className={styles.homePageContainer}>
@@ -289,9 +299,9 @@ if (fullPhone.startsWith("+")) {
                               src={
                                 agent.profile_img
                                   ? `http://localhost:3000${agent.profile_img.replace(
-                                      /\\/g,
-                                      "/"
-                                    )}`
+                                    /\\/g,
+                                    "/"
+                                  )}`
                                   : "/assets/images/users/avatar-1.jpg"
                               }
                               alt="Avatar"
@@ -303,16 +313,15 @@ if (fullPhone.startsWith("+")) {
                           <td>{agent.email}</td>
                           <td className="flex items-center gap-2 text-blue-600">
                             {agent.phone}
-                            <HiBadgeCheck   style={{ color: 'blue', marginBottom: '4px', marginLeft: '4px', fontSize: '16px' }} />
+                            <HiBadgeCheck style={{ color: 'blue', marginBottom: '4px', marginLeft: '4px', fontSize: '16px' }} />
                           </td>
                           <td>{agent.company || "N/A"}</td>
                           <td>
                             <span
-                              className={`badge ${
-                                agent.status === "active"
+                              className={`badge ${agent.status === "active"
                                   ? "bg-success bg-opacity-10 text-success"
                                   : "bg-danger bg-opacity-10 text-danger"
-                              } p-2`}
+                                } p-2`}
                               style={{ fontSize: "0.85rem" }}
                             >
                               {agent.status}
@@ -391,9 +400,9 @@ if (fullPhone.startsWith("+")) {
                               ? typeof formData.profile_img === "object"
                                 ? URL.createObjectURL(formData.profile_img)
                                 : `http://localhost:3000${formData.profile_img.replace(
-                                    /\\/g,
-                                    "/"
-                                  )}`
+                                  /\\/g,
+                                  "/"
+                                )}`
                               : "/assets/images/users/avatar-10.jpg"
                           }
                           alt="Profile"

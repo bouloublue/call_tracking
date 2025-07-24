@@ -481,7 +481,7 @@ function Profile() {
                                                     </div>
                                                     <div className="form-group row">
                                                         <div className="col-lg-9 col-xl-8 offset-lg-3">
-                                                            <button type="submit" className="btn btn-primary" style={{ padding: "10px 20px", background: "#2E6F6E" }}>Submit</button>
+                                                            <button type="submit" className="btn btn-primary" style={{ padding: "10px 20px", background: "#2E6F6E" }}>Update</button>
                                                         </div>
                                                     </div>
                                                 </div>
