@@ -125,7 +125,6 @@ function Agents() {
       phoneNumber = fullPhone;
     }
 
-
     setFormData({
       name: agent.name || "",
       email: agent.email || "",
@@ -295,24 +294,27 @@ function Agents() {
                       {agents.map((agent) => (
                         <tr key={agent.id}>
                           <td>
-                            <img
+                            {/* <img
                               src={
                                 agent.profile_img
-                                  ? `http://localhost:3000${agent.profile_img.replace(
-                                    /\\/g,
-                                    "/"
-                                  )}`
+
+                                  ? `${API_BASE_URL}${agent.profile_img.replace(
+                                      /\\/g,
+                                      "/"
+                                    )}`
+
                                   : "/assets/images/users/avatar-1.jpg"
                               }
                               alt="Avatar"
                               className="rounded-circle me-2"
                               style={{ width: "30px", height: "30px" }}
-                            />
+                            /> */}
                             {agent.name}
                           </td>
                           <td>{agent.email}</td>
                           <td className="flex items-center gap-2 text-blue-600">
                             {agent.phone}
+
                             <HiBadgeCheck style={{ color: 'blue', marginBottom: '4px', marginLeft: '4px', fontSize: '16px' }} />
                           </td>
                           <td>{agent.company || "N/A"}</td>
@@ -394,20 +396,22 @@ function Agents() {
 
                       {/* Form Fields */}
                       <div className="mb-3 profile-upload-wrapper">
-                        <img
+                        {/* <img
                           src={
                             formData.profile_img
                               ? typeof formData.profile_img === "object"
                                 ? URL.createObjectURL(formData.profile_img)
-                                : `http://localhost:3000${formData.profile_img.replace(
-                                  /\\/g,
-                                  "/"
-                                )}`
+
+                                : `${API_BASE_URL}${formData.profile_img.replace(
+                                      /\\/g,
+                                      "/"
+                                    )}`
+
                               : "/assets/images/users/avatar-10.jpg"
                           }
                           alt="Profile"
                           className="profile-upload-img"
-                        />
+                        /> */}
 
                         <label
                           htmlFor="profileUpload"
