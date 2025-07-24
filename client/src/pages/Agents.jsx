@@ -6,7 +6,7 @@ import { toast } from "react-toastify";
 import styles from "../pages/Home.module.css";
 import "react-toastify/dist/ReactToastify.css";
 const API_BASE_URL = import.meta.env.VITE_API_URL;
-import { HiBadgeCheck   } from "react-icons/hi";
+import { HiBadgeCheck } from "react-icons/hi";
 
 function Agents() {
   const [showModal, setShowModal] = useState(false);
@@ -90,7 +90,7 @@ function Agents() {
   };
 
   // const handleEdit = (agent) => {
-    
+
   //   setFormData({
   //     name: agent.name,
   //     phone: agent.phone,
@@ -105,42 +105,41 @@ function Agents() {
   //   setEditMode(true);
   //   setShowModal(true);
   // };
-const handleEdit = (agent) => {
-let fullPhone = agent.phone || "";
-let countryCode = "+91"; // default fallback
-let phoneNumber = "";
+  const handleEdit = (agent) => {
+    let fullPhone = agent.phone || "";
+    let countryCode = "+91"; // default fallback
+    let phoneNumber = "";
 
-if (fullPhone.startsWith("+")) {
-  // Match country code (1–4 digits after +), rest is phone
-  const match = fullPhone.match(/^(\+\d{1,1})(\d{6,15})$/);
-  if (match) {
-    countryCode = match[1];
-    phoneNumber = match[2];
-  } else {
-    // fallback if regex fails
-    phoneNumber = fullPhone;
-  }
-} else {
-  phoneNumber = fullPhone;
-}
+    if (fullPhone.startsWith("+")) {
+      // Match country code (1–4 digits after +), rest is phone
+      const match = fullPhone.match(/^(\+\d{1,1})(\d{6,15})$/);
+      if (match) {
+        countryCode = match[1];
+        phoneNumber = match[2];
+      } else {
+        // fallback if regex fails
+        phoneNumber = fullPhone;
+      }
+    } else {
+      phoneNumber = fullPhone;
+    }
 
+    setFormData({
+      name: agent.name || "",
+      email: agent.email || "",
+      phone: phoneNumber,
+      countryCode: countryCode,
+      company: agent.company || "",
+      status: agent.status || "active",
+      address: agent.address || "",
+      password: "",
+      profile_img: agent.profile_img || null,
+    });
 
-  setFormData({
-    name: agent.name || "",
-    email: agent.email || "",
-    phone: phoneNumber,
-    countryCode: countryCode,
-    company: agent.company || "",
-    status: agent.status || "active",
-    address: agent.address || "",
-    password: "",
-    profile_img: agent.profile_img || null,
-  });
-
-  setEditId(agent.id);
-  setEditMode(true);
-  setShowModal(true);
-};
+    setEditId(agent.id);
+    setEditMode(true);
+    setShowModal(true);
+  };
 
   const handleDelete = async (id) => {
     if (window.confirm("Are you sure you want to delete this agent?")) {
@@ -285,10 +284,10 @@ if (fullPhone.startsWith("+")) {
                       {agents.map((agent) => (
                         <tr key={agent.id}>
                           <td>
-                            <img
+                            {/* <img
                               src={
                                 agent.profile_img
-                                  ? `http://localhost:3000${agent.profile_img.replace(
+                                  ? `${API_BASE_URL}${agent.profile_img.replace(
                                       /\\/g,
                                       "/"
                                     )}`
@@ -297,13 +296,20 @@ if (fullPhone.startsWith("+")) {
                               alt="Avatar"
                               className="rounded-circle me-2"
                               style={{ width: "30px", height: "30px" }}
-                            />
+                            /> */}
                             {agent.name}
                           </td>
                           <td>{agent.email}</td>
                           <td className="flex items-center gap-2 text-blue-600">
                             {agent.phone}
-                            <HiBadgeCheck   style={{ color: 'blue', marginBottom: '4px', marginLeft: '4px', fontSize: '16px' }} />
+                            <HiBadgeCheck
+                              style={{
+                                color: "blue",
+                                marginBottom: "4px",
+                                marginLeft: "4px",
+                                fontSize: "16px",
+                              }}
+                            />
                           </td>
                           <td>{agent.company || "N/A"}</td>
                           <td>
@@ -385,20 +391,20 @@ if (fullPhone.startsWith("+")) {
 
                       {/* Form Fields */}
                       <div className="mb-3 profile-upload-wrapper">
-                        <img
+                        {/* <img
                           src={
                             formData.profile_img
                               ? typeof formData.profile_img === "object"
                                 ? URL.createObjectURL(formData.profile_img)
-                                : `http://localhost:3000${formData.profile_img.replace(
-                                    /\\/g,
-                                    "/"
-                                  )}`
+                                : `${API_BASE_URL}${formData.profile_img.replace(
+                                      /\\/g,
+                                      "/"
+                                    )}`
                               : "/assets/images/users/avatar-10.jpg"
                           }
                           alt="Profile"
                           className="profile-upload-img"
-                        />
+                        /> */}
 
                         <label
                           htmlFor="profileUpload"
