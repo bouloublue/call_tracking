@@ -275,7 +275,6 @@ function Home() {
                             <th className={styles.borderTop0}>Caller</th>
                             <th className={styles.borderTop0}>Duration</th>
                             <th className={styles.borderTop0}>Time</th>
-                            <th className={`${styles.borderTop0} ${styles.textEnd}`}>Actions</th>
                           </tr>
                         </thead>
                         <tbody>
@@ -292,14 +291,7 @@ function Home() {
                             <td>(415) 555-0132</td>
                             <td>5m 12s</td>
                             <td>Today, 09:56 am</td>
-                            <td className={styles.textEnd}>
-                              <a href="#" className={styles.tableActionLink}>
-                                <FaEdit />
-                              </a>
-                              <a href="#" className={styles.tableActionLink}>
-                                <FaTimesCircle />
-                              </a>
-                            </td>
+                            
                           </tr>
                           <tr>
                             <td>
@@ -314,14 +306,7 @@ function Home() {
                             <td>(628) 555-0126</td>
                             <td>3m 48s</td>
                             <td>Today, 12:20 pm</td>
-                            <td className={styles.textEnd}>
-                              <a href="#" className={styles.tableActionLink}>
-                                <FaEdit />
-                              </a>
-                              <a href="#" className={styles.tableActionLink}>
-                                <FaTimesCircle />
-                              </a>
-                            </td>
+                           
                           </tr>
                           <tr>
                             <td>
@@ -336,14 +321,7 @@ function Home() {
                             <td>(925) 555-0187</td>
                             <td>7m 32s</td>
                             <td>Yesterday, 08:05 am</td>
-                            <td className={styles.textEnd}>
-                              <a href="#" className={styles.tableActionLink}>
-                                <FaEdit />
-                              </a>
-                              <a href="#" className={styles.tableActionLink}>
-                                <FaTimesCircle />
-                              </a>
-                            </td>
+                            
                           </tr>
                           <tr>
                             <td>
@@ -358,14 +336,6 @@ function Home() {
                             <td>(510) 555-0198</td>
                             <td>4m 15s</td>
                             <td>Jul 8, 05:46 pm</td>
-                            <td className={styles.textEnd}>
-                              <a href="#" className={styles.tableActionLink}>
-                                <FaEdit />
-                              </a>
-                              <a href="#" className={styles.tableActionLink}>
-                                <FaTimesCircle />
-                              </a>
-                            </td>
                           </tr>
                         </tbody>
                       </table>

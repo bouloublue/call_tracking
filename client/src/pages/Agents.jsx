@@ -7,6 +7,7 @@ import styles from "../pages/Home.module.css";
 import "react-toastify/dist/ReactToastify.css";
 const API_BASE_URL = import.meta.env.VITE_API_URL;
 import { HiBadgeCheck } from "react-icons/hi";
+import Swal from 'sweetalert2';
 
 function Agents() {
   const [showModal, setShowModal] = useState(false);
@@ -142,17 +143,26 @@ function Agents() {
   };
 
   const handleDelete = async (id) => {
-    if (window.confirm("Are you sure you want to delete this agent?")) {
-      try {
-        await axios.delete(`${API_BASE_URL}/api/user/${id}`);
-        toast.success("Buyer deleted successfully");
-        fetchAgents();
-      } catch (error) {
-        toast.error("Failed to delete buyer");
-      }
+    const result = await Swal.fire({
+      title: 'Are you sure?',
+      text: "You won't be able to revert this!",
+      icon: 'warning',
+      showCancelButton: true,
+      confirmButtonColor: '#3085d6',
+      cancelButtonColor: '#d33',
+      confirmButtonText: 'Yes, delete it!'
+    });
+
+    if (!result.isConfirmed) return;
+
+    try {
+      await axios.delete(`${API_BASE_URL}/api/user/${id}`);
+      toast.success("Buyer deleted successfully");
+      fetchAgents();
+    } catch (error) {
+      toast.error("Failed to delete buyer");
     }
   };
-
   return (
     <>
       <div className={styles.homePageContainer}>
@@ -287,10 +297,12 @@ function Agents() {
                             {/* <img
                               src={
                                 agent.profile_img
+
                                   ? `${API_BASE_URL}${agent.profile_img.replace(
                                       /\\/g,
                                       "/"
                                     )}`
+
                                   : "/assets/images/users/avatar-1.jpg"
                               }
                               alt="Avatar"
@@ -302,23 +314,16 @@ function Agents() {
                           <td>{agent.email}</td>
                           <td className="flex items-center gap-2 text-blue-600">
                             {agent.phone}
-                            <HiBadgeCheck
-                              style={{
-                                color: "blue",
-                                marginBottom: "4px",
-                                marginLeft: "4px",
-                                fontSize: "16px",
-                              }}
-                            />
+
+                            <HiBadgeCheck style={{ color: 'blue', marginBottom: '4px', marginLeft: '4px', fontSize: '16px' }} />
                           </td>
                           <td>{agent.company || "N/A"}</td>
                           <td>
                             <span
-                              className={`badge ${
-                                agent.status === "active"
+                              className={`badge ${agent.status === "active"
                                   ? "bg-success bg-opacity-10 text-success"
                                   : "bg-danger bg-opacity-10 text-danger"
-                              } p-2`}
+                                } p-2`}
                               style={{ fontSize: "0.85rem" }}
                             >
                               {agent.status}
@@ -396,10 +401,12 @@ function Agents() {
                             formData.profile_img
                               ? typeof formData.profile_img === "object"
                                 ? URL.createObjectURL(formData.profile_img)
+
                                 : `${API_BASE_URL}${formData.profile_img.replace(
                                       /\\/g,
                                       "/"
                                     )}`
+
                               : "/assets/images/users/avatar-10.jpg"
                           }
                           alt="Profile"

@@ -37,6 +37,16 @@ function BillingReport() {
     }
   };
 
+  function getInitials(name) {
+    if (!name) return '';
+    const parts = name.split(' ');
+    let initials = parts[0].charAt(0);
+    if (parts.length > 1) {
+      initials += parts[parts.length - 1].charAt(0);
+    }
+    return initials.toUpperCase();
+  }
+
   useEffect(() => {
     fetchBillingLogs();
   }, []);
@@ -172,117 +182,152 @@ function BillingReport() {
                 </button>
                 <span
                   style={{
-                    backgroundColor: "#eff6ff",
-                    color: "#3b82f6",
+                    backgroundColor: "#e2fbf9ff",
+                    color: "#0D9488",
                     fontSize: "13px",
-                    padding: "4px 10px",
+                    padding: "6px 12px",
                     borderRadius: "999px",
                   }}
                 >
                   {logs.length} {logs.length === 1 ? "entry" : "entries"}
                 </span>
-                <button
-                  style={{
-                    padding: "6px 12px",
-                    fontSize: "14px",
-                    backgroundColor: "white",
-                    color: "#3b82f6",
-                    border: "1px solid #3b82f6",
-                    borderRadius: "6px",
-                    cursor: "pointer",
-                  }}
-                >
-                  <i
-                    className="fas fa-file-export"
-                    style={{ marginRight: "6px" }}
-                  ></i>
-                  Export
-                </button>
+                <div className={styles.colAuto}>
+                  <button className={styles.downloadBtn}>
+                    Export Data
+                  </button>
+                </div>
               </div>
             </div>
 
-            <div className="table-responsive">
-              <table
-                className="table align-middle mb-0"
-                style={{
-                  backgroundColor: "#ffffff",
-                  fontSize: "15px",
-                  borderRadius: "10px",
-                  overflow: "hidden",
-                  width: "100%",
-                  border: "1px solid #e2e8f0",
-                }}
-              >
-                <thead style={{ backgroundColor: "#f8fafc" }}>
-                  <tr>
-                    <th style={{ color: "#475569", padding: "12px 16px" }}>
-                      Campaign
-                    </th>
-                    <th style={{ color: "#475569", padding: "12px 16px" }}>
-                      Caller
-                    </th>
-                    <th style={{ color: "#475569", padding: "12px 16px" }}>
-                      Buyer
-                    </th>
-                    <th style={{ color: "#475569", padding: "12px 16px" }}>
-                      Duration
-                    </th>
-                    <th style={{ color: "#475569", padding: "12px 16px" }}>
-                      Amount
-                    </th>
-                    <th style={{ color: "#475569", padding: "12px 16px" }}>
-                      Date
-                    </th>
+            <div style={{ width: "100%", overflowX: "auto" }}>
+              <table style={{
+                width: "100%",
+                borderCollapse: "collapse",
+                backgroundColor: "#ffffff",
+                fontSize: "14px"
+              }}>
+                <thead>
+                  <tr style={{ backgroundColor: "#f8fafc" }}>
+                    <th style={{
+                      padding: "12px 16px",
+                      color: "#94A3B8",
+                      textAlign: "left",
+                      fontWeight: "600",
+                      borderBottom: "1px solid #e2e8f0"
+                    }}>CAMPAIGN</th>
+                    <th style={{
+                      padding: "12px 16px",
+                      color: "#94A3B8",
+                      textAlign: "left",
+                      fontWeight: "600",
+                      borderBottom: "1px solid #e2e8f0"
+                    }}>CALLER</th>
+                    <th style={{
+                      padding: "12px 16px",
+                      color: "#94A3B8",
+                      textAlign: "left",
+                      fontWeight: "600",
+                      borderBottom: "1px solid #e2e8f0"
+                    }}>BUYER</th>
+                    <th style={{
+                      padding: "12px 16px",
+                      color: "#94A3B8",
+                      textAlign: "left",
+                      fontWeight: "600",
+                      borderBottom: "1px solid #e2e8f0"
+                    }}>DURATION</th>
+                    <th style={{
+                      padding: "12px 16px",
+                      color: "#94A3B8",
+                      textAlign: "left",
+                      fontWeight: "600",
+                      borderBottom: "1px solid #e2e8f0"
+                    }}>AMOUNT</th>
+                    <th style={{
+                      padding: "12px 16px",
+                      color: "#94A3B8",
+                      textAlign: "left",
+                      fontWeight: "600",
+                      borderBottom: "1px solid #e2e8f0"
+                    }}>DATE</th>
                   </tr>
                 </thead>
                 <tbody>
-                  {logs.map((log) => (
+                  {logs.map((log, index) => (
                     <tr
                       key={log.id}
                       style={{
-                        borderBottom: "1px solid #e2e8f0",
+                        backgroundColor: index % 2 === 0 ? "#ffffff" : "#f9fbfd",
                         transition: "background-color 0.2s",
+                        borderBottom: "1px solid #e2e8f0"
                       }}
-                      onMouseEnter={(e) =>
-                        (e.currentTarget.style.backgroundColor = "#f9fbfd")
-                      }
-                      onMouseLeave={(e) =>
-                        (e.currentTarget.style.backgroundColor = "transparent")
-                      }
+                      onMouseEnter={(e) => (e.currentTarget.style.backgroundColor = "#f1f5f9")}
+                      onMouseLeave={(e) => (e.currentTarget.style.backgroundColor = index % 2 === 0 ? "#ffffff" : "#f9fbfd")}
                     >
-                      <td style={{ color: "#1e293b", padding: "12px 16px" }}>
-                        {log.campaign_name}
+                      <td style={{ padding: "12px 16px" }}>
+                        <div style={{
+                          display: "inline-block",
+                          padding: "4px 12px",
+                          backgroundColor: "#ecfffdff",
+                          borderRadius: "16px",
+                          color: "#0E877D",
+                          fontSize: "14px"
+                        }}>
+                          {log.campaign_name}
+                        </div>
                       </td>
-                      <td style={{ color: "#1e293b", padding: "12px 16px" }}>
+                      <td style={{
+                        padding: "12px 16px",
+                        color: "#1e293b"
+                      }}>
                         {log.caller_number}
                       </td>
-                      <td style={{ color: "#1e293b", padding: "12px 16px" }}>
-                        {log.buyer_name}
+                      <td style={{ padding: "12px 16px" }}>
+                        <div style={{
+                          display: "flex",
+                          alignItems: "center",
+                          gap: "8px"
+                        }}>
+                          <div style={{
+                            width: "32px",
+                            height: "32px",
+                            borderRadius: "50%",
+                            backgroundColor: "#0E877D",
+                            color: "white",
+                            display: "flex",
+                            alignItems: "center",
+                            justifyContent: "center",
+                            fontSize: "12px",
+                            fontWeight: "500"
+                          }}>
+                            {getInitials(log.buyer_name)}
+                          </div>
+                          {log.buyer_name}
+                        </div>
                       </td>
                       <td style={{ padding: "12px 16px" }}>
-                        <span
-                          style={{
-                            border: "1px solid #d1d5db",
-                            fontSize: "13px",
-                            padding: "4px 8px",
-                            borderRadius: "999px",
-                            backgroundColor: "#f1f5f9",
-                            color: "#1e293b",
-                          }}
-                        >
+                        <span style={{
+                          // border: "1px solid #d1d5db",
+                          fontSize: "13px",
+                          padding: "4px 8px",
+                          borderRadius: "999px",
+                          // backgroundColor: "#f1f5f9",
+                          color: "#1e293b"
+                        }}>
                           {log.duration_sec} sec
                         </span>
                       </td>
-                      <td
-                        style={{
-                          color: "#1e293b",
-                          fontWeight: "600",
-                          padding: "12px 16px",
-                        }}
-                      >
+                      <td style={{
+                        padding: "12px 16px",
+                        color: "#1e293b",
+                        fontWeight: "600"
+                      }}>
                         ${log.amount_charged.toFixed(4)}
                       </td>
-                      <td style={{ color: "#64748b", padding: "12px 16px" }}>
+                      <td style={{
+                        padding: "12px 16px",
+                        color: "#64748b"
+                      }}>
                         {new Date(log.created_at).toLocaleString()}
                       </td>
                     </tr>

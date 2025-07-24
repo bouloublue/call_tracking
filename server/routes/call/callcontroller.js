@@ -50,9 +50,11 @@ router.post("/inbound-call", async (req, res) => {
 
   try {
     // Find campaign with this number and smart routing
+    console.log("number" , toNumber)
     const number = await Number.findOne({ where: { number: toNumber }, attributes: ['id'] });
+    console.log("number", number)
     if (!number) {
-      response.say("Sorry, this number is not active for calls.");
+      response.say("Sorry, this number is not active for calls please try another number.");
       return res.type("text/xml").send(response.toString());
     }
 
