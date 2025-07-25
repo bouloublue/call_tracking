@@ -5,6 +5,7 @@ import { toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 import styles from "../pages/Home.module.css";
 import Swal from "sweetalert2";
+import { HiBadgeCheck } from "react-icons/hi";
 const API_BASE_URL = import.meta.env.VITE_API_URL;
 
 function ActiveNumbers() {
@@ -67,27 +68,27 @@ function ActiveNumbers() {
     setShowModal(true);
   };
 
- const handleDelete = async (id) => {
-  const result = await Swal.fire({
-    title: 'Are you sure?',
-    text: "You won't be able to revert this!",
-    icon: 'warning',
-    showCancelButton: true,
-    confirmButtonColor: '#3085d6',
-    cancelButtonColor: '#d33',
-    confirmButtonText: 'Yes, delete it!'
-  });
+  const handleDelete = async (id) => {
+    const result = await Swal.fire({
+      title: 'Are you sure?',
+      text: "You won't be able to revert this!",
+      icon: 'warning',
+      showCancelButton: true,
+      confirmButtonColor: '#3085d6',
+      cancelButtonColor: '#d33',
+      confirmButtonText: 'Yes, delete it!'
+    });
 
-  if (!result.isConfirmed) return;
+    if (!result.isConfirmed) return;
 
-  try {
-    await axios.delete(`${API_BASE_URL}/api/numbers/${id}`);
-    toast.success("Number deleted successfully");
-    fetchNumbers();
-  } catch (error) {
-    toast.error("Failed to delete number");
-  }
-};
+    try {
+      await axios.delete(`${API_BASE_URL}/api/numbers/${id}`);
+      toast.success("Number deleted successfully");
+      fetchNumbers();
+    } catch (error) {
+      toast.error("Failed to delete number");
+    }
+  };
 
   const resetForm = () => {
     setFormData({
@@ -199,7 +200,9 @@ function ActiveNumbers() {
                     <tbody>
                       {numbers.map((number) => (
                         <tr key={number.id}>
-                          <td>{number.number}</td>
+                          <td>{number.number}
+                            <HiBadgeCheck style={{ color: 'blue', marginBottom: '4px', marginLeft: '4px', fontSize: '16px' }} />
+                          </td>
                           <td>{number.friendly_name}</td>
                           <td>{number.type}</td>
                           <td>
@@ -218,10 +221,10 @@ function ActiveNumbers() {
                             >
                               {/* <i className="fas fa-edit"></i> */}
                               <img
-                                  src="/assets/images/icons/edit.png"
-                                  alt="Edit"
-                                  width="16"
-                                />
+                                src="/assets/images/icons/edit.png"
+                                alt="Edit"
+                                width="16"
+                              />
                             </button>
                             <button
                               className="btn btn-sm p-1"
@@ -229,10 +232,10 @@ function ActiveNumbers() {
                               title="Delete"
                             >
                               <img
-                                  src="/assets/images/icons/delete.png"
-                                  alt="Delete"
-                                  width="16"
-                                />
+                                src="/assets/images/icons/delete.png"
+                                alt="Delete"
+                                width="16"
+                              />
                             </button>
                           </td>
                         </tr>
