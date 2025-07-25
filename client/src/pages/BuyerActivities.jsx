@@ -169,9 +169,14 @@ function BuyerActivities() {
                   title="Refresh logs"
                   disabled={loading}
                 >
-                  <i
+                  {/* <i
                     className={`fas fa-sync-alt ${loading ? "fa-spin" : ""}`}
-                  ></i>
+                  ></i> */}
+                  <img
+                        src="/assets/images/icons/refresh.png"
+                        alt="Refresh"
+                        style={{ width: "18px", height: "18px" }}
+                      />
                 </button>
                 <span
                   style={{

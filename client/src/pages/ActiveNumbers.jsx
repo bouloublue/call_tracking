@@ -12,11 +12,12 @@ function ActiveNumbers() {
   const [numbers, setNumbers] = useState([]);
   const [editMode, setEditMode] = useState(false);
   const [editId, setEditId] = useState(null);
+  const [refreshing, setRefreshing] = useState(false);
   const [formData, setFormData] = useState({
     number: "",
     friendly_name: "",
     type: "local", // default to local
-    status: "active"
+    status: "active",
   });
 
   useEffect(() => {
@@ -30,6 +31,13 @@ function ActiveNumbers() {
     } catch (error) {
       toast.error("Failed to fetch numbers");
     }
+  };
+
+  const handleRefresh = async () => {
+    setRefreshing(true);
+    await fetchNumbers();
+    setRefreshing(false);
+    toast.success("Numbers refreshed successfully");
   };
 
   const handleSubmit = async () => {
@@ -60,41 +68,41 @@ function ActiveNumbers() {
       number: number.number,
       friendly_name: number.friendly_name,
       type: number.type,
-      status: number.status
+      status: number.status,
     });
     setEditId(number.id);
     setEditMode(true);
     setShowModal(true);
   };
 
- const handleDelete = async (id) => {
-  const result = await Swal.fire({
-    title: 'Are you sure?',
-    text: "You won't be able to revert this!",
-    icon: 'warning',
-    showCancelButton: true,
-    confirmButtonColor: '#3085d6',
-    cancelButtonColor: '#d33',
-    confirmButtonText: 'Yes, delete it!'
-  });
+  const handleDelete = async (id) => {
+    const result = await Swal.fire({
+      title: "Are you sure?",
+      text: "You won't be able to revert this!",
+      icon: "warning",
+      showCancelButton: true,
+      confirmButtonColor: "#3085d6",
+      cancelButtonColor: "#d33",
+      confirmButtonText: "Yes, delete it!",
+    });
 
-  if (!result.isConfirmed) return;
+    if (!result.isConfirmed) return;
 
-  try {
-    await axios.delete(`${API_BASE_URL}/api/numbers/${id}`);
-    toast.success("Number deleted successfully");
-    fetchNumbers();
-  } catch (error) {
-    toast.error("Failed to delete number");
-  }
-};
+    try {
+      await axios.delete(`${API_BASE_URL}/api/numbers/${id}`);
+      toast.success("Number deleted successfully");
+      fetchNumbers();
+    } catch (error) {
+      toast.error("Failed to delete number");
+    }
+  };
 
   const resetForm = () => {
     setFormData({
       number: "",
       friendly_name: "",
       type: "local",
-      status: "active"
+      status: "active",
     });
     setEditMode(false);
     setEditId(null);
@@ -108,20 +116,29 @@ function ActiveNumbers() {
           <div className={styles.pageTitleContainer}>
             <div className={`${styles.row} ${styles.gap0}`}>
               <div className={styles.col12}>
-                <div className={`${styles.pageTitleContent} ${styles.dSmFlex} ${styles.justifyContentSmBetween} ${styles.alignItemsCenter}`}>
+                <div
+                  className={`${styles.pageTitleContent} ${styles.dSmFlex} ${styles.justifyContentSmBetween} ${styles.alignItemsCenter}`}
+                >
                   {/* Left Section - Title & Breadcrumb */}
                   <div>
                     <ol className={styles.breadcrumb}>
                       <li className={styles.breadcrumbItem}>
                         <a href="/">Call Tracking</a>
                       </li>
-                      <li className={`${styles.breadcrumbItem} ${styles.active}`}>Active Numbers</li>
+                      <li
+                        className={`${styles.breadcrumbItem} ${styles.active}`}
+                      >
+                        Active Numbers
+                      </li>
                     </ol>
                     <h1 className={styles.pageTitle}>Active Numbers</h1>
                   </div>
 
                   {/* Right Section - Notification + Date Filter */}
-                  <div className={styles.dateFilter} style={{ display: "flex", alignItems: "center" }}>
+                  <div
+                    className={styles.dateFilter}
+                    style={{ display: "flex", alignItems: "center" }}
+                  >
                     {/* 🔔 Notification Button */}
                     <button
                       style={{
@@ -156,14 +173,6 @@ function ActiveNumbers() {
                         }}
                       ></span>
                     </button>
-
-                    {/* 📅 Date Range */}
-                    <span className={styles.dateRange}>Jun 16, 2025 - Jul 10, 2025</span>
-
-                    {/* Filter Button */}
-                    <button className={styles.filterBtn} style={{ marginLeft: "10px" }}>
-                      Filter
-                    </button>
                   </div>
                 </div>
               </div>
@@ -175,6 +184,46 @@ function ActiveNumbers() {
           <div className="page-wrapper">
             <div className="page-content container-fluid">
               <div className="d-flex justify-content-between align-items-center mb-3">
+                <div className="d-flex align-items-center gap-2">
+                  {/* Date Range */}
+                  <span className={styles.dateRange}>
+                    Jun 16, 2025 - Jul 10, 2025
+                  </span>
+
+                  {/* Filter Button */}
+                  <button className={styles.filterBtn}>Filter</button>
+                  <button
+                    onClick={handleRefresh}
+                    disabled={refreshing}
+                    style={{
+                      width: "38px",
+                      height: "38px",
+                      borderRadius: "50%",
+                      border: "none",
+                      backgroundColor: "#f2f2f2",
+                      marginLeft: "10px", // Added space between filter and refresh
+                      display: "flex",
+                      alignItems: "center",
+                      justifyContent: "center",
+                      cursor: "pointer",
+                    }}
+                  >
+                    {refreshing ? (
+                      <div
+                        className="spinner-border spinner-border-sm text-primary"
+                        role="status"
+                      >
+                      <span className="visually-hidden">Loading...</span>
+                      </div>
+                    ) : (
+                      <img
+                        src="/assets/images/icons/refresh.png"
+                        alt="Refresh"
+                        style={{ width: "18px", height: "18px" }}
+                      />
+                    )}
+                  </button>
+                </div>
                 <button
                   className="btn btn-primary"
                   style={{ backgroundColor: "#2E6F6E" }}
@@ -204,7 +253,11 @@ function ActiveNumbers() {
                           <td>{number.type}</td>
                           <td>
                             <span
-                              className={`badge ${number.status === "active" ? "bg-success bg-opacity-10 text-success" : "bg-danger bg-opacity-10 text-danger"} p-2`}
+                              className={`badge ${
+                                number.status === "active"
+                                  ? "bg-success bg-opacity-10 text-success"
+                                  : "bg-danger bg-opacity-10 text-danger"
+                              } p-2`}
                               style={{ fontSize: "0.85rem" }}
                             >
                               {number.status}
@@ -218,10 +271,10 @@ function ActiveNumbers() {
                             >
                               {/* <i className="fas fa-edit"></i> */}
                               <img
-                                  src="/assets/images/icons/edit.png"
-                                  alt="Edit"
-                                  width="16"
-                                />
+                                src="/assets/images/icons/edit.png"
+                                alt="Edit"
+                                width="16"
+                              />
                             </button>
                             <button
                               className="btn btn-sm p-1"
@@ -229,10 +282,10 @@ function ActiveNumbers() {
                               title="Delete"
                             >
                               <img
-                                  src="/assets/images/icons/delete.png"
-                                  alt="Delete"
-                                  width="16"
-                                />
+                                src="/assets/images/icons/delete.png"
+                                alt="Delete"
+                                width="16"
+                              />
                             </button>
                           </td>
                         </tr>
@@ -258,7 +311,10 @@ function ActiveNumbers() {
                   <div className="slide-in-modal" style={{ width: "700px" }}>
                     <div className="p-4">
                       <div className="d-flex justify-content-between align-items-center mb-3">
-                        <h5 className="mb-0" style={{ fontSize: "18px", fontWeight: "bold" }}>
+                        <h5
+                          className="mb-0"
+                          style={{ fontSize: "18px", fontWeight: "bold" }}
+                        >
                           {editMode ? "Edit Number" : "Add New Number"}
                         </h5>
                         <button
@@ -294,7 +350,10 @@ function ActiveNumbers() {
                           style={{ padding: "15px" }}
                           value={formData.friendly_name}
                           onChange={(e) =>
-                            setFormData({ ...formData, friendly_name: e.target.value })
+                            setFormData({
+                              ...formData,
+                              friendly_name: e.target.value,
+                            })
                           }
                           placeholder="Enter friendly name"
                         />
@@ -346,7 +405,7 @@ function ActiveNumbers() {
                           style={{
                             padding: "10px 20px",
                             fontSize: "16px",
-                            backgroundColor: "#2E6F6E"
+                            backgroundColor: "#2E6F6E",
                           }}
                           onClick={handleSubmit}
                         >

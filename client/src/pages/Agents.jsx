@@ -7,13 +7,14 @@ import styles from "../pages/Home.module.css";
 import "react-toastify/dist/ReactToastify.css";
 const API_BASE_URL = import.meta.env.VITE_API_URL;
 import { HiBadgeCheck } from "react-icons/hi";
-import Swal from 'sweetalert2';
+import Swal from "sweetalert2";
 
 function Agents() {
   const [showModal, setShowModal] = useState(false);
   const [agents, setAgents] = useState([]);
   const [editMode, setEditMode] = useState(false);
   const [editId, setEditId] = useState(null);
+  const [refreshing, setRefreshing] = useState(false);
   const [formData, setFormData] = useState({
     name: "",
     phone: "",
@@ -29,6 +30,13 @@ function Agents() {
   useEffect(() => {
     fetchAgents();
   }, []);
+
+  const handleRefresh = async () => {
+    setRefreshing(true);
+    await fetchAgents();
+    setRefreshing(false);
+    toast.success("Buyers refreshed successfully");
+  };
 
   const fetchAgents = async () => {
     try {
@@ -90,22 +98,6 @@ function Agents() {
     }
   };
 
-  // const handleEdit = (agent) => {
-
-  //   setFormData({
-  //     name: agent.name,
-  //     phone: agent.phone,
-  //     countryCode: agent.countryCode || "+91",
-  //     email: agent.email,
-  //     company: agent.company || "",
-  //     status: agent.status,
-  //     address: agent.address,
-  //     profile_img: agent.profile_img,
-  //   });
-  //   setEditId(agent.id);
-  //   setEditMode(true);
-  //   setShowModal(true);
-  // };
   const handleEdit = (agent) => {
     let fullPhone = agent.phone || "";
     let countryCode = "+91"; // default fallback
@@ -144,13 +136,13 @@ function Agents() {
 
   const handleDelete = async (id) => {
     const result = await Swal.fire({
-      title: 'Are you sure?',
+      title: "Are you sure?",
       text: "You won't be able to revert this!",
-      icon: 'warning',
+      icon: "warning",
       showCancelButton: true,
-      confirmButtonColor: '#3085d6',
-      cancelButtonColor: '#d33',
-      confirmButtonText: 'Yes, delete it!'
+      confirmButtonColor: "#3085d6",
+      cancelButtonColor: "#d33",
+      confirmButtonText: "Yes, delete it!",
     });
 
     if (!result.isConfirmed) return;
@@ -228,19 +220,6 @@ function Agents() {
                         }}
                       ></span>
                     </button>
-
-                    {/* 📅 Date Range */}
-                    <span className={styles.dateRange}>
-                      Jun 16, 2025 - Jul 10, 2025
-                    </span>
-
-                    {/* Filter Button */}
-                    <button
-                      className={styles.filterBtn}
-                      style={{ marginLeft: "10px" }}
-                    >
-                      Filter
-                    </button>
                   </div>
                 </div>
               </div>
@@ -253,6 +232,46 @@ function Agents() {
             <div className="page-content container-fluid">
               <div className="d-flex justify-content-between align-items-center mb-3">
                 {/* <h4>Agents</h4> */}
+                <div className="d-flex align-items-center gap-2">
+                  {/* Date Range */}
+                  <span className={styles.dateRange}>
+                    Jun 16, 2025 - Jul 10, 2025
+                  </span>
+
+                  {/* Filter Button */}
+                  <button className={styles.filterBtn}>Filter</button>
+                  <button
+                    onClick={handleRefresh}
+                    disabled={refreshing}
+                    style={{
+                      width: "38px",
+                      height: "38px",
+                      borderRadius: "50%",
+                      border: "none",
+                      backgroundColor: "#f2f2f2",
+                      marginLeft: "10px", // Added space between filter and refresh
+                      display: "flex",
+                      alignItems: "center",
+                      justifyContent: "center",
+                      cursor: "pointer",
+                    }}
+                  >
+                    {refreshing ? (
+                      <div
+                        className="spinner-border spinner-border-sm text-primary"
+                        role="status"
+                      >
+                        <span className="visually-hidden">Loading...</span>
+                      </div>
+                    ) : (
+                      <img
+                        src="/assets/images/icons/refresh.png"
+                        alt="Refresh"
+                        style={{ width: "18px", height: "18px" }}
+                      />
+                    )}
+                  </button>
+                </div>
                 <button
                   className="btn btn-primary"
                   style={{ backgroundColor: "#2E6F6E" }}
@@ -315,15 +334,23 @@ function Agents() {
                           <td className="flex items-center gap-2 text-blue-600">
                             {agent.phone}
 
-                            <HiBadgeCheck style={{ color: 'blue', marginBottom: '4px', marginLeft: '4px', fontSize: '16px' }} />
+                            <HiBadgeCheck
+                              style={{
+                                color: "blue",
+                                marginBottom: "4px",
+                                marginLeft: "4px",
+                                fontSize: "16px",
+                              }}
+                            />
                           </td>
                           <td>{agent.company || "N/A"}</td>
                           <td>
                             <span
-                              className={`badge ${agent.status === "active"
+                              className={`badge ${
+                                agent.status === "active"
                                   ? "bg-success bg-opacity-10 text-success"
                                   : "bg-danger bg-opacity-10 text-danger"
-                                } p-2`}
+                              } p-2`}
                               style={{ fontSize: "0.85rem" }}
                             >
                               {agent.status}
@@ -413,7 +440,7 @@ function Agents() {
                           className="profile-upload-img"
                         /> */}
 
-                        <label
+                        {/* <label
                           htmlFor="profileUpload"
                           className="profile-upload-label"
                           style={{
@@ -440,7 +467,7 @@ function Agents() {
                               profile_img: e.target.files[0],
                             })
                           }
-                        />
+                        /> */}
                       </div>
 
                       <div className="mb-3">

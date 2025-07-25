@@ -4,7 +4,7 @@ import "react-toastify/dist/ReactToastify.css";
 import styles from "../pages/Home.module.css";
 import axios from "axios";
 import Select from "react-select";
-import Swal from 'sweetalert2';
+import Swal from "sweetalert2";
 
 const API_BASE_URL = import.meta.env.VITE_API_URL;
 
@@ -14,6 +14,8 @@ function Campaigns() {
   const [editMode, setEditMode] = useState(false);
   const [editingCampaignId, setEditingCampaignId] = useState(null);
   const [activeTab, setActiveTab] = useState("settings");
+  const [loading, setLoading] = useState(true);
+  const [refreshing, setRefreshing] = useState(false);
 
   const [allBuyers, setAllBuyers] = useState([]);
   const [availableNumbers, setAvailableNumbers] = useState([]);
@@ -41,7 +43,27 @@ function Campaigns() {
     fetchCampaigns();
     fetchBuyers();
     fetchNumbers();
+    fetchData();
   }, []);
+
+  const fetchData = async () => {
+    try {
+      setLoading(true);
+      await Promise.all([fetchCampaigns(), fetchBuyers(), fetchNumbers()]);
+    } catch (error) {
+      console.error("Failed to fetch data:", error);
+      toast.error("Failed to load data");
+    } finally {
+      setLoading(false);
+      setRefreshing(false);
+    }
+  };
+
+  const handleRefresh = () => {
+    setRefreshing(true);
+    fetchData();
+    toast.success("Data refreshed successfully");
+  };
 
   const fetchCampaigns = async () => {
     try {
@@ -140,23 +162,15 @@ function Campaigns() {
     }
   };
 
-  // const deleteCampaign = (id) => {
-  //   if (!window.confirm("Are you sure you want to delete this campaign?"))
-  //     return;
-  //   setCampaigns(campaigns.filter((c) => c.id !== id));
-  //   toast.success("Campaign deleted successfully");
-  // };
-
-
   const deleteCampaign = async (id) => {
     const result = await Swal.fire({
-      title: 'Are you sure?',
+      title: "Are you sure?",
       text: "You won't be able to revert this!",
-      icon: 'warning',
+      icon: "warning",
       showCancelButton: true,
-      confirmButtonColor: '#3085d6',
-      cancelButtonColor: '#d33',
-      confirmButtonText: 'Yes, delete it!'
+      confirmButtonColor: "#3085d6",
+      cancelButtonColor: "#d33",
+      confirmButtonText: "Yes, delete it!",
     });
 
     if (!result.isConfirmed) return;
@@ -242,19 +256,6 @@ function Campaigns() {
                         }}
                       ></span>
                     </button>
-
-                    {/* 📅 Date Range */}
-                    <span className={styles.dateRange}>
-                      Jun 16, 2025 - Jul 10, 2025
-                    </span>
-
-                    {/* Filter Button */}
-                    <button
-                      className={styles.filterBtn}
-                      style={{ marginLeft: "10px" }}
-                    >
-                      Filter
-                    </button>
                   </div>
                 </div>
               </div>
@@ -267,6 +268,56 @@ function Campaigns() {
             {!editMode ? (
               <>
                 <div className="d-flex justify-content-between align-items-center mb-3">
+                  {/* Left side - Add Campaign button */}
+                  <div className="d-flex align-items-center gap-2">
+                    {/* Date Range */}
+                    <span className={styles.dateRange}>
+                      Jun 16, 2025 - Jul 10, 2025
+                    </span>
+
+                    {/* Filter Button */}
+                    <button
+                      className={styles.filterBtn}
+                    >
+                      Filter
+                    </button>
+
+                    {/* Refresh Button */}
+                    <button
+                      onClick={handleRefresh}
+                      disabled={refreshing}
+                      style={{
+                        width: "38px",
+                        height: "38px",
+                        borderRadius: "50%",
+                        border: "none",
+                        backgroundColor: "#f2f2f2",
+                        marginLeft: "10px", // Added space between filter and refresh
+                        display: "flex",
+                        alignItems: "center",
+                        justifyContent: "center",
+                        cursor: "pointer",
+                      }}
+                    >
+                      {refreshing ? (
+                        <div
+                          className="spinner-border spinner-border-sm text-primary"
+                          role="status"
+                        >
+                          <span className="visually-hidden">Loading...</span>
+                        </div>
+                      ) : (
+                        <img
+                          src="/assets/images/icons/refresh.png"
+                          alt="Refresh"
+                          style={{ width: "18px", height: "18px" }}
+                        />
+                      )}
+                    </button>
+                  </div>
+
+                  {/* Right side - Filter and Refresh buttons */}
+
                   <button
                     className="btn btn-primary"
                     style={{
@@ -315,72 +366,76 @@ function Campaigns() {
                           </th>
                         </tr>
                       </thead>
+
                       <tbody>
-                        {Array.isArray(campaigns) && campaigns.map((c) => (
-                          <tr key={c.id}>
-                            <td style={{ fontSize: "14px" }}>
-                              <span>{c.name}</span>
-                            </td>
-                            <td style={{ fontSize: "14px" }}>{c.country}</td>
-                            <td>
-                              <button
-                                className="btn btn-sm me-2 p-1"
-                                onClick={async () => {
-                                  try {
-                                    const res = await axios.get(
-                                      `${API_BASE_URL}/api/campaign/${c.id}`
-                                    );
+                        {Array.isArray(campaigns) &&
+                          campaigns.map((c) => (
+                            <tr key={c.id}>
+                              <td style={{ fontSize: "14px" }}>
+                                <span>{c.name}</span>
+                              </td>
+                              <td style={{ fontSize: "14px" }}>{c.country}</td>
+                              <td>
+                                <button
+                                  className="btn btn-sm me-2 p-1"
+                                  onClick={async () => {
+                                    try {
+                                      const res = await axios.get(
+                                        `${API_BASE_URL}/api/campaign/${c.id}`
+                                      );
 
-                                    const campaignData = res.data;
+                                      const campaignData = res.data;
 
-                                    setEditingCampaignId(campaignData.id);
-                                    setCampaignDetails({
-                                      name: campaignData.name,
-                                      country: campaignData.country,
-                                      number: campaignData.number_id || "",
-                                      routingMethod:
-                                        campaignData.routing_method || "manual",
-                                      buyers: campaignData.buyer_mappings.map(
-                                        (mapping) => mapping.buyer.name
-                                      ),
-                                      payoutOncePerCall:
-                                        campaignData.payoutOncePerCall || false,
-                                      recordCalls:
-                                        campaignData.isCallRecordingEnabled ||
-                                        false,
-                                      is_active: campaignData.is_active,
-                                    });
-                                    setEditMode(true);
-                                  } catch (error) {
-                                    console.error(
-                                      "Error fetching campaign details:",
-                                      error
-                                    );
-                                    toast.error(
-                                      "Failed to load campaign details"
-                                    );
-                                  }
-                                }}
-                              >
-                                <img
-                                  src="/assets/images/icons/edit.png"
-                                  alt="Edit"
-                                  width="16"
-                                />
-                              </button>
-                              <button
-                                className="btn btn-sm p-1"
-                                onClick={() => deleteCampaign(c.id)}
-                              >
-                                <img
-                                  src="/assets/images/icons/delete.png"
-                                  alt="Delete"
-                                  width="16"
-                                />
-                              </button>
-                            </td>
-                          </tr>
-                        ))}
+                                      setEditingCampaignId(campaignData.id);
+                                      setCampaignDetails({
+                                        name: campaignData.name,
+                                        country: campaignData.country,
+                                        number: campaignData.number_id || "",
+                                        routingMethod:
+                                          campaignData.routing_method ||
+                                          "manual",
+                                        buyers: campaignData.buyer_mappings.map(
+                                          (mapping) => mapping.buyer.name
+                                        ),
+                                        payoutOncePerCall:
+                                          campaignData.payoutOncePerCall ||
+                                          false,
+                                        recordCalls:
+                                          campaignData.isCallRecordingEnabled ||
+                                          false,
+                                        is_active: campaignData.is_active,
+                                      });
+                                      setEditMode(true);
+                                    } catch (error) {
+                                      console.error(
+                                        "Error fetching campaign details:",
+                                        error
+                                      );
+                                      toast.error(
+                                        "Failed to load campaign details"
+                                      );
+                                    }
+                                  }}
+                                >
+                                  <img
+                                    src="/assets/images/icons/edit.png"
+                                    alt="Edit"
+                                    width="16"
+                                  />
+                                </button>
+                                <button
+                                  className="btn btn-sm p-1"
+                                  onClick={() => deleteCampaign(c.id)}
+                                >
+                                  <img
+                                    src="/assets/images/icons/delete.png"
+                                    alt="Delete"
+                                    width="16"
+                                  />
+                                </button>
+                              </td>
+                            </tr>
+                          ))}
                       </tbody>
                     </table>
                   </div>
@@ -412,8 +467,9 @@ function Campaigns() {
                   {/* Tabs */}
                   <div className="d-flex border-bottom mb-4">
                     <button
-                      className={`btn btn-link ${activeTab === "settings" ? "text-dark" : "text-muted"
-                        }`}
+                      className={`btn btn-link ${
+                        activeTab === "settings" ? "text-dark" : "text-muted"
+                      }`}
                       style={{
                         borderBottom:
                           activeTab === "settings"
@@ -426,8 +482,9 @@ function Campaigns() {
                       Campaign Settings
                     </button>
                     <button
-                      className={`btn btn-link ${activeTab === "performance" ? "text-dark" : "text-muted"
-                        }`}
+                      className={`btn btn-link ${
+                        activeTab === "performance" ? "text-dark" : "text-muted"
+                      }`}
                       style={{
                         borderBottom:
                           activeTab === "performance"
