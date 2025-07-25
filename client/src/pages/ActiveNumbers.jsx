@@ -5,6 +5,7 @@ import { toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 import styles from "../pages/Home.module.css";
 import Swal from "sweetalert2";
+import { HiBadgeCheck } from "react-icons/hi";
 const API_BASE_URL = import.meta.env.VITE_API_URL;
 
 function ActiveNumbers() {
@@ -77,13 +78,13 @@ function ActiveNumbers() {
 
   const handleDelete = async (id) => {
     const result = await Swal.fire({
-      title: "Are you sure?",
+      title: 'Are you sure?',
       text: "You won't be able to revert this!",
-      icon: "warning",
+      icon: 'warning',
       showCancelButton: true,
-      confirmButtonColor: "#3085d6",
-      cancelButtonColor: "#d33",
-      confirmButtonText: "Yes, delete it!",
+      confirmButtonColor: '#3085d6',
+      cancelButtonColor: '#d33',
+      confirmButtonText: 'Yes, delete it!'
     });
 
     if (!result.isConfirmed) return;
@@ -248,7 +249,9 @@ function ActiveNumbers() {
                     <tbody>
                       {numbers.map((number) => (
                         <tr key={number.id}>
-                          <td>{number.number}</td>
+                          <td>{number.number}
+                            <HiBadgeCheck style={{ color: 'blue', marginBottom: '4px', marginLeft: '4px', fontSize: '16px' }} />
+                          </td>
                           <td>{number.friendly_name}</td>
                           <td>{number.type}</td>
                           <td>
