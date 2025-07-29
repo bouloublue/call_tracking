@@ -122,7 +122,7 @@ const SideBar = ({ isOpen, toggleSidebar }) => {
       name: 'Call Handling',
       icon: <FaPhone />,
       submenu: [
-        { name: 'Call Logs', path: '/leads', icon: <FaPhoneAlt /> },
+        { name: 'Call Logs', path: '/call-logs', icon: <FaPhoneAlt /> },
       ],
     },
     {

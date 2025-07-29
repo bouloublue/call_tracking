@@ -7,6 +7,7 @@ function init(){
     require('./models/billingRule');
     require('./models/callLogs');
     require('./models/billingLogs');
+    require('./models/otpVerfication');
 }
 
 module.exports = init;

@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from "react";
 import axios from "axios";
 import styles from "../pages/Home.module.css";
+import { toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 // import { FiRefreshCw } from "react-icons/fi";
 
@@ -30,8 +31,10 @@ function BillingReport() {
         campaign_name: log.call_log?.campaign?.name || null,
       }));
       setLogs(flattenedLogs);
+      toast.success("Billing logs refreshed successfully")
     } catch (error) {
       console.error("Error fetching billing logs:", error);
+      toast.error("Failed to fetch billing logs")
     } finally {
       setLoading(false);
     }

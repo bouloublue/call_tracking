@@ -108,7 +108,8 @@ router.post("/inbound-call", async (req, res) => {
     global.activeCalls[fromNumber] = {
       campaignId: campaign.id,
       buyers: sortedBuyers,
-      currentStep: 0
+      currentStep: 0,
+      originalCaller: fromNumber
     };
 
     // Initiate call to first buyer
@@ -191,50 +192,128 @@ router.post("/dial-status", async (req, res) => {
 });
 
 // POST /call-complete
+// router.post("/call-complete", async (req, res) => {
+//   const { CallSid, CallDuration, To, From, CallStatus } = req.body;
+//   const duration = parseInt(CallDuration || "0");
+
+//   try {
+//     // Find buyer by phone number
+//     const buyer = await User.findOne({ where: { phone: To, role: 'buyer' } });
+//     if (!buyer) {
+//       console.error("Buyer not found for number:", To);
+//       return res.sendStatus(200);
+//     }
+
+//     // Find campaign from active calls or by called number
+//     let campaignId;
+//     if (global.activeCalls[From]) {
+//       campaignId = global.activeCalls[From].campaignId;
+//       delete global.activeCalls[From];
+//     } else {
+//       const buyerNumber = await User.findOne({ where: { phone: To } });
+//       if (!buyerNumber) {
+//         console.error("Number not found for:", To);
+//         return res.sendStatus(200);
+//       }
+
+//       const numberId = buyerNumber.id;
+//       console.log("Number ID:", numberId);
+//       const campaign = await CampaignMapping.findOne({ where: { buyer_id: numberId }, attributes: ['campaign_id'] });
+//       campaignId = campaign?.campaign_id;
+//       console.log("Campaign ID from number:", campaignId);
+//     }
+
+//     // Create call log
+//     const callLog = await CallLog.create({
+//       call_sid: CallSid,
+//       campaign_id: campaignId,
+//       buyer_id: buyer.id,
+//       caller_number: From,
+//       duration_sec: duration,
+//       status: CallStatus,
+//       is_converted: duration >= 20
+//     });
+
+//     // Check for billing if call was answered and meets duration
+//     if (CallStatus === 'completed' && duration > 0 && campaignId) {
+//       const billingRule = await BillingRule.findOne({
+//         where: { campaign_id: campaignId }
+//       });
+
+//       if (billingRule && duration >= billingRule.min_duration_sec) {
+//         const amount = (duration / 60) * billingRule.rate_per_min;
+//         await BillingLog.create({
+//           call_log_id: callLog.id,
+//           rule_id: billingRule.id,
+//           amount_charged: amount,
+//           duration_sec: duration
+//         });
+//         console.log(`💰 Billed $${amount.toFixed(4)} for ${duration}s call`);
+//       }
+//     }
+
+//     res.sendStatus(200);
+
+//   } catch (error) {
+//     console.error("Call complete error:", error);
+//     res.sendStatus(500);
+//   }
+// });
 router.post("/call-complete", async (req, res) => {
   const { CallSid, CallDuration, To, From, CallStatus } = req.body;
   const duration = parseInt(CallDuration || "0");
 
   try {
-    // Find buyer by phone number
-    const buyer = await User.findOne({ where: { phone: To, role: 'buyer' } });
-    if (!buyer) {
-      console.error("Buyer not found for number:", To);
-      return res.sendStatus(200);
+    let campaignId, buyerId;
+    let callerNumber = From;
+
+    const session = global.activeCalls[From];
+    if (session) {
+      campaignId = session.campaignId;
+      buyerId = session.buyers[session.currentStep]?.id;
+      callerNumber = session.originalCaller || From; 
+      delete global.activeCalls[From]; 
     }
 
-    // Find campaign from active calls or by called number
-    let campaignId;
-    if (global.activeCalls[From]) {
-      campaignId = global.activeCalls[From].campaignId;
-      delete global.activeCalls[From];
-    } else {
-      const buyerNumber = await User.findOne({ where: { phone: To } });
+    // If buyerId is still not found, try to infer from DB
+    if (!buyerId) {
+      const buyerNumber = await User.findOne({
+        where: { phone: To, role: 'buyer' }
+      });
+
       if (!buyerNumber) {
-        console.error("Number not found for:", To);
+        console.error("Buyer not found for number:", To);
         return res.sendStatus(200);
       }
 
-      const numberId = buyerNumber.id;
-      console.log("Number ID:", numberId);
-      const campaign = await CampaignMapping.findOne({ where: { buyer_id: numberId }, attributes: ['campaign_id'] });
+      buyerId = buyerNumber.id;
+
+      const campaign = await CampaignMapping.findOne({
+        where: { buyer_id: buyerId },
+        attributes: ['campaign_id']
+      });
+
       campaignId = campaign?.campaign_id;
-      console.log("Campaign ID from number:", campaignId);
     }
 
-    // Create call log
+    if (!buyerId || !campaignId) {
+      console.error("Missing buyer or campaign information");
+      return res.sendStatus(200);
+    }
+
+    // Save call log
     const callLog = await CallLog.create({
       call_sid: CallSid,
       campaign_id: campaignId,
-      buyer_id: buyer.id,
-      caller_number: From,
+      buyer_id: buyerId,
+      caller_number: callerNumber,
       duration_sec: duration,
       status: CallStatus,
       is_converted: duration >= 20
     });
 
-    // Check for billing if call was answered and meets duration
-    if (CallStatus === 'completed' && duration > 0 && campaignId) {
+    // Billing logic
+    if (CallStatus === 'completed' && duration > 0) {
       const billingRule = await BillingRule.findOne({
         where: { campaign_id: campaignId }
       });
@@ -252,7 +331,6 @@ router.post("/call-complete", async (req, res) => {
     }
 
     res.sendStatus(200);
-
   } catch (error) {
     console.error("Call complete error:", error);
     res.sendStatus(500);
@@ -282,8 +360,16 @@ router.get("/inbound-call-logs", async (req, res) => {
   try {
     const logs = await CallLog.findAll({
       include: [
-        { model: User, as: 'buyer', attributes: ['name', 'phone'] },
-        { model: Campaign, attributes: ['name'] }
+         {
+          model: Campaign,
+          as: 'campaign',
+          attributes: ['name']
+        },
+        {
+          model: User,
+          as: 'buyer',
+          attributes: ['name', 'phone']
+        }
       ],
       order: [['created_at', 'DESC']]
     });
