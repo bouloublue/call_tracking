@@ -14,6 +14,16 @@ CallLog.init({
     allowNull: false,
   },
 
+  parent_call_sid:{
+    type: DataTypes.STRING(64),
+    allowNull: false,
+  },
+
+  recording_sid: {
+    type: DataTypes.STRING(64),
+    allowNull: true, 
+  },
+
   campaign_id: {
     type: DataTypes.UUID,
     allowNull: true,

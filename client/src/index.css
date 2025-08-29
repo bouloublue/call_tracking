@@ -390,5 +390,60 @@ body {
   100% { transform: rotate(360deg); }
 }
 
+/* styles/AudioPlayer.css */
+.audio-player-container {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.audio-loading {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  color: #666;
+}
+
+.loading-spinner {
+  width: 16px;
+  height: 16px;
+  border: 2px solid rgba(0, 0, 0, 0.1);
+  border-left-color: #0E877D;
+  border-radius: 50%;
+  animation: spin 1s linear infinite;
+}
+
+.audio-error {
+  color: #d32f2f;
+  display: flex;
+  flex-direction: column;
+}
+
+.audio-error small {
+  font-size: 0.8em;
+  opacity: 0.8;
+}
+
+.download-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 32px;
+  height: 32px;
+  border-radius: 4px;
+  background-color: #f1f5f9;
+  color: #0E877D;
+  text-decoration: none;
+  transition: background-color 0.2s;
+}
+
+.download-btn:hover {
+  background-color: #e2e8f0;
+}
+
+@keyframes spin {
+  to { transform: rotate(360deg); }
+}
+
 
 

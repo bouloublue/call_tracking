@@ -833,7 +833,6 @@
 //                           </div>
 //                         </div>
 
-
 //                         <div className="row mb-3 align-items-center">
 //                           <div className="col-md-4">
 //                             <label className="form-label" style={{
@@ -1586,6 +1585,8 @@ import styles from "../pages/Home.module.css";
 import axios from "axios";
 import Select from "react-select";
 import Swal from "sweetalert2";
+import axisoInstance from "../utils/axiosInstance"
+import CampaignChart from "../components/charts/CampaignChart";
 
 const API_BASE_URL = import.meta.env.VITE_API_URL;
 
@@ -1648,7 +1649,7 @@ function Campaigns() {
 
   const fetchCampaigns = async () => {
     try {
-      const response = await axios.get(`${API_BASE_URL}/api/campaign`);
+      const response = await axisoInstance.get(`${API_BASE_URL}/api/campaign`);
       setCampaigns(response.data); // depends on your response shape
     } catch (error) {
       console.error("Failed to fetch campaigns:", error);
@@ -1657,8 +1658,8 @@ function Campaigns() {
 
   const fetchCampaignDetails = async (id) => {
     try {
-      const res = await axios.get(`${API_BASE_URL}/api/campaign/${id}`);
-      return res.data;
+      const res = await axisoInstance.get(`${API_BASE_URL}/api/campaign/${id}`);
+      return {...res.data, id: id};
     } catch (error) {
       console.error("Error fetching campaign details:", error);
       toast.error("Failed to fetch campaign details");
@@ -1668,8 +1669,8 @@ function Campaigns() {
 
   const fetchBuyers = async () => {
     try {
-      const res = await axios.get(`${API_BASE_URL}/api/user/buyers`);
-      setAllBuyers(res.data); // Expecting: [{ name: "Tesla" }, { name: "Aegiiz" }]
+      const res = await axisoInstance.get(`${API_BASE_URL}/api/user/buyers`);
+      setAllBuyers(res.data);
     } catch (error) {
       console.error("Error fetching buyers:", error);
       toast.error("Failed to fetch buyers");
@@ -1678,8 +1679,8 @@ function Campaigns() {
 
   const fetchNumbers = async () => {
     try {
-      const res = await axios.get(`${API_BASE_URL}/api/number`);
-      setAvailableNumbers(res.data); // Expecting: [{ id: "...", number: "7012345678" }]
+      const res = await axisoInstance.get(`${API_BASE_URL}/api/number`);
+      setAvailableNumbers(res.data);
     } catch (error) {
       console.error("Error fetching numbers:", error);
       toast.error("Failed to fetch numbers");
@@ -1693,10 +1694,13 @@ function Campaigns() {
     }
 
     try {
-      const response = await axios.post(`${API_BASE_URL}/api/campaign`, {
-        name: newCampaign.name,
-        country: newCampaign.country,
-      });
+      const response = await axisoInstance.post(
+        `${API_BASE_URL}/api/campaign`,
+        {
+          name: newCampaign.name,
+          country: newCampaign.country,
+        }
+      );
 
       const createdCampaign = response.data.campaign;
 
@@ -1730,7 +1734,7 @@ function Campaigns() {
     };
 
     try {
-      await axios.put(
+      await axisoInstance.put(
         `${API_BASE_URL}/api/campaign/${editingCampaignId}`,
         payload
       );
@@ -1756,9 +1760,8 @@ function Campaigns() {
 
     if (!result.isConfirmed) return;
 
-    // Rest of your existing code
     try {
-      await axios.delete(`${API_BASE_URL}/api/campaign/${id}`);
+      await axisoInstance.delete(`${API_BASE_URL}/api/campaign/${id}`);
       setCampaigns(campaigns.filter((c) => c.id !== id));
       toast.success("Campaign deleted successfully");
     } catch (error) {
@@ -1857,11 +1860,7 @@ function Campaigns() {
                     </span>
 
                     {/* Filter Button */}
-                    <button
-                      className={styles.filterBtn}
-                    >
-                      Filter
-                    </button>
+                    <button className={styles.filterBtn}>Filter</button>
 
                     {/* Refresh Button */}
                     <button
@@ -1961,12 +1960,8 @@ function Campaigns() {
                                   className="btn btn-sm me-2 p-1"
                                   onClick={async () => {
                                     try {
-                                      const res = await axios.get(
-                                        `${API_BASE_URL}/api/campaign/${c.id}`
-                                      );
-
-                                      const campaignData = res.data;
-
+                                      const campaignData =
+                                        await fetchCampaignDetails(c.id);
                                       setEditingCampaignId(campaignData.id);
                                       setCampaignDetails({
                                         name: campaignData.name,
@@ -2023,18 +2018,23 @@ function Campaigns() {
                 </div>
               </>
             ) : (
-              <div className="card" style={{
-                border: "none",
-                borderRadius: "12px",
-                boxShadow: "0 4px 20px rgba(46, 111, 110, 0.1)"
-              }}>
+              <div
+                className="card"
+                style={{
+                  border: "none",
+                  borderRadius: "12px",
+                  boxShadow: "0 4px 20px rgba(46, 111, 110, 0.1)",
+                }}
+              >
                 <div className="card-body p-4">
                   <div className="d-flex justify-content-between align-items-center mb-4">
-                    <h4 style={{
-                      fontSize: "20px",
-                      fontWeight: "600",
-                      color: "#2E6F6E"
-                    }}>
+                    <h4
+                      style={{
+                        fontSize: "20px",
+                        fontWeight: "600",
+                        color: "#2E6F6E",
+                      }}
+                    >
                       Edit Campaign
                     </h4>
                     <button
@@ -2048,7 +2048,7 @@ function Campaigns() {
                         fontWeight: "500",
                         fontSize: "14px",
                         transition: "all 0.3s ease",
-                        boxShadow: "0 2px 4px rgba(46, 111, 110, 0.1)"
+                        boxShadow: "0 2px 4px rgba(46, 111, 110, 0.1)",
                       }}
                       onMouseEnter={(e) => {
                         e.target.style.backgroundColor = "#2E6F6E";
@@ -2065,11 +2065,16 @@ function Campaigns() {
                   </div>
 
                   {/* Tabs */}
-                  <div className="d-flex mb-4" style={{
-                    borderBottom: "1px solid #e0e0e0"
-                  }}>
+                  <div
+                    className="d-flex mb-4"
+                    style={{
+                      borderBottom: "1px solid #e0e0e0",
+                    }}
+                  >
                     <button
-                      className={`btn btn-link ${activeTab === "settings" ? "active-tab" : ""}`}
+                      className={`btn btn-link ${
+                        activeTab === "settings" ? "active-tab" : ""
+                      }`}
                       style={{
                         padding: "12px 20px",
                         color: activeTab === "settings" ? "#2E6F6E" : "#6c757d",
@@ -2079,48 +2084,55 @@ function Campaigns() {
                         position: "relative",
                         border: "none",
                         backgroundColor: "transparent",
-                        marginRight: "8px"
+                        marginRight: "8px",
                       }}
                       onClick={() => setActiveTab("settings")}
                     >
                       Campaign Settings
                       {activeTab === "settings" && (
-                        <div style={{
-                          position: "absolute",
-                          bottom: "-1px",
-                          left: 0,
-                          right: 0,
-                          height: "2px",
-                          backgroundColor: "#2E6F6E",
-                          borderRadius: "2px 2px 0 0"
-                        }}></div>
+                        <div
+                          style={{
+                            position: "absolute",
+                            bottom: "-1px",
+                            left: 0,
+                            right: 0,
+                            height: "2px",
+                            backgroundColor: "#2E6F6E",
+                            borderRadius: "2px 2px 0 0",
+                          }}
+                        ></div>
                       )}
                     </button>
                     <button
-                      className={`btn btn-link ${activeTab === "performance" ? "active-tab" : ""}`}
+                      className={`btn btn-link ${
+                        activeTab === "performance" ? "active-tab" : ""
+                      }`}
                       style={{
                         padding: "12px 20px",
-                        color: activeTab === "performance" ? "#2E6F6E" : "#6c757d",
+                        color:
+                          activeTab === "performance" ? "#2E6F6E" : "#6c757d",
                         fontWeight: "500",
                         fontSize: "14px",
                         textDecoration: "none",
                         position: "relative",
                         border: "none",
-                        backgroundColor: "transparent"
+                        backgroundColor: "transparent",
                       }}
                       onClick={() => setActiveTab("performance")}
                     >
                       Performance Summary
                       {activeTab === "performance" && (
-                        <div style={{
-                          position: "absolute",
-                          bottom: "-1px",
-                          left: 0,
-                          right: 0,
-                          height: "2px",
-                          backgroundColor: "#2E6F6E",
-                          borderRadius: "2px 2px 0 0"
-                        }}></div>
+                        <div
+                          style={{
+                            position: "absolute",
+                            bottom: "-1px",
+                            left: 0,
+                            right: 0,
+                            height: "2px",
+                            backgroundColor: "#2E6F6E",
+                            borderRadius: "2px 2px 0 0",
+                          }}
+                        ></div>
                       )}
                     </button>
                   </div>
@@ -2128,44 +2140,54 @@ function Campaigns() {
                   {activeTab === "settings" ? (
                     <div>
                       {/* General Info Section */}
-                      <div className="mb-5" style={{
-                        backgroundColor: "#f8fafb",
-                        borderRadius: "10px",
-                        padding: "20px",
-                        border: "1px solid #e9f0f0"
-                      }}>
+                      <div
+                        className="mb-5"
+                        style={{
+                          backgroundColor: "#f8fafb",
+                          borderRadius: "10px",
+                          padding: "20px",
+                          border: "1px solid #e9f0f0",
+                        }}
+                      >
                         <div className="d-flex align-items-center mb-4">
-                          <div style={{
-                            width: "4px",
-                            height: "24px",
-                            backgroundColor: "#2E6F6E",
-                            marginRight: "12px",
-                            // marginLeft:"20px",
-                            borderRadius: "2px",
-                          }}></div>
-                          <h5 style={{
-                            fontSize: "16px",
-                            fontWeight: "600",
-                            margin: 0,
-                            color: "#2E6F6E"
-                          }}>
+                          <div
+                            style={{
+                              width: "4px",
+                              height: "24px",
+                              backgroundColor: "#2E6F6E",
+                              marginRight: "12px",
+                              // marginLeft:"20px",
+                              borderRadius: "2px",
+                            }}
+                          ></div>
+                          <h5
+                            style={{
+                              fontSize: "16px",
+                              fontWeight: "600",
+                              margin: 0,
+                              color: "#2E6F6E",
+                            }}
+                          >
                             General Info
                           </h5>
                         </div>
 
-                        <div className="row mb-3" >
+                        <div className="row mb-3">
                           <div className="col-md-4">
-                            <label className="form-label" style={{
-                              fontSize: "16px",
-                              color: "#5a6a73",
-                              fontWeight: "500",
-                              marginRight: "20px",
-                              display: "flex",
-                              alignItems: "center",
-                              justifyContent: "flex-end",
-                              height: "100%",
-                              position: "relative"
-                            }}>
+                            <label
+                              className="form-label"
+                              style={{
+                                fontSize: "16px",
+                                color: "#5a6a73",
+                                fontWeight: "500",
+                                marginRight: "20px",
+                                display: "flex",
+                                alignItems: "center",
+                                justifyContent: "flex-end",
+                                height: "100%",
+                                position: "relative",
+                              }}
+                            >
                               Campaign ID
                               <span
                                 style={{
@@ -2181,60 +2203,73 @@ function Campaigns() {
                                   fontWeight: "semibold",
                                   cursor: "pointer",
                                   transition: "all 0.2s ease",
-                                  marginLeft: "6px"
+                                  marginLeft: "6px",
                                 }}
                                 onMouseEnter={(e) => {
-                                  e.currentTarget.nextSibling.style.opacity = "1";
-                                  e.currentTarget.nextSibling.style.visibility = "visible";
+                                  e.currentTarget.nextSibling.style.opacity =
+                                    "1";
+                                  e.currentTarget.nextSibling.style.visibility =
+                                    "visible";
                                 }}
                                 onMouseLeave={(e) => {
-                                  e.currentTarget.nextSibling.style.opacity = "0";
-                                  e.currentTarget.nextSibling.style.visibility = "hidden";
+                                  e.currentTarget.nextSibling.style.opacity =
+                                    "0";
+                                  e.currentTarget.nextSibling.style.visibility =
+                                    "hidden";
                                 }}
                               >
                                 ?
                               </span>
-                              <span style={{
-                                visibility: "hidden",
-                                opacity: 0,
-                                width: "220px",
-                                backgroundColor: "#2E6F6E",
-                                color: "#fff",
-                                textAlign: "center",
-                                borderRadius: "6px",
-                                padding: "10px",
-                                position: "absolute",
-                                zIndex: 10,
-                                right: "0",
-                                top: "100%",
-                                marginTop: "8px",
-                                transition: "all 0.2s ease",
-                                fontSize: "12px",
-                                lineHeight: "1.4",
-                                boxShadow: "0 2px 12px rgba(0,0,0,0.15)"
-                              }}>
+                              <span
+                                style={{
+                                  visibility: "hidden",
+                                  opacity: 0,
+                                  width: "220px",
+                                  backgroundColor: "#2E6F6E",
+                                  color: "#fff",
+                                  textAlign: "center",
+                                  borderRadius: "6px",
+                                  padding: "10px",
+                                  position: "absolute",
+                                  zIndex: 10,
+                                  right: "0",
+                                  top: "100%",
+                                  marginTop: "8px",
+                                  transition: "all 0.2s ease",
+                                  fontSize: "12px",
+                                  lineHeight: "1.4",
+                                  boxShadow: "0 2px 12px rgba(0,0,0,0.15)",
+                                }}
+                              >
                                 Unique identifier for this campaign
                               </span>
                             </label>
                           </div>
                           <div className="col-md-8 d-flex align-items-center">
-                            <div style={{
-                              width: "50%",
-                              padding: "12px 0",
-                              fontSize: "14px",
-                              border: "none",
-                              color: "Gray",
-                              backgroundColor: "transparent",
-                              transition: "all 0.3s ease",
-                              outline: "none",
-                              display: "flex",
-                              alignItems: "center",
-                              gap: "8px",
-                              position: "relative"
-                            }}>
+                            <div
+                              style={{
+                                width: "50%",
+                                padding: "12px 0",
+                                fontSize: "14px",
+                                border: "none",
+                                color: "Gray",
+                                backgroundColor: "transparent",
+                                transition: "all 0.3s ease",
+                                outline: "none",
+                                display: "flex",
+                                alignItems: "center",
+                                gap: "8px",
+                                position: "relative",
+                              }}
+                            >
                               {editingCampaignId || "N/A"}
                               {editingCampaignId && (
-                                <div style={{ position: "relative", display: "inline-flex" }}>
+                                <div
+                                  style={{
+                                    position: "relative",
+                                    display: "inline-flex",
+                                  }}
+                                >
                                   <svg
                                     width="16"
                                     height="16"
@@ -2244,44 +2279,54 @@ function Campaigns() {
                                     style={{
                                       cursor: "pointer",
                                       transition: "all 0.2s ease",
-                                      color: "#5a6a73"
+                                      color: "#5a6a73",
                                     }}
                                     onMouseEnter={(e) => {
                                       e.currentTarget.style.color = "#2E6F6E";
-                                      e.currentTarget.nextSibling.style.opacity = "1";
-                                      e.currentTarget.nextSibling.style.visibility = "visible";
+                                      e.currentTarget.nextSibling.style.opacity =
+                                        "1";
+                                      e.currentTarget.nextSibling.style.visibility =
+                                        "visible";
                                     }}
                                     onMouseLeave={(e) => {
                                       e.currentTarget.style.color = "#5a6a73";
-                                      e.currentTarget.nextSibling.style.opacity = "0";
-                                      e.currentTarget.nextSibling.style.visibility = "hidden";
+                                      e.currentTarget.nextSibling.style.opacity =
+                                        "0";
+                                      e.currentTarget.nextSibling.style.visibility =
+                                        "hidden";
                                     }}
                                     onClick={async () => {
                                       try {
-                                        await navigator.clipboard.writeText(editingCampaignId);
+                                        await navigator.clipboard.writeText(
+                                          editingCampaignId
+                                        );
                                         // Show toast notification
-                                        const toast = document.createElement('div');
-                                        toast.style.position = 'fixed';
-                                        toast.style.bottom = '20px';
-                                        toast.style.right = '20px';
-                                        toast.style.backgroundColor = '#2E6F6E';
-                                        toast.style.color = 'white';
-                                        toast.style.padding = '8px 16px';
-                                        toast.style.borderRadius = '4px';
-                                        toast.style.boxShadow = '0 2px 8px rgba(0,0,0,0.1)';
-                                        toast.style.zIndex = '1000';
-                                        toast.style.transition = 'all 0.3s ease';
-                                        toast.textContent = 'Copied to clipboard!';
+                                        const toast =
+                                          document.createElement("div");
+                                        toast.style.position = "fixed";
+                                        toast.style.bottom = "20px";
+                                        toast.style.right = "20px";
+                                        toast.style.backgroundColor = "#2E6F6E";
+                                        toast.style.color = "white";
+                                        toast.style.padding = "8px 16px";
+                                        toast.style.borderRadius = "4px";
+                                        toast.style.boxShadow =
+                                          "0 2px 8px rgba(0,0,0,0.1)";
+                                        toast.style.zIndex = "1000";
+                                        toast.style.transition =
+                                          "all 0.3s ease";
+                                        toast.textContent =
+                                          "Copied to clipboard!";
                                         document.body.appendChild(toast);
 
                                         setTimeout(() => {
-                                          toast.style.opacity = '0';
+                                          toast.style.opacity = "0";
                                           setTimeout(() => {
                                             document.body.removeChild(toast);
                                           }, 300);
                                         }, 2000);
                                       } catch (err) {
-                                        console.error('Failed to copy: ', err);
+                                        console.error("Failed to copy: ", err);
                                       }
                                     }}
                                   >
@@ -2296,25 +2341,27 @@ function Campaigns() {
                                       strokeWidth="1.5"
                                     />
                                   </svg>
-                                  <span style={{
-                                    visibility: "hidden",
-                                    opacity: 0,
-                                    width: "120px",
-                                    backgroundColor: "#2E6F6E",
-                                    color: "#fff",
-                                    textAlign: "center",
-                                    borderRadius: "4px",
-                                    padding: "4px 8px",
-                                    position: "absolute",
-                                    zIndex: 10,
-                                    bottom: "100%",
-                                    left: "50%",
-                                    transform: "translateX(-50%)",
-                                    marginBottom: "8px",
-                                    transition: "all 0.2s ease",
-                                    fontSize: "12px",
-                                    pointerEvents: "none"
-                                  }}>
+                                  <span
+                                    style={{
+                                      visibility: "hidden",
+                                      opacity: 0,
+                                      width: "120px",
+                                      backgroundColor: "#2E6F6E",
+                                      color: "#fff",
+                                      textAlign: "center",
+                                      borderRadius: "4px",
+                                      padding: "4px 8px",
+                                      position: "absolute",
+                                      zIndex: 10,
+                                      bottom: "100%",
+                                      left: "50%",
+                                      transform: "translateX(-50%)",
+                                      marginBottom: "8px",
+                                      transition: "all 0.2s ease",
+                                      fontSize: "12px",
+                                      pointerEvents: "none",
+                                    }}
+                                  >
                                     Copy to clipboard
                                   </span>
                                 </div>
@@ -2325,18 +2372,21 @@ function Campaigns() {
 
                         <div className="row mb-3">
                           <div className="col-md-4">
-                            <label className="form-label" style={{
-                              fontSize: "14px",
-                              color: "#5a6a73",
-                              fontWeight: "500",
-                              display: "flex",
-                              alignItems: "center",
-                              marginRight: "20px",
-                              justifyContent: "flex-end",
-                              height: "100%",
-                              position: "relative",
-                              whiteSpace: "nowrap"
-                            }}>
+                            <label
+                              className="form-label"
+                              style={{
+                                fontSize: "14px",
+                                color: "#5a6a73",
+                                fontWeight: "500",
+                                display: "flex",
+                                alignItems: "center",
+                                marginRight: "20px",
+                                justifyContent: "flex-end",
+                                height: "100%",
+                                position: "relative",
+                                whiteSpace: "nowrap",
+                              }}
+                            >
                               Campaign Name
                               <span
                                 style={{
@@ -2353,38 +2403,44 @@ function Campaigns() {
                                   cursor: "pointer",
                                   transition: "all 0.2s ease",
                                   marginLeft: "6px",
-                                  flexShrink: 0
+                                  flexShrink: 0,
                                 }}
                                 onMouseEnter={(e) => {
-                                  e.currentTarget.nextSibling.style.opacity = "1";
-                                  e.currentTarget.nextSibling.style.visibility = "visible";
+                                  e.currentTarget.nextSibling.style.opacity =
+                                    "1";
+                                  e.currentTarget.nextSibling.style.visibility =
+                                    "visible";
                                 }}
                                 onMouseLeave={(e) => {
-                                  e.currentTarget.nextSibling.style.opacity = "0";
-                                  e.currentTarget.nextSibling.style.visibility = "hidden";
+                                  e.currentTarget.nextSibling.style.opacity =
+                                    "0";
+                                  e.currentTarget.nextSibling.style.visibility =
+                                    "hidden";
                                 }}
                               >
                                 ?
                               </span>
-                              <span style={{
-                                visibility: "hidden",
-                                opacity: 0,
-                                width: "220px",
-                                backgroundColor: "#2E6F6E",
-                                color: "#fff",
-                                textAlign: "center",
-                                borderRadius: "6px",
-                                padding: "10px",
-                                position: "absolute",
-                                zIndex: 10,
-                                right: "0",
-                                top: "100%",
-                                marginTop: "8px",
-                                transition: "all 0.2s ease",
-                                fontSize: "12px",
-                                lineHeight: "1.4",
-                                boxShadow: "0 2px 12px rgba(0,0,0,0.15)"
-                              }}>
+                              <span
+                                style={{
+                                  visibility: "hidden",
+                                  opacity: 0,
+                                  width: "220px",
+                                  backgroundColor: "#2E6F6E",
+                                  color: "#fff",
+                                  textAlign: "center",
+                                  borderRadius: "6px",
+                                  padding: "10px",
+                                  position: "absolute",
+                                  zIndex: 10,
+                                  right: "0",
+                                  top: "100%",
+                                  marginTop: "8px",
+                                  transition: "all 0.2s ease",
+                                  fontSize: "12px",
+                                  lineHeight: "1.4",
+                                  boxShadow: "0 2px 12px rgba(0,0,0,0.15)",
+                                }}
+                              >
                                 The name of your campaign
                               </span>
                             </label>
@@ -2401,7 +2457,7 @@ function Campaigns() {
                                 borderBottom: "1px solid #9c9c9cff",
                                 backgroundColor: "transparent",
                                 transition: "all 0.3s ease",
-                                outline: "none"
+                                outline: "none",
                               }}
                               value={campaignDetails.name}
                               onChange={(e) =>
@@ -2414,21 +2470,23 @@ function Campaigns() {
                           </div>
                         </div>
 
-
                         <div className="row mb-3 align-items-center">
                           <div className="col-md-4">
-                            <label className="form-label" style={{
-                              fontSize: "16px",
-                              color: "#5a6a73",
-                              fontWeight: "500",
-                              display: "flex",
-                              alignItems: "center",
-                              justifyContent: "flex-end",
-                              height: "100%",
-                              paddingRight: "20px",
-                              position: "relative",
-                              whiteSpace: "nowrap"
-                            }}>
+                            <label
+                              className="form-label"
+                              style={{
+                                fontSize: "16px",
+                                color: "#5a6a73",
+                                fontWeight: "500",
+                                display: "flex",
+                                alignItems: "center",
+                                justifyContent: "flex-end",
+                                height: "100%",
+                                paddingRight: "20px",
+                                position: "relative",
+                                whiteSpace: "nowrap",
+                              }}
+                            >
                               Number
                               <span
                                 style={{
@@ -2445,38 +2503,44 @@ function Campaigns() {
                                   cursor: "pointer",
                                   transition: "all 0.2s ease",
                                   marginLeft: "8px",
-                                  flexShrink: 0
+                                  flexShrink: 0,
                                 }}
                                 onMouseEnter={(e) => {
-                                  e.currentTarget.nextSibling.style.opacity = "1";
-                                  e.currentTarget.nextSibling.style.visibility = "visible";
+                                  e.currentTarget.nextSibling.style.opacity =
+                                    "1";
+                                  e.currentTarget.nextSibling.style.visibility =
+                                    "visible";
                                 }}
                                 onMouseLeave={(e) => {
-                                  e.currentTarget.nextSibling.style.opacity = "0";
-                                  e.currentTarget.nextSibling.style.visibility = "hidden";
+                                  e.currentTarget.nextSibling.style.opacity =
+                                    "0";
+                                  e.currentTarget.nextSibling.style.visibility =
+                                    "hidden";
                                 }}
                               >
                                 ?
                               </span>
-                              <span style={{
-                                visibility: "hidden",
-                                opacity: 0,
-                                width: "250px",
-                                backgroundColor: "#2E6F6E",
-                                color: "#fff",
-                                textAlign: "center",
-                                borderRadius: "6px",
-                                padding: "10px",
-                                position: "absolute",
-                                zIndex: 10,
-                                right: "0",
-                                top: "100%",
-                                marginTop: "8px",
-                                transition: "all 0.2s ease",
-                                fontSize: "12px",
-                                lineHeight: "1.4",
-                                boxShadow: "0 2px 12px rgba(0,0,0,0.15)"
-                              }}>
+                              <span
+                                style={{
+                                  visibility: "hidden",
+                                  opacity: 0,
+                                  width: "250px",
+                                  backgroundColor: "#2E6F6E",
+                                  color: "#fff",
+                                  textAlign: "center",
+                                  borderRadius: "6px",
+                                  padding: "10px",
+                                  position: "absolute",
+                                  zIndex: 10,
+                                  right: "0",
+                                  top: "100%",
+                                  marginTop: "8px",
+                                  transition: "all 0.2s ease",
+                                  fontSize: "12px",
+                                  lineHeight: "1.4",
+                                  boxShadow: "0 2px 12px rgba(0,0,0,0.15)",
+                                }}
+                              >
                                 Selected Number used for this campaign
                               </span>
                             </label>
@@ -2492,7 +2556,7 @@ function Campaigns() {
                                 borderBottom: "1px solid #9c9c9cff",
                                 backgroundColor: "transparent",
                                 transition: "all 0.3s ease",
-                                outline: "none"
+                                outline: "none",
                               }}
                               value={campaignDetails.number}
                               onChange={(e) =>
@@ -2515,18 +2579,21 @@ function Campaigns() {
                         {/* Add Buyers Multi-select */}
                         <div className="row mb-3 align-items-center">
                           <div className="col-md-4">
-                            <label className="form-label" style={{
-                              fontSize: "14px",
-                              color: "#5a6a73",
-                              fontWeight: "500",
-                              display: "flex",
-                              alignItems: "center",
-                              justifyContent: "flex-end",
-                              height: "100%",
-                              paddingRight: "20px",
-                              position: "relative",
-                              whiteSpace: "nowrap"
-                            }}>
+                            <label
+                              className="form-label"
+                              style={{
+                                fontSize: "14px",
+                                color: "#5a6a73",
+                                fontWeight: "500",
+                                display: "flex",
+                                alignItems: "center",
+                                justifyContent: "flex-end",
+                                height: "100%",
+                                paddingRight: "20px",
+                                position: "relative",
+                                whiteSpace: "nowrap",
+                              }}
+                            >
                               Buyers
                               <span
                                 style={{
@@ -2543,39 +2610,46 @@ function Campaigns() {
                                   cursor: "pointer",
                                   transition: "all 0.2s ease",
                                   marginLeft: "6px",
-                                  flexShrink: 0
+                                  flexShrink: 0,
                                 }}
                                 onMouseEnter={(e) => {
-                                  e.currentTarget.nextSibling.style.opacity = "1";
-                                  e.currentTarget.nextSibling.style.visibility = "visible";
+                                  e.currentTarget.nextSibling.style.opacity =
+                                    "1";
+                                  e.currentTarget.nextSibling.style.visibility =
+                                    "visible";
                                 }}
                                 onMouseLeave={(e) => {
-                                  e.currentTarget.nextSibling.style.opacity = "0";
-                                  e.currentTarget.nextSibling.style.visibility = "hidden";
+                                  e.currentTarget.nextSibling.style.opacity =
+                                    "0";
+                                  e.currentTarget.nextSibling.style.visibility =
+                                    "hidden";
                                 }}
                               >
                                 ?
                               </span>
-                              <span style={{
-                                visibility: "hidden",
-                                opacity: 0,
-                                width: "250px",
-                                backgroundColor: "#2E6F6E",
-                                color: "#fff",
-                                textAlign: "center",
-                                borderRadius: "6px",
-                                padding: "10px",
-                                position: "absolute",
-                                zIndex: 10,
-                                right: "0",
-                                top: "100%",
-                                marginTop: "8px",
-                                transition: "all 0.2s ease",
-                                fontSize: "12px",
-                                lineHeight: "1.4",
-                                boxShadow: "0 2px 12px rgba(0,0,0,0.15)"
-                              }}>
-                                Select which buyers should receive leads from this campaign
+                              <span
+                                style={{
+                                  visibility: "hidden",
+                                  opacity: 0,
+                                  width: "250px",
+                                  backgroundColor: "#2E6F6E",
+                                  color: "#fff",
+                                  textAlign: "center",
+                                  borderRadius: "6px",
+                                  padding: "10px",
+                                  position: "absolute",
+                                  zIndex: 10,
+                                  right: "0",
+                                  top: "100%",
+                                  marginTop: "8px",
+                                  transition: "all 0.2s ease",
+                                  fontSize: "12px",
+                                  lineHeight: "1.4",
+                                  boxShadow: "0 2px 12px rgba(0,0,0,0.15)",
+                                }}
+                              >
+                                Select which buyers should receive leads from
+                                this campaign
                               </span>
                             </label>
                           </div>
@@ -2585,12 +2659,16 @@ function Campaigns() {
                               name="buyers"
                               options={buyerOptions}
                               value={buyerOptions.filter((option) =>
-                                (campaignDetails.buyers || []).includes(option.value)
+                                (campaignDetails.buyers || []).includes(
+                                  option.value
+                                )
                               )}
                               onChange={(selectedOptions) =>
                                 setCampaignDetails({
                                   ...campaignDetails,
-                                  buyers: selectedOptions.map(opt => opt.value),
+                                  buyers: selectedOptions.map(
+                                    (opt) => opt.value
+                                  ),
                                 })
                               }
                               classNamePrefix="select"
@@ -2608,8 +2686,8 @@ function Campaigns() {
                                   outline: "none",
                                   boxShadow: "none",
                                   "&:hover": {
-                                    borderBottom: "1px solid #9c9c9cff"
-                                  }
+                                    borderBottom: "1px solid #9c9c9cff",
+                                  },
                                 }),
                                 menu: (base) => ({
                                   ...base,
@@ -2617,16 +2695,16 @@ function Campaigns() {
                                   borderRadius: "8px",
                                   marginTop: "4px",
                                   border: "1px solid #d9e2e2",
-                                  boxShadow: "0 4px 12px rgba(0,0,0,0.1)"
+                                  boxShadow: "0 4px 12px rgba(0,0,0,0.1)",
                                 }),
                                 valueContainer: (base) => ({
                                   ...base,
-                                  padding: "0 8px"
+                                  padding: "0 8px",
                                 }),
                                 indicatorsContainer: (base) => ({
                                   ...base,
-                                  padding: "0 8px"
-                                })
+                                  padding: "0 8px",
+                                }),
                               }}
                             />
                           </div>
@@ -2634,19 +2712,22 @@ function Campaigns() {
 
                         <div className="row align-items-center">
                           <div className="col-md-4">
-                            <label className="form-label" style={{
-                              fontSize: "14px",
-                              color: "#5a6a73",
-                              fontWeight: "500",
-                              display: "flex",
-                              alignItems: "center",
-                              justifyContent: "flex-end",
-                              height: "100%",
-                              paddingRight: "20px",
-                              marginBottom: "0",
-                              position: "relative",
-                              whiteSpace: "nowrap"
-                            }}>
+                            <label
+                              className="form-label"
+                              style={{
+                                fontSize: "14px",
+                                color: "#5a6a73",
+                                fontWeight: "500",
+                                display: "flex",
+                                alignItems: "center",
+                                justifyContent: "flex-end",
+                                height: "100%",
+                                paddingRight: "20px",
+                                marginBottom: "0",
+                                position: "relative",
+                                whiteSpace: "nowrap",
+                              }}
+                            >
                               Routing Method
                               <span
                                 style={{
@@ -2663,41 +2744,60 @@ function Campaigns() {
                                   cursor: "pointer",
                                   transition: "all 0.2s ease",
                                   marginLeft: "6px",
-                                  flexShrink: 0
+                                  flexShrink: 0,
                                 }}
                                 onMouseEnter={(e) => {
-                                  e.currentTarget.nextSibling.style.opacity = "1";
-                                  e.currentTarget.nextSibling.style.visibility = "visible";
+                                  e.currentTarget.nextSibling.style.opacity =
+                                    "1";
+                                  e.currentTarget.nextSibling.style.visibility =
+                                    "visible";
                                 }}
                                 onMouseLeave={(e) => {
-                                  e.currentTarget.nextSibling.style.opacity = "0";
-                                  e.currentTarget.nextSibling.style.visibility = "hidden";
+                                  e.currentTarget.nextSibling.style.opacity =
+                                    "0";
+                                  e.currentTarget.nextSibling.style.visibility =
+                                    "hidden";
                                 }}
                               >
                                 ?
                               </span>
-                              <span style={{
-                                visibility: "hidden",
-                                opacity: 0,
-                                width: "220px",
-                                backgroundColor: "#2E6F6E",
-                                color: "#fff",
-                                textAlign: "left",
-                                borderRadius: "6px",
-                                padding: "10px",
-                                position: "absolute",
-                                zIndex: 10,
-                                right: "20px",
-                                top: "100%",
-                                marginTop: "6px",
-                                transition: "all 0.2s ease",
-                                fontSize: "12px",
-                                lineHeight: "1.5",
-                                boxShadow: "0 2px 10px rgba(0,0,0,0.1)"
-                              }}>
-                                <div style={{ fontWeight: "600", marginBottom: "4px" }}>Routing Options:</div>
-                                <div style={{ marginBottom: "4px" }}>• <strong>Manual</strong>: Distribute leads manually</div>
-                                <div>• <strong>Smart</strong>: Auto-route based on buyer performance</div>
+                              <span
+                                style={{
+                                  visibility: "hidden",
+                                  opacity: 0,
+                                  width: "220px",
+                                  backgroundColor: "#2E6F6E",
+                                  color: "#fff",
+                                  textAlign: "left",
+                                  borderRadius: "6px",
+                                  padding: "10px",
+                                  position: "absolute",
+                                  zIndex: 10,
+                                  right: "20px",
+                                  top: "100%",
+                                  marginTop: "6px",
+                                  transition: "all 0.2s ease",
+                                  fontSize: "12px",
+                                  lineHeight: "1.5",
+                                  boxShadow: "0 2px 10px rgba(0,0,0,0.1)",
+                                }}
+                              >
+                                <div
+                                  style={{
+                                    fontWeight: "600",
+                                    marginBottom: "4px",
+                                  }}
+                                >
+                                  Routing Options:
+                                </div>
+                                <div style={{ marginBottom: "4px" }}>
+                                  • <strong>Manual</strong>: Distribute leads
+                                  manually
+                                </div>
+                                <div>
+                                  • <strong>Smart</strong>: Auto-route based on
+                                  buyer performance
+                                </div>
                               </span>
                             </label>
                           </div>
@@ -2714,10 +2814,11 @@ function Campaigns() {
                                 transition: "all 0.3s ease",
                                 outline: "none",
                                 appearance: "none", // Remove default system appearance
-                                backgroundImage: "url(\"data:image/svg+xml;charset=UTF-8,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='currentColor' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3e%3cpolyline points='6 9 12 15 18 9'%3e%3c/polyline%3e%3c/svg%3e\")",
+                                backgroundImage:
+                                  "url(\"data:image/svg+xml;charset=UTF-8,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='currentColor' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3e%3cpolyline points='6 9 12 15 18 9'%3e%3c/polyline%3e%3c/svg%3e\")",
                                 backgroundRepeat: "no-repeat",
                                 backgroundPosition: "right 0 center",
-                                backgroundSize: "1em"
+                                backgroundSize: "1em",
                               }}
                               value={campaignDetails.routingMethod}
                               onChange={(e) =>
@@ -2735,51 +2836,63 @@ function Campaigns() {
                       </div>
 
                       {/* Call Settings Section */}
-                      <div className="mb-5" style={{
-                        backgroundColor: "#f8fafb",
-                        borderRadius: "10px",
-                        padding: "20px",
-                        border: "1px solid #e9f0f0"
-                      }}>
+                      <div
+                        className="mb-5"
+                        style={{
+                          backgroundColor: "#f8fafb",
+                          borderRadius: "10px",
+                          padding: "20px",
+                          border: "1px solid #e9f0f0",
+                        }}
+                      >
                         <div className="d-flex align-items-center mb-4">
-                          <div style={{
-                            width: "4px",
-                            height: "24px",
-                            backgroundColor: "#2E6F6E",
-                            marginRight: "12px",
-                            borderRadius: "2px",
-                          }}></div>
-                          <h5 style={{
-                            fontSize: "16px",
-                            fontWeight: "600",
-                            margin: 0,
-                            color: "#2E6F6E"
-                          }}>
+                          <div
+                            style={{
+                              width: "4px",
+                              height: "24px",
+                              backgroundColor: "#2E6F6E",
+                              marginRight: "12px",
+                              borderRadius: "2px",
+                            }}
+                          ></div>
+                          <h5
+                            style={{
+                              fontSize: "16px",
+                              fontWeight: "600",
+                              margin: 0,
+                              color: "#2E6F6E",
+                            }}
+                          >
                             Call Settings
                           </h5>
                         </div>
 
                         <div className="row mb-4 align-items-center">
                           <div className="col-md-4">
-                            <div style={{
-                              display: "flex",
-                              flexDirection: "column",
-                              justifyContent: "center",
-                              height: "100%",
-                              paddingRight: "20px",
-                              textAlign: "right"
-                            }}>
-                              <label className="form-label" style={{
-                                fontSize: "14px",
-                                color: "#5a6a73",
-                                fontWeight: "500",
-                                marginBottom: "4px",
-                                display: "inline-flex",
-                                justifyContent: "end",
-                                alignItems: "center",
-                                gap: "6px",
-                                position: "relative"
-                              }}>
+                            <div
+                              style={{
+                                display: "flex",
+                                flexDirection: "column",
+                                justifyContent: "center",
+                                height: "100%",
+                                paddingRight: "20px",
+                                textAlign: "right",
+                              }}
+                            >
+                              <label
+                                className="form-label"
+                                style={{
+                                  fontSize: "14px",
+                                  color: "#5a6a73",
+                                  fontWeight: "500",
+                                  marginBottom: "4px",
+                                  display: "inline-flex",
+                                  justifyContent: "end",
+                                  alignItems: "center",
+                                  gap: "6px",
+                                  position: "relative",
+                                }}
+                              >
                                 Payout Once Per Call
                                 <span
                                   style={{
@@ -2794,38 +2907,44 @@ function Campaigns() {
                                     fontSize: "12px",
                                     fontWeight: "bold",
                                     cursor: "pointer",
-                                    transition: "all 0.2s ease"
+                                    transition: "all 0.2s ease",
                                   }}
                                   onMouseEnter={(e) => {
-                                    e.currentTarget.nextSibling.style.opacity = "1";
-                                    e.currentTarget.nextSibling.style.visibility = "visible";
+                                    e.currentTarget.nextSibling.style.opacity =
+                                      "1";
+                                    e.currentTarget.nextSibling.style.visibility =
+                                      "visible";
                                   }}
                                   onMouseLeave={(e) => {
-                                    e.currentTarget.nextSibling.style.opacity = "0";
-                                    e.currentTarget.nextSibling.style.visibility = "hidden";
+                                    e.currentTarget.nextSibling.style.opacity =
+                                      "0";
+                                    e.currentTarget.nextSibling.style.visibility =
+                                      "hidden";
                                   }}
                                 >
                                   ?
                                 </span>
-                                <span style={{
-                                  visibility: "hidden",
-                                  opacity: 0,
-                                  width: "250px",
-                                  backgroundColor: "#2E6F6E",
-                                  color: "#fff",
-                                  textAlign: "center",
-                                  borderRadius: "6px",
-                                  padding: "10px",
-                                  position: "absolute",
-                                  zIndex: 10,
-                                  right: "0",
-                                  top: "100%",
-                                  marginTop: "8px",
-                                  transition: "all 0.2s ease",
-                                  fontSize: "12px",
-                                  lineHeight: "1.4",
-                                  boxShadow: "0 2px 12px rgba(0,0,0,0.15)"
-                                }}>
+                                <span
+                                  style={{
+                                    visibility: "hidden",
+                                    opacity: 0,
+                                    width: "250px",
+                                    backgroundColor: "#2E6F6E",
+                                    color: "#fff",
+                                    textAlign: "center",
+                                    borderRadius: "6px",
+                                    padding: "10px",
+                                    position: "absolute",
+                                    zIndex: 10,
+                                    right: "0",
+                                    top: "100%",
+                                    marginTop: "8px",
+                                    transition: "all 0.2s ease",
+                                    fontSize: "12px",
+                                    lineHeight: "1.4",
+                                    boxShadow: "0 2px 12px rgba(0,0,0,0.15)",
+                                  }}
+                                >
                                   Enable to pay only once per unique call
                                 </span>
                               </label>
@@ -2838,13 +2957,14 @@ function Campaigns() {
                                 width: "44px",
                                 height: "24px",
                                 borderRadius: "12px",
-                                backgroundColor: campaignDetails.payoutOncePerCall
-                                  ? "#2E6F6E"
-                                  : "#e0e6e6",
+                                backgroundColor:
+                                  campaignDetails.payoutOncePerCall
+                                    ? "#2E6F6E"
+                                    : "#e0e6e6",
                                 position: "relative",
                                 cursor: "pointer",
                                 transition: "all 0.2s ease",
-                                flexShrink: 0
+                                flexShrink: 0,
                               }}
                             >
                               <div
@@ -2863,36 +2983,47 @@ function Campaigns() {
                                 }}
                               ></div>
                             </div>
-                            <span style={{
-                              marginLeft: "12px",
-                              fontSize: "14px",
-                              color: campaignDetails.payoutOncePerCall ? "#2E6F6E" : "#6c757d",
-                              fontWeight: "500",
-                              transition: "color 0.2s ease"
-                            }}>
-                              {campaignDetails.payoutOncePerCall ? "Enabled" : "Disabled"}
+                            <span
+                              style={{
+                                marginLeft: "12px",
+                                fontSize: "14px",
+                                color: campaignDetails.payoutOncePerCall
+                                  ? "#2E6F6E"
+                                  : "#6c757d",
+                                fontWeight: "500",
+                                transition: "color 0.2s ease",
+                              }}
+                            >
+                              {campaignDetails.payoutOncePerCall
+                                ? "Enabled"
+                                : "Disabled"}
                             </span>
                           </div>
                         </div>
 
                         <div className="row align-items-center mb-4">
                           <div className="col-md-4">
-                            <div style={{
-                              display: "flex",
-                              flexDirection: "column",
-                              alignItems: "flex-end",
-                              paddingRight: "20px"
-                            }}>
-                              <label className="form-label" style={{
-                                fontSize: "14px",
-                                color: "#5a6a73",
-                                fontWeight: "500",
-                                marginBottom: "4px",
-                                display: "inline-flex",
-                                alignItems: "center",
-                                gap: "6px",
-                                position: "relative"
-                              }}>
+                            <div
+                              style={{
+                                display: "flex",
+                                flexDirection: "column",
+                                alignItems: "flex-end",
+                                paddingRight: "20px",
+                              }}
+                            >
+                              <label
+                                className="form-label"
+                                style={{
+                                  fontSize: "14px",
+                                  color: "#5a6a73",
+                                  fontWeight: "500",
+                                  marginBottom: "4px",
+                                  display: "inline-flex",
+                                  alignItems: "center",
+                                  gap: "6px",
+                                  position: "relative",
+                                }}
+                              >
                                 Record Calls
                                 <span
                                   style={{
@@ -2907,38 +3038,44 @@ function Campaigns() {
                                     fontSize: "12px",
                                     fontWeight: "bold",
                                     cursor: "pointer",
-                                    transition: "all 0.2s ease"
+                                    transition: "all 0.2s ease",
                                   }}
                                   onMouseEnter={(e) => {
-                                    e.currentTarget.nextSibling.style.opacity = "1";
-                                    e.currentTarget.nextSibling.style.visibility = "visible";
+                                    e.currentTarget.nextSibling.style.opacity =
+                                      "1";
+                                    e.currentTarget.nextSibling.style.visibility =
+                                      "visible";
                                   }}
                                   onMouseLeave={(e) => {
-                                    e.currentTarget.nextSibling.style.opacity = "0";
-                                    e.currentTarget.nextSibling.style.visibility = "hidden";
+                                    e.currentTarget.nextSibling.style.opacity =
+                                      "0";
+                                    e.currentTarget.nextSibling.style.visibility =
+                                      "hidden";
                                   }}
                                 >
                                   ?
                                 </span>
-                                <span style={{
-                                  visibility: "hidden",
-                                  opacity: 0,
-                                  width: "250px",
-                                  backgroundColor: "#2E6F6E",
-                                  color: "#fff",
-                                  textAlign: "center",
-                                  borderRadius: "6px",
-                                  padding: "10px",
-                                  position: "absolute",
-                                  zIndex: 10,
-                                  right: "0",
-                                  top: "100%",
-                                  marginTop: "8px",
-                                  transition: "all 0.2s ease",
-                                  fontSize: "12px",
-                                  lineHeight: "1.4",
-                                  boxShadow: "0 2px 12px rgba(0,0,0,0.15)"
-                                }}>
+                                <span
+                                  style={{
+                                    visibility: "hidden",
+                                    opacity: 0,
+                                    width: "250px",
+                                    backgroundColor: "#2E6F6E",
+                                    color: "#fff",
+                                    textAlign: "center",
+                                    borderRadius: "6px",
+                                    padding: "10px",
+                                    position: "absolute",
+                                    zIndex: 10,
+                                    right: "0",
+                                    top: "100%",
+                                    marginTop: "8px",
+                                    transition: "all 0.2s ease",
+                                    fontSize: "12px",
+                                    lineHeight: "1.4",
+                                    boxShadow: "0 2px 12px rgba(0,0,0,0.15)",
+                                  }}
+                                >
                                   Enable to record all calls for this campaign
                                 </span>
                               </label>
@@ -2951,11 +3088,14 @@ function Campaigns() {
                                 width: "44px",
                                 height: "24px",
                                 borderRadius: "12px",
-                                backgroundColor: campaignDetails.recordCalls ? "#2E6F6E" : "#e0e6e6",
+                                backgroundColor: campaignDetails.recordCalls
+                                  ? "#2E6F6E"
+                                  : "#e0e6e6",
                                 position: "relative",
                                 cursor: "pointer",
-                                transition: "all 0.2s cubic-bezier(0.4, 0, 0.2, 1)",
-                                flexShrink: 0
+                                transition:
+                                  "all 0.2s cubic-bezier(0.4, 0, 0.2, 1)",
+                                flexShrink: 0,
                               }}
                               aria-label="Toggle call recording"
                             >
@@ -2967,21 +3107,32 @@ function Campaigns() {
                                   backgroundColor: "white",
                                   position: "absolute",
                                   top: "2px",
-                                  left: campaignDetails.recordCalls ? "22px" : "2px",
-                                  transition: "all 0.2s cubic-bezier(0.4, 0, 0.2, 1)",
+                                  left: campaignDetails.recordCalls
+                                    ? "22px"
+                                    : "2px",
+                                  transition:
+                                    "all 0.2s cubic-bezier(0.4, 0, 0.2, 1)",
                                   boxShadow: "0 1px 3px rgba(0, 0, 0, 0.12)",
-                                  transform: campaignDetails.recordCalls ? "translateX(0)" : "translateX(0)"
+                                  transform: campaignDetails.recordCalls
+                                    ? "translateX(0)"
+                                    : "translateX(0)",
                                 }}
                               />
                             </div>
-                            <span style={{
-                              marginLeft: "12px",
-                              fontSize: "14px",
-                              color: campaignDetails.recordCalls ? "#2E6F6E" : "#6c757d",
-                              fontWeight: "500",
-                              transition: "color 0.2s ease"
-                            }}>
-                              {campaignDetails.recordCalls ? "Enabled" : "Disabled"}
+                            <span
+                              style={{
+                                marginLeft: "12px",
+                                fontSize: "14px",
+                                color: campaignDetails.recordCalls
+                                  ? "#2E6F6E"
+                                  : "#6c757d",
+                                fontWeight: "500",
+                                transition: "color 0.2s ease",
+                              }}
+                            >
+                              {campaignDetails.recordCalls
+                                ? "Enabled"
+                                : "Disabled"}
                             </span>
                           </div>
                         </div>
@@ -3000,7 +3151,7 @@ function Campaigns() {
                             fontWeight: "500",
                             fontSize: "14px",
                             transition: "all 0.3s ease",
-                            boxShadow: "0 2px 8px rgba(46, 111, 110, 0.3)"
+                            boxShadow: "0 2px 8px rgba(46, 111, 110, 0.3)",
                           }}
                           onMouseEnter={(e) => {
                             e.target.style.backgroundColor = "#25605f";
@@ -3017,44 +3168,16 @@ function Campaigns() {
                       </div>
                     </div>
                   ) : (
-                    <div className="text-center py-5" style={{
-                      backgroundColor: "#f8fafb",
-                      borderRadius: "10px",
-                      border: "1px dashed #d9e2e2"
-                    }}>
-                      <div style={{
-                        width: "80px",
-                        height: "80px",
-                        backgroundColor: "rgba(46, 111, 110, 0.1)",
-                        borderRadius: "50%",
-                        display: "inline-flex",
-                        alignItems: "center",
-                        justifyContent: "center",
-                        marginBottom: "16px"
-                      }}>
-                        <svg width="32" height="32" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-                          <path d="M9 22H15C20 22 22 20 22 15V9C22 4 20 2 15 2H9C4 2 2 4 2 9V15C2 20 4 22 9 22Z" stroke="#2E6F6E" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" />
-                          <path d="M9 10C10.1046 10 11 9.10457 11 8C11 6.89543 10.1046 6 9 6C7.89543 6 7 6.89543 7 8C7 9.10457 7.89543 10 9 10Z" stroke="#2E6F6E" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" />
-                          <path d="M2.67004 18.95L7.60004 15.64C8.39004 15.11 9.53004 15.17 10.24 15.78L10.57 16.07C11.35 16.74 12.61 16.74 13.39 16.07L17.55 12.5C18.33 11.83 19.59 11.83 20.37 12.5L22 13.9" stroke="#2E6F6E" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" />
-                        </svg>
-                      </div>
-                      <h5 style={{
-                        fontSize: "16px",
-                        fontWeight: "600",
-                        color: "#2E6F6E",
-                        marginBottom: "8px"
-                      }}>
-                        Performance Summary
-                      </h5>
-                      <p style={{
-                        color: "#6c757d",
-                        maxWidth: "400px",
-                        margin: "0 auto",
-                        fontSize: "14px"
-                      }}>
-                        Detailed performance metrics and analytics will appear here once the campaign is active.
-                      </p>
-                    </div>
+            // <div className={`${styles.colMd12} ${styles.colLg6}`}>
+              <div className={styles.card}>
+                <div className={styles.cardHeader}>
+                  <h4 className={styles.cardTitle}>Campaign Performance</h4>
+                </div>
+                <div className={`${styles.cardBody} ${styles.pt0}`}>
+                  <CampaignChart  campaignId={editingCampaignId}/>
+                </div>
+              </div>
+            // </div>
                   )}
                 </div>
               </div>

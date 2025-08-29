@@ -3,6 +3,9 @@
 // import { FiEye, FiEyeOff, FiChevronDown } from "react-icons/fi";
 // import { toast } from "react-toastify";
 // import "react-toastify/dist/ReactToastify.css";
+// import axios from "axios";
+
+// const API_BASE_URL = import.meta.env.VITE_API_URL;
 
 // function SignUp() {
 //   const [formData, setFormData] = useState({
@@ -11,11 +14,13 @@
 //     password: "",
 //     companyName: "",
 //     country: "United States",
-//     city: "",
+//     countryCode: "+1", // Default country code
+//     address: "", // Changed from city to address
 //     phone: "",
 //     zip: "",
 //   });
 //   const [showPassword, setShowPassword] = useState(false);
+//   const [isSubmitting, setIsSubmitting] = useState(false);
 //   const navigate = useNavigate();
 
 //   const handleChange = (e) => {
@@ -23,8 +28,10 @@
 //     setFormData((prev) => ({ ...prev, [name]: value }));
 //   };
 
-//   const handleSubmit = (e) => {
+//   const handleSubmit = async (e) => {
 //     e.preventDefault();
+//     setIsSubmitting(true);
+    
 //     if (!Object.values(formData).every(Boolean)) {
 //       toast.error("Please fill in all fields", {
 //         position: "top-center",
@@ -34,17 +41,62 @@
 //         pauseOnHover: true,
 //         draggable: true,
 //       });
+//       setIsSubmitting(false);
 //       return;
 //     }
-//     toast.success("Account created successfully!", {
-//       position: "top-center",
-//       autoClose: 3000,
-//       hideProgressBar: false,
-//       closeOnClick: true,
-//       pauseOnHover: true,
-//       draggable: true,
-//     });
-//     navigate("/login");
+
+//     try {
+//       // Prepare the data for API
+//       const payload = {
+//         name: formData.fullName,
+//         email: formData.email,
+//         password: formData.password,
+//         company: formData.companyName,
+//         country: formData.country,
+//         address: formData.address,
+//         phone: formData.phone,
+//         zip: formData.zip,
+//         countryCode: formData.countryCode,
+//         role: "buyer" // Assuming you want default role as user
+//       };
+
+//       // Make API call
+//       const response = await axios.post(`${API_BASE_URL}/api/user`, payload);
+
+//       if (response.status === 201) {
+//         toast.success("Account created successfully!", {
+//           position: "top-center",
+//           autoClose: 3000,
+//           hideProgressBar: false,
+//           closeOnClick: true,
+//           pauseOnHover: true,
+//           draggable: true,
+//         });
+//         navigate("/login");
+//       }
+//     } catch (error) {
+//       console.error("Signup error:", error);
+//       let errorMessage = "Failed to create account";
+      
+//       if (error.response) {
+//         if (error.response.status === 400) {
+//           errorMessage = error.response.data.message || "Validation error";
+//         } else if (error.response.status === 409) {
+//           errorMessage = "Email already exists";
+//         }
+//       }
+
+//       toast.error(errorMessage, {
+//         position: "top-center",
+//         autoClose: 3000,
+//         hideProgressBar: false,
+//         closeOnClick: true,
+//         pauseOnHover: true,
+//         draggable: true,
+//       });
+//     } finally {
+//       setIsSubmitting(false);
+//     }
 //   };
 
 //   return (
@@ -277,7 +329,7 @@
 //                       fontSize: "0.875rem",
 //                       backgroundColor: "#f8fafc",
 //                       appearance: "none",
-//                       marginRight: "-1px", // Remove double border
+//                       marginRight: "-1px",
 //                     }}
 //                   >
 //                     <option value="+1">+1 (US)</option>
@@ -303,7 +355,8 @@
 //                 </div>
 //               </div>
 //             </div>
-//             {/* City */}
+            
+//             {/* Address (changed from City) */}
 //             <div style={{ marginBottom: "1.5rem" }}>
 //               <label
 //                 style={{
@@ -315,13 +368,13 @@
 //                   textTransform: "uppercase",
 //                 }}
 //               >
-//                 CITY
+//                 ADDRESS
 //               </label>
 //               <input
 //                 type="text"
-//                 name="city"
-//                 placeholder="Your city"
-//                 value={formData.city}
+//                 name="address"
+//                 placeholder="Your full address"
+//                 value={formData.address}
 //                 onChange={handleChange}
 //                 style={{
 //                   width: "100%",
@@ -333,37 +386,6 @@
 //                 }}
 //               />
 //             </div>
-
-//             {/* State/Region */}
-//             {/* <div style={{ marginBottom: "1.5rem" }}>
-//               <label
-//                 style={{
-//                   display: "block",
-//                   fontSize: "0.75rem",
-//                   fontWeight: "600",
-//                   color: "#475569",
-//                   marginBottom: "0.5rem",
-//                   textTransform: "uppercase",
-//                 }}
-//               >
-//                 STATE/REGION
-//               </label>
-//               <input
-//                 type="text"
-//                 name="state"
-//                 placeholder="State/Region"
-//                 value={formData.state}
-//                 onChange={handleChange}
-//                 style={{
-//                   width: "100%",
-//                   padding: "0.75rem 1rem",
-//                   borderRadius: "0.5rem",
-//                   border: "1px solid #e2e8f0",
-//                   fontSize: "0.875rem",
-//                   backgroundColor: "#f8fafc",
-//                 }}
-//               />
-//             </div> */}
 
 //             {/* Country */}
 //             <div style={{ marginBottom: "1.5rem" }}>
@@ -449,20 +471,21 @@
 //           <button
 //             type="submit"
 //             onClick={handleSubmit}
+//             disabled={isSubmitting}
 //             style={{
 //               gridColumn: "1 / -1",
 //               padding: "0.75rem",
 //               borderRadius: "0.5rem",
 //               border: "none",
-//               backgroundColor: "#2E6F6E",
+//               backgroundColor: isSubmitting ? "#cccccc" : "#2E6F6E",
 //               color: "white",
 //               fontSize: "0.875rem",
 //               fontWeight: "600",
-//               cursor: "pointer",
+//               cursor: isSubmitting ? "not-allowed" : "pointer",
 //               marginTop: "1rem",
 //             }}
 //           >
-//             Sign Up
+//             {isSubmitting ? "Creating Account..." : "Sign Up"}
 //           </button>
 //           <div
 //             style={{ marginTop: "10px", fontSize: "16px", textAlign: "center" }}
@@ -540,12 +563,14 @@
 
 // export default SignUp;
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { FiEye, FiEyeOff, FiChevronDown } from "react-icons/fi";
 import { toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 import axios from "axios";
+import { HiBadgeCheck } from "react-icons/hi";
+import { FaSpinner } from "react-icons/fa";
 
 const API_BASE_URL = import.meta.env.VITE_API_URL;
 
@@ -556,18 +581,73 @@ function SignUp() {
     password: "",
     companyName: "",
     country: "United States",
-    countryCode: "+1", // Default country code
-    address: "", // Changed from city to address
+    countryCode: "+1",
+    address: "",
     phone: "",
     zip: "",
   });
   const [showPassword, setShowPassword] = useState(false);
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [otpSent, setOtpSent] = useState(false);
+  const [otpVerified, setOtpVerified] = useState(false);
+  const [otp, setOtp] = useState("");
+  const [countdown, setCountdown] = useState(0);
+  const [verifying, setVerifying] = useState(false);
   const navigate = useNavigate();
 
   const handleChange = (e) => {
     const { name, value } = e.target;
     setFormData((prev) => ({ ...prev, [name]: value }));
+  };
+
+  useEffect(() => {
+    let timer;
+    if (countdown > 0) {
+      timer = setTimeout(() => setCountdown(countdown - 1), 1000);
+    }
+    return () => clearTimeout(timer);
+  }, [countdown]);
+
+  const sendOtp = async () => {
+    const phone = formData.phone;
+    const countryCode = formData.countryCode;
+
+    if (!phone || !countryCode) {
+      toast.error("Phone number and country code are required");
+      return;
+    }
+
+    try {
+      const res = await axios.post(`${API_BASE_URL}/api/user/send-otp`, {
+        phone_number: `${countryCode}${phone}`,
+      });
+      toast.success(res.data.message);
+      setOtpSent(true);
+      setCountdown(60);
+    } catch (err) {
+      if (err.response && err.response.data && err.response.data.error) {
+        toast.error(err.response.data.error);
+      } else {
+        toast.error("Something went wrong. Please try again.");
+      }
+    }
+  };
+
+  const verifyOtp = async () => {
+    setVerifying(true);
+    try {
+      const res = await axios.post(`${API_BASE_URL}/api/user/verify-otp`, {
+        phone_number: `${formData.countryCode}${formData.phone}`,
+        otp: otp,
+      });
+      toast.success(res.data.message);
+      setOtpVerified(true);
+      setOtpSent(false);
+    } catch (err) {
+      toast.error("Invalid OTP. Please try again.");
+    } finally {
+      setVerifying(false);
+    }
   };
 
   const handleSubmit = async (e) => {
@@ -587,8 +667,13 @@ function SignUp() {
       return;
     }
 
+    if (!otpVerified) {
+      toast.error("Please verify your phone number with OTP first");
+      setIsSubmitting(false);
+      return;
+    }
+
     try {
-      // Prepare the data for API
       const payload = {
         name: formData.fullName,
         email: formData.email,
@@ -599,10 +684,9 @@ function SignUp() {
         phone: formData.phone,
         zip: formData.zip,
         countryCode: formData.countryCode,
-        role: "buyer" // Assuming you want default role as user
+        role: "buyer"
       };
 
-      // Make API call
       const response = await axios.post(`${API_BASE_URL}/api/user`, payload);
 
       if (response.status === 201) {
@@ -846,59 +930,115 @@ function SignUp() {
 
           {/* Right Form Column */}
           <div>
-            <div>
-              {/* Phone Number */}
-              <div style={{ marginBottom: "1.5rem" }}>
-                <label
-                  style={{
-                    display: "block",
-                    fontSize: "0.75rem",
-                    fontWeight: "600",
-                    color: "#475569",
-                    marginBottom: "0.5rem",
-                    textTransform: "uppercase",
-                  }}
-                >
-                  PHONE NUMBER
-                </label>
-                <div style={{ display: "flex", alignItems: "center" }}>
-                  <select
+            {/* Phone Number */}
+            <div style={{ marginBottom: "1.5rem" }}>
+              <label
+                style={{
+                  display: "block",
+                  fontSize: "0.75rem",
+                  fontWeight: "600",
+                  color: "#475569",
+                  marginBottom: "0.5rem",
+                  textTransform: "uppercase",
+                }}
+              >
+                PHONE NUMBER
+                {otpVerified && (
+                  <span
                     style={{
-                      width: "30%",
-                      padding: "0.75rem 1rem",
-                      borderRadius: "0.5rem 0 0 0.5rem",
-                      border: "1px solid #e2e8f0",
-                      fontSize: "0.875rem",
-                      backgroundColor: "#f8fafc",
-                      appearance: "none",
-                      marginRight: "-1px",
+                      color: "green",
+                      marginLeft: "8px",
+                      fontSize: "14px",
+                      fontWeight: "normal",
                     }}
                   >
-                    <option value="+1">+1 (US)</option>
-                    <option value="+44">+44 (UK)</option>
-                    <option value="+61">+61 (AU)</option>
-                    <option value="+49">+49 (DE)</option>
-                  </select>
-                  <input
-                    type="tel"
-                    name="phone"
-                    placeholder="123-456-7890"
-                    value={formData.phone}
-                    onChange={handleChange}
+                    ✓ Verified
+                  </span>
+                )}
+              </label>
+              <div style={{ display: "flex", alignItems: "center" }}>
+                <select
+                  name="countryCode"
+                  value={formData.countryCode}
+                  onChange={handleChange}
+                  disabled={otpVerified}
+                  style={{
+                    width: "30%",
+                    padding: "0.75rem 1rem",
+                    borderRadius: "0.5rem 0 0 0.5rem",
+                    border: "1px solid #e2e8f0",
+                    fontSize: "0.875rem",
+                    backgroundColor: "#f8fafc",
+                    appearance: "none",
+                    marginRight: "-1px",
+                  }}
+                >
+                  <option value="+1">+1 (US)</option>
+                  <option value="+91">+91 (IN)</option>
+                  <option value="+44">+44 (UK)</option>
+                  <option value="+61">+61 (AU)</option>
+                </select>
+                <input
+                  type="tel"
+                  name="phone"
+                  placeholder="123-456-7890"
+                  value={formData.phone}
+                  onChange={handleChange}
+                  disabled={otpVerified}
+                  style={{
+                    width: "70%",
+                    padding: "0.75rem 1rem",
+                    borderRadius: "0 0.5rem 0.5rem 0",
+                    border: "1px solid #e2e8f0",
+                    fontSize: "0.875rem",
+                    backgroundColor: "#f8fafc",
+                  }}
+                />
+                {!otpVerified ? (
+                  <button
+                    type="button"
+                    onClick={sendOtp}
+                    disabled={!formData.phone || countdown > 0}
                     style={{
-                      width: "70%",
+                      marginLeft: "10px",
                       padding: "0.75rem 1rem",
-                      borderRadius: "0 0.5rem 0.5rem 0",
-                      border: "1px solid #e2e8f0",
-                      fontSize: "0.875rem",
-                      backgroundColor: "#f8fafc",
+                      borderRadius: "0.5rem",
+                      border: "none",
+                      backgroundColor: countdown > 0 ? "#cccccc" : "#2E6F6E",
+                      color: "white",
+                      fontSize: "14px",
+                      fontWeight: "600",
+                      cursor: !formData.phone || countdown > 0 ? "not-allowed" : "pointer",
                     }}
-                  />
-                </div>
+                  >
+                    {countdown > 0 ? `Resend in ${countdown}s` : "Get OTP"}
+                  </button>
+                ) : (
+                  <button
+                    type="button"
+                    disabled
+                    style={{
+                      marginLeft: "10px",
+                      padding: "0.75rem 1rem",
+                      borderRadius: "0.5rem",
+                      border: "none",
+                      backgroundColor: "#4BB543",
+                      color: "white",
+                      fontSize: "0.875rem",
+                      fontWeight: "600",
+                      display: "flex",
+                      alignItems: "center",
+                      gap: "5px",
+                    }}
+                  >
+                    <HiBadgeCheck size={18} />
+                    Verified
+                  </button>
+                )}
               </div>
             </div>
             
-            {/* Address (changed from City) */}
+            {/* Address */}
             <div style={{ marginBottom: "1.5rem" }}>
               <label
                 style={{
@@ -1013,21 +1153,28 @@ function SignUp() {
           <button
             type="submit"
             onClick={handleSubmit}
-            disabled={isSubmitting}
+            disabled={isSubmitting || !otpVerified}
             style={{
               gridColumn: "1 / -1",
               padding: "0.75rem",
               borderRadius: "0.5rem",
               border: "none",
-              backgroundColor: isSubmitting ? "#cccccc" : "#2E6F6E",
+              backgroundColor: isSubmitting || !otpVerified ? "#cccccc" : "#2E6F6E",
               color: "white",
               fontSize: "0.875rem",
               fontWeight: "600",
-              cursor: isSubmitting ? "not-allowed" : "pointer",
+              cursor: isSubmitting || !otpVerified ? "not-allowed" : "pointer",
               marginTop: "1rem",
             }}
           >
-            {isSubmitting ? "Creating Account..." : "Sign Up"}
+            {isSubmitting ? (
+              <>
+                <FaSpinner className="spin" style={{ marginRight: "8px" }} />
+                Creating Account...
+              </>
+            ) : (
+              "Sign Up"
+            )}
           </button>
           <div
             style={{ marginTop: "10px", fontSize: "16px", textAlign: "center" }}
@@ -1099,6 +1246,126 @@ function SignUp() {
           </p>
         </div>
       </div>
+
+      {/* OTP Verification Modal */}
+      {otpSent && (
+        <div
+          style={{
+            position: "fixed",
+            top: 0,
+            left: 0,
+            right: 0,
+            bottom: 0,
+            backgroundColor: "rgba(0,0,0,0.5)",
+            zIndex: 1060,
+            display: "flex",
+            alignItems: "center",
+            justifyContent: "center",
+          }}
+        >
+          <div
+            style={{
+              backgroundColor: "#fff",
+              borderRadius: "10px",
+              padding: "25px",
+              width: "400px",
+              boxShadow: "0 5px 15px rgba(0,0,0,0.3)",
+            }}
+          >
+            <div
+              style={{
+                display: "flex",
+                justifyContent: "space-between",
+                alignItems: "center",
+                marginBottom: "20px",
+              }}
+            >
+              <h4 style={{ margin: 0 }}>Verify OTP</h4>
+              <button
+                onClick={() => setOtpSent(false)}
+                style={{
+                  background: "none",
+                  border: "none",
+                  fontSize: "20px",
+                  cursor: "pointer",
+                }}
+              >
+                ×
+              </button>
+            </div>
+            <p style={{ marginBottom: "20px" }}>
+              We've sent a 6-digit OTP to {formData.countryCode}{" "}
+              {formData.phone}
+            </p>
+            <div style={{ marginBottom: "20px" }}>
+              <input
+                type="text"
+                placeholder="Enter OTP"
+                value={otp}
+                onChange={(e) => setOtp(e.target.value)}
+                maxLength="6"
+                style={{
+                  width: "100%",
+                  padding: "12px",
+                  borderRadius: "5px",
+                  border: "1px solid #ddd",
+                  fontSize: "16px",
+                }}
+              />
+            </div>
+            <div
+              style={{
+                display: "flex",
+                justifyContent: "space-between",
+                alignItems: "center",
+              }}
+            >
+              <span style={{ color: "#666" }}>
+                {countdown > 0 ? `Resend OTP in ${countdown}s` : ""}
+              </span>
+              {countdown === 0 && (
+                <button
+                  onClick={sendOtp}
+                  style={{
+                    background: "none",
+                    border: "none",
+                    color: "#2E6F6E",
+                    cursor: "pointer",
+                  }}
+                >
+                  Resend OTP
+                </button>
+              )}
+            </div>
+            <button
+              onClick={verifyOtp}
+              style={{
+                width: "100%",
+                padding: "12px",
+                backgroundColor: "#2E6F6E",
+                color: "white",
+                border: "none",
+                borderRadius: "5px",
+                cursor: "pointer",
+                marginTop: "20px",
+                display: "flex",
+                alignItems: "center",
+                justifyContent: "center",
+                gap: "8px",
+              }}
+            >
+              {verifying ? (
+                <>
+                  <FaSpinner className="spin" />
+                  Verifying...
+                </>
+              ) : (
+                "Verify"
+              )}
+            </button>
+          </div>
+        </div>
+      )}
     </div>
   );
 }

@@ -3,6 +3,7 @@ import axios from "axios";
 import { toast } from "react-toastify";
 import styles from "../pages/Home.module.css";
 import "react-toastify/dist/ReactToastify.css";
+import axiosInstance from "../utils/axiosInstance"
 const API_BASE_URL = import.meta.env.VITE_API_URL;
 
 function BuyerActivities() {
@@ -12,8 +13,12 @@ function BuyerActivities() {
   const fetchBillingLogs = async () => {
     setLoading(true);
     try {
-      const res = await axios.get(`${API_BASE_URL}/api/call/billing-logs`);
-      const flattenedLogs = res.data.map((log) => ({
+      const res = await axiosInstance.get(`${API_BASE_URL}/api/call/billing-logs`);
+      const logsArray = Array.isArray(res.data) 
+      ? res.data 
+      : res.data.data || res.data.billing_logs || [];
+      
+      const flattenedLogs = logsArray.map((log) => ({
         id: log.id,
         call_log_id: log.call_log_id,
         rule_id: log.rule_id,
@@ -29,8 +34,10 @@ function BuyerActivities() {
         campaign_name: log.call_log?.campaign?.name || null,
       }));
       setLogs(flattenedLogs);
+      toast.success("Buyers Acitivities fetched successfully")
     } catch (error) {
       console.error("Error fetching buyers activities:", error);
+      toast.error("Error fetching buyers activities")
     } finally {
       setLoading(false);
     }

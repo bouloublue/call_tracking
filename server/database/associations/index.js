@@ -118,6 +118,12 @@ function init() {
     constraints: true
   });
 
+  CallLog.hasMany(BillingLog, {
+  foreignKey: 'call_log_id',
+  as: 'billing_logs'
+});
+
+
   // BillingLog.belongsTo(User, {
   //   foreignKey: 'buyer_id',
   //   as: 'buyer',

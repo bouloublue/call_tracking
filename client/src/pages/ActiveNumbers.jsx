@@ -7,6 +7,7 @@ import styles from "../pages/Home.module.css";
 import Swal from "sweetalert2";
 import { HiBadgeCheck } from "react-icons/hi";
 const API_BASE_URL = import.meta.env.VITE_API_URL;
+import axiosInstance from "../utils/axiosInstance"
 
 function ActiveNumbers() {
   const [showModal, setShowModal] = useState(false);
@@ -27,7 +28,7 @@ function ActiveNumbers() {
 
   const fetchNumbers = async () => {
     try {
-      const res = await axios.get(`${API_BASE_URL}/api/number`);
+      const res = await axiosInstance.get(`${API_BASE_URL}/api/number`);
       setNumbers(res.data);
     } catch (error) {
       toast.error("Failed to fetch numbers");
@@ -49,10 +50,10 @@ function ActiveNumbers() {
 
     try {
       if (editMode) {
-        await axios.put(`${API_BASE_URL}/api/number/${editId}`, formData);
+        await axiosInstance.put(`${API_BASE_URL}/api/number/${editId}`, formData);
         toast.success("Number updated successfully");
       } else {
-        await axios.post(`${API_BASE_URL}/api/number`, formData);
+        await axiosInstance.post(`${API_BASE_URL}/api/number`, formData);
         toast.success("Number added successfully");
       }
 
@@ -90,7 +91,7 @@ function ActiveNumbers() {
     if (!result.isConfirmed) return;
 
     try {
-      await axios.delete(`${API_BASE_URL}/api/numbers/${id}`);
+      await axiosInstance.delete(`${API_BASE_URL}/api/numbers/${id}`);
       toast.success("Number deleted successfully");
       fetchNumbers();
     } catch (error) {
@@ -373,7 +374,7 @@ function ActiveNumbers() {
                           }
                         >
                           <option value="local">Local</option>
-                          <option value="toll-free">Toll Free</option>
+                          <option value="toll">Toll Free</option>
                         </select>
                       </div>
 

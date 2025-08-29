@@ -187,6 +187,7 @@
   margin-bottom: 1.5rem;
   overflow: hidden;
   transition: transform 0.3s ease, box-shadow 0.3s ease;
+  height: 100%;
 }
 
 .card:hover {
@@ -196,6 +197,7 @@
 
 .cardBody {
   padding: 1.5rem;
+  margin-top: 14px;
 }
 
 .cardHeader {

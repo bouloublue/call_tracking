@@ -3,6 +3,9 @@ const bcrypt = require("bcryptjs");
 const { upload } = require("../../middlewares/upload");
 const router = express.Router();
 const twilio = require("twilio");
+const jwt = require("jsonwebtoken");
+const authMiddleware = require("../../middlewares/auth");
+const { Op } = require("sequelize");
 
 const accountSid = process.env.TWILIO_ACCOUNT_SID;
 const authToken = process.env.TWILIO_AUTH_TOKEN;
@@ -10,38 +13,77 @@ const twilioPhone = process.env.TWILIO_NUMBER;
 const client = twilio(accountSid, authToken);
 
 // Create a new user
-// router.post('/', upload.single('profile_img'), async (req, res) => {
+// router.post("/", upload.single("profile_img"), async (req, res) => {
 //   try {
-//     const { name, email, phone, countryCode, password, role, company, address, status, zipCode } = req.body;
+//     const {
+//       name,
+//       email,
+//       phone,
+//       countryCode,
+//       password,
+//       role,
+//       company,
+//       address,
+//       status,
+//       zipCode,
+//     } = req.body;
 
 //     if (!req.body) {
-//       return res.status(400).json({ error: 'User data is required' });
+//       return res.status(400).json({ error: "User data is required" });
 //     }
 
-//     // Hash password
+//     const existingUser = await global.db.models.User.findOne({
+//       where: {
+//         email: email,
+//         deleted_at: null,
+//       },
+//     });
+
+//     if (existingUser) {
+//       return res.status(409).json({ error: "User already Registered" });
+//     }
+
+//     const fullPhone = `${countryCode}${phone}`;
+//     const otpRecord = await global.db.models.OtpVerification.findOne({
+//       where: { phone: fullPhone, verified: true },
+//     });
+
+//     if (!otpRecord) {
+//       return res
+//         .status(403)
+//         .json({ error: "Phone number not verified via OTP" });
+//     }
+
 //     const salt = await bcrypt.genSalt(10);
 //     const hashedPassword = await bcrypt.hash(password, salt);
-
-//     // Save image path if uploaded
 //     const profileImgPath = req.file ? `/uploads/${req.file.filename}` : null;
-
-//     const fullPhoneNumber = `${countryCode}${phone}`;
 
 //     const newUser = await global.db.models.User.create({
 //       name,
 //       email,
-//       phone: fullPhoneNumber,
+//       phone: fullPhone,
 //       countryCode,
 //       company,
 //       password: hashedPassword,
-//       role: role,
-//       address: address,
-//       zipCode: zipCode,
+//       role,
+//       address,
+//       zipCode,
 //       profile_img: profileImgPath,
-//       status: status,
+//       status,
 //     });
 
+//     // Optionally: delete OTP record
+//     // await otpRecord.destroy();
+
+//     const token = jwt.sign(
+//       { id: user.id, email: user.email, role: user.role },
+//       process.env.JWT_SECRET,
+//       { expiresIn: process.env.JWT_EXPIRES_IN || "7d" }
+//     );
+
 //     res.status(201).json({
+//       message: "User registered successfully",
+//       token,
 //       id: newUser.id,
 //       name: newUser.name,
 //       email: newUser.email,
@@ -52,19 +94,19 @@ const client = twilio(accountSid, authToken);
 //       role: newUser.role,
 //       status: newUser.status,
 //       created_at: newUser.created_at,
-//       zipCode: newUser.zipCode
+//       zipCode: newUser.zipCode,
 //     });
 //   } catch (error) {
-//     console.error('Error creating user:', error);
-//     if (error.name === 'SequelizeUniqueConstraintError') {
-//       return res.status(409).json({ error: 'Email already exists' });
+//     console.error("Error creating user:", error);
+//     if (error.name === "SequelizeUniqueConstraintError") {
+//       return res.status(409).json({ error: "Email or phone already exists" });
 //     }
-//     res.status(500).json({ error: 'Internal server error' });
+//     res.status(500).json({ error: "Internal server error" });
 //   }
 // });
 
-// Create a new user
 router.post("/", upload.single("profile_img"), async (req, res) => {
+  const t = await global.db.sequelizeConfig.transaction();
   try {
     const {
       name,
@@ -85,21 +127,25 @@ router.post("/", upload.single("profile_img"), async (req, res) => {
 
     const existingUser = await global.db.models.User.findOne({
       where: {
-        email: email,
+        email,
         deleted_at: null,
       },
+      transaction: t,
     });
 
     if (existingUser) {
+      await t.rollback();
       return res.status(409).json({ error: "User already Registered" });
     }
 
     const fullPhone = `${countryCode}${phone}`;
     const otpRecord = await global.db.models.OtpVerification.findOne({
       where: { phone: fullPhone, verified: true },
+      transaction: t,
     });
 
     if (!otpRecord) {
+      await t.rollback();
       return res
         .status(403)
         .json({ error: "Phone number not verified via OTP" });
@@ -109,24 +155,37 @@ router.post("/", upload.single("profile_img"), async (req, res) => {
     const hashedPassword = await bcrypt.hash(password, salt);
     const profileImgPath = req.file ? `/uploads/${req.file.filename}` : null;
 
-    const newUser = await global.db.models.User.create({
-      name,
-      email,
-      phone: fullPhone,
-      countryCode,
-      company,
-      password: hashedPassword,
-      role,
-      address,
-      zipCode,
-      profile_img: profileImgPath,
-      status,
-    });
+    const newUser = await global.db.models.User.create(
+      {
+        name,
+        email,
+        phone: fullPhone,
+        countryCode,
+        company,
+        password: hashedPassword,
+        role,
+        address,
+        zipCode,
+        profile_img: profileImgPath,
+        status,
+      },
+      { transaction: t }
+    );
 
-    // Optionally: delete OTP record
-    // await otpRecord.destroy();
+    // Optionally delete OTP record (within transaction)
+    // await otpRecord.destroy({ transaction: t });
+
+    const token = jwt.sign(
+      { id: newUser.id, email: newUser.email, role: newUser.role },
+      process.env.JWT_SECRET,
+      { expiresIn: process.env.JWT_EXPIRES_IN || "7d" }
+    );
+
+    await t.commit();
 
     res.status(201).json({
+      message: "User registered successfully",
+      token,
       id: newUser.id,
       name: newUser.name,
       email: newUser.email,
@@ -140,6 +199,7 @@ router.post("/", upload.single("profile_img"), async (req, res) => {
       zipCode: newUser.zipCode,
     });
   } catch (error) {
+    await t.rollback();
     console.error("Error creating user:", error);
     if (error.name === "SequelizeUniqueConstraintError") {
       return res.status(409).json({ error: "Email or phone already exists" });
@@ -149,7 +209,7 @@ router.post("/", upload.single("profile_img"), async (req, res) => {
 });
 
 // Get all buyers
-router.get("/buyers", async (req, res) => {
+router.get("/buyers", authMiddleware, async (req, res) => {
   try {
     const buyers = await global.db.models.User.findAll({
       where: { role: "buyer" },
@@ -161,8 +221,70 @@ router.get("/buyers", async (req, res) => {
   }
 });
 
+router.get("/pagination/buyers", authMiddleware, async (req, res) => {
+  try {
+    // Get query parameters
+    const { page = 1, limit = 10, search = "" } = req.query;
+    const offset = (page - 1) * limit;
+
+    // Build the where clause
+    const where = { 
+      role: "buyer",
+      ...(search && {
+        [Op.or]: [
+          { 
+            name: { 
+              [Op.like]: `%${search.toLowerCase()}%` 
+            } 
+          },
+          { 
+            email: { 
+              [Op.like]: `%${search.toLowerCase()}%` 
+            } 
+          },
+          { 
+            phone: { 
+              [Op.like]: `%${search.toLowerCase()}%` 
+            } 
+          },
+          { 
+            company: { 
+              [Op.like]: `%${search.toLowerCase()}%` 
+            } 
+          }
+        ]
+      })
+    };
+
+    // Get buyers with pagination and filtering
+    const { count, rows } = await global.db.models.User.findAndCountAll({
+      where,
+      limit: parseInt(limit),
+      offset: parseInt(offset),
+      order: [['created_at', 'DESC']]
+    });
+
+    res.status(200).json({
+      success: true,
+      data: rows,
+      pagination: {
+        totalItems: count,
+        totalPages: Math.ceil(count / limit),
+        currentPage: parseInt(page),
+        itemsPerPage: parseInt(limit)
+      }
+    });
+  } catch (error) {
+    console.error("Error fetching buyers:", error);
+    res.status(500).json({ 
+      success: false,
+      error: "Internal server error" 
+    });
+  }
+});
+
 // Get all users
-router.get("/", async (req, res) => {
+router.get("/", authMiddleware, async (req, res) => {
   try {
     const users = await global.db.models.User.findAll({
       where: {
@@ -176,8 +298,33 @@ router.get("/", async (req, res) => {
   }
 });
 
+
+router.get("/profile", authMiddleware, async (req, res) => {
+  try {
+    const userId = req.user?.id;
+
+    if (!userId) {
+      return res.status(401).json({ error: "Invalid token payload. User ID missing." });
+    }
+
+    const user = await global.db.models.User.findByPk(userId, {
+      attributes: { exclude: ["password"] }
+    });
+
+    if (!user) {
+      return res.status(404).json({ error: "User not found" });
+    }
+
+    res.status(200).json({ user });
+  } catch (err) {
+    console.error("Profile route error:", err);
+    res.status(500).json({ error: "Internal server error" });
+  }
+});
+
+
 // Get user by ID
-router.get("/:id", async (req, res) => {
+router.get("/:id", authMiddleware, async (req, res) => {
   try {
     const { id } = req.params;
     const user = await global.db.models.User.findByPk(id);
@@ -193,7 +340,7 @@ router.get("/:id", async (req, res) => {
 
 // Update user details
 
-router.put("/:id", upload.single("profile_img"), async (req, res) => {
+router.put("/:id", authMiddleware, upload.single("profile_img"), async (req, res) => {
   try {
     const { id } = req.params;
     const {
@@ -252,7 +399,7 @@ router.put("/:id", upload.single("profile_img"), async (req, res) => {
   }
 });
 
-router.delete("/:id", async (req, res) => {
+router.delete("/:id", authMiddleware, async (req, res) => {
   try {
     const user = await global.db.models.User.findByPk(req.params.id);
     if (!user) {
@@ -269,8 +416,7 @@ router.delete("/:id", async (req, res) => {
 });
 
 // Send OTP for phone verification
-
-router.post("/send-otp", async (req, res) => {
+router.post("/send-otp", authMiddleware, async (req, res) => {
   const { phone_number } = req.body;
 
   if (!phone_number)
@@ -326,8 +472,7 @@ router.post("/send-otp", async (req, res) => {
 });
 
 // otp verification routes
-
-router.post("/verify-otp", async (req, res) => {
+router.post("/verify-otp", authMiddleware, async (req, res) => {
   const { phone_number, otp } = req.body;
 
   // const fullPhone = `${countryCode}${phone}`;
@@ -348,5 +493,6 @@ router.post("/verify-otp", async (req, res) => {
 
   res.status(200).json({ message: "OTP verified successfully" });
 });
+
 
 module.exports = router;

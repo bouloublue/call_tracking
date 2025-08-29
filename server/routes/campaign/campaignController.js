@@ -60,7 +60,7 @@ router.put("/:id", async (req, res) => {
     await campaign.update({
       name,
       country,
-      number_id,
+      number_id : number_id || null,
       routing_method,
       isCallRecordingEnabled,
       is_active,
@@ -78,8 +78,6 @@ router.put("/:id", async (req, res) => {
 
       const buyerIds = buyerRecords.map(b => b.id);
 
-    
-      // Delete existing mappings for this campaign
       await CampaignMapping.destroy({
         where: { campaign_id: campaignId },
         transaction,

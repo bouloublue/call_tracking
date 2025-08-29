@@ -1,6 +1,6 @@
-import React, { useState, useEffect } from 'react';
-import { NavLink, useNavigate, Link, useLocation } from 'react-router-dom';
-import { IconContext } from 'react-icons';
+import React, { useState, useEffect } from "react";
+import { NavLink, useNavigate, Link, useLocation } from "react-router-dom";
+import { IconContext } from "react-icons";
 import {
   FaTachometerAlt,
   FaBullhorn,
@@ -23,9 +23,13 @@ import {
   FaCalculator,
   FaChartLine,
   FaPhoneAlt,
-  FaMicrophone
-} from 'react-icons/fa';
-import styles from './Sidebar.module.css';
+  FaMicrophone,
+} from "react-icons/fa";
+import styles from "./Sidebar.module.css";
+import { toast } from "react-toastify";
+import axiosInstance from "../utils/axiosInstance";
+
+const API_BASE_URL = import.meta.env.VITE_API_URL;
 
 const SideBar = ({ isOpen, toggleSidebar }) => {
   const navigate = useNavigate();
@@ -33,14 +37,17 @@ const SideBar = ({ isOpen, toggleSidebar }) => {
   const [user, setUser] = useState(null);
   const [openMenu, setOpenMenu] = useState(null);
   const [activeMainMenu, setActiveMainMenu] = useState(null);
+  const authData = JSON.parse(localStorage.getItem("token"));
+
+  const fetchUserData = async () => {
+    const res = await axiosInstance.get(`${API_BASE_URL}/api/user/profile`);
+    const loggedInUser = res.data.user;
+    setUser(loggedInUser);
+    console.log("loggedInUser", loggedInUser)
+  };
 
   useEffect(() => {
-    const loggedInUser = {
-      name: 'Admin User',
-      role: 'Admin',
-      initials: 'AU',
-    };
-    setUser(loggedInUser);
+    fetchUserData();
   }, []);
 
   useEffect(() => {
@@ -49,7 +56,9 @@ const SideBar = ({ isOpen, toggleSidebar }) => {
 
     for (let item of navStructure) {
       if (item.submenu) {
-        const activeSubItem = item.submenu.find(sub => currentPath.startsWith(sub.path));
+        const activeSubItem = item.submenu.find((sub) =>
+          currentPath.startsWith(sub.path)
+        );
         if (activeSubItem) {
           foundActiveMenu = item.name;
           setOpenMenu(item.name);
@@ -64,10 +73,22 @@ const SideBar = ({ isOpen, toggleSidebar }) => {
     setActiveMainMenu(foundActiveMenu);
   }, [location.pathname]);
 
+  function getInitials(name) {
+    if (!name) return "";
+    const parts = name.split(" ");
+    let initials = parts[0].charAt(0);
+    if (parts.length > 1) {
+      initials += parts[parts.length - 1].charAt(0);
+    }
+    return initials.toUpperCase();
+  }
+
   const handleLogout = () => {
-    navigate('/login');
-    localStorage.removeItem('auth');
+    navigate("/login");
+    localStorage.removeItem("token");
+    localStorage.removeItem("auth");
     setUser(null);
+    toast.success("Logout successfully");
   };
 
   const toggleSubmenu = (menuName) => {
@@ -76,64 +97,126 @@ const SideBar = ({ isOpen, toggleSidebar }) => {
 
   const navStructure = [
     {
-      name: 'Dashboard',
-      path: '/',
+      name: "Dashboard",
+      path: "/",
       icon: <FaTachometerAlt />,
+      visibleTo: ["admin"],
     },
     {
-      name: 'Campaign',
-      path: '/campaigns',
+      name: "Campaign Report",
+      path: "/campaign-report",
+      icon: <FaChartLine />,
+      visibleTo: ["buyer"],
+    },
+    {
+      name: "Call Stats",
+      path: "/call-logs",
+      icon: <FaRegBell />,
+      visibleTo: ["buyer"],
+    },
+    {
+      name: "Billable Summaries",
+      path: "/billing-report",
+      icon: <FaMoneyBill />,
+      visibleTo: ["buyer"],
+    },
+    {
+      name: "Campaigns",
       icon: <FaBullhorn />,
+      submenu: [
+        { name: "Campaign", path: "/campaigns", icon: <FaBullhorn /> },
+        {
+          name: "Campaign Report",
+          path: "/campaign-reports",
+          icon: <FaChartLine />,
+        },
+      ],
+      visibleTo: ["admin"],
     },
     {
-      name: 'Buyer Management',
+      name: "Buyer Management",
       icon: <FaUsers />,
       submenu: [
-        { name: 'Buyers', path: '/agents', icon: <FaUserTie /> },
-        { name: 'Buyer Activities', path: '/buyer-activities', icon: <FaUserCheck /> },
+        { name: "Buyers", path: "/agents", icon: <FaUserTie /> },
+        {
+          name: "Buyer Activities",
+          path: "/buyer-activities",
+          icon: <FaUserCheck />,
+        },
       ],
+      visibleTo: ["admin"],
     },
     {
-      name: 'Numbers',
+      name: "Numbers",
       icon: <FaHashtag />,
       submenu: [
-        { name: 'Active Numbers', path: '/numbers/active-numbers', icon: <FaMobileAlt /> },
-        { name: 'Released Numbers', path: '/numbers/released', icon: <FaTrashRestore /> },
+        {
+          name: "Active Numbers",
+          path: "/numbers/active-numbers",
+          icon: <FaMobileAlt />,
+        },
+        {
+          name: "Released Numbers",
+          path: "/numbers/released",
+          icon: <FaTrashRestore />,
+        },
       ],
+      visibleTo: ["admin"],
     },
-    // {
-    //   name: 'Call Routing',
-    //   icon: <FaRandom />,
-    //   submenu: [
-    //     { name: 'Routing Rules', path: '/calllogs', icon: <FaRoute /> },
-    //     { name: 'Routing History', path: '/CallLogs', icon: <FaClock /> },
-    //     { name: 'Notifications', path: '/CallLogs', icon: <FaRegBell /> },
-    //   ],
-    // },
     {
-      name: 'Billing',
+      name: "Billing",
       icon: <FaMoneyBill />,
       submenu: [
-        { name: 'Billing Logic', path: '/billing-logic', icon: <FaCalculator /> },
-        { name: 'Billing Reports', path: '/billing-report', icon: <FaChartLine /> },
+        {
+          name: "Billing Logic",
+          path: "/billing-logic",
+          icon: <FaCalculator />,
+        },
+        {
+          name: "Billing Reports",
+          path: "/billing-report",
+          icon: <FaChartLine />,
+        },
       ],
+      visibleTo: ["admin"],
     },
     {
-      name: 'Call Handling',
+      name: "Call Handling",
       icon: <FaPhone />,
       submenu: [
-        { name: 'Call Logs', path: '/call-logs', icon: <FaPhoneAlt /> },
+        { name: "Call Logs", path: "/call-logs", icon: <FaPhoneAlt /> },
       ],
+      visibleTo: ["admin"],
     },
     {
-      name: 'Profile',
-      path: '/profile',
+      name: "Profile",
+      path: "/profile",
       icon: <FaUserCircle />,
     },
   ];
 
+  // const buyerRole = authData?.role;
+
+  // const allowedBuyerRoutes = ["Dashboard"];
+
+  // const buyerNav =
+  //   buyerRole === "buyer"
+  //     ? navStructure.filter((item) => allowedBuyerRoutes.includes(item.name))
+  //     : navStructure;
+
+  const role = authData?.role;
+
+  const buyerNav = navStructure.filter((item) => {
+    if (!item.visibleTo) return true;
+    return item.visibleTo.includes(role);
+  });
+
+  console.log(buyerNav);
+
   return (
-    <div className={`${styles.sidebarContainer} ${!isOpen ? styles.hidden : ''}`}>
+    <div
+      className={`${styles.sidebarContainer} ${!isOpen ? styles.hidden : ""}`}
+    >
       <div className={styles.sidebarContent}>
         <div className={styles.sidebarHeader}>
           <Link to="/">
@@ -148,7 +231,7 @@ const SideBar = ({ isOpen, toggleSidebar }) => {
         <div className={styles.navContent}>
           <IconContext.Provider value={{ className: styles.navIcon }}>
             <ul className={styles.sidebarNav}>
-              {navStructure.map((item) => {
+              {buyerNav.map((item) => {
                 const isActiveParent = activeMainMenu === item.name;
                 const hasSubmenu = item.submenu && item.submenu.length > 0;
                 const isSubmenuOpen = openMenu === item.name;
@@ -159,7 +242,9 @@ const SideBar = ({ isOpen, toggleSidebar }) => {
                       <NavLink
                         to={item.path}
                         className={({ isActive }) =>
-                          isActive ? `${styles.navLink} ${styles.active}` : styles.navLink
+                          isActive
+                            ? `${styles.navLink} ${styles.active}`
+                            : styles.navLink
                         }
                         onClick={() => {
                           setOpenMenu(null);
@@ -172,16 +257,28 @@ const SideBar = ({ isOpen, toggleSidebar }) => {
                     ) : (
                       <>
                         <div
-                          className={`${styles.navLink} ${isActiveParent ? styles.active : ''}`}
+                          className={`${styles.navLink} ${
+                            isActiveParent ? styles.active : ""
+                          }`}
                           onClick={() => toggleSubmenu(item.name)}
                         >
-                          <div className={styles.navIconWrapper}>{item.icon}</div>
+                          <div className={styles.navIconWrapper}>
+                            {item.icon}
+                          </div>
                           <span className={styles.navText}>{item.name}</span>
                           <span className={styles.dropdownArrow}>
-                            {isSubmenuOpen ? <FaChevronDown /> : <FaChevronRight />}
+                            {isSubmenuOpen ? (
+                              <FaChevronDown />
+                            ) : (
+                              <FaChevronRight />
+                            )}
                           </span>
                         </div>
-                        <div className={`${styles.submenuContainer} ${isSubmenuOpen ? styles.open : ''}`}>
+                        <div
+                          className={`${styles.submenuContainer} ${
+                            isSubmenuOpen ? styles.open : ""
+                          }`}
+                        >
                           <ul className={styles.submenuList}>
                             {item.submenu.map((subItem) => (
                               <li key={subItem.name}>
@@ -196,7 +293,9 @@ const SideBar = ({ isOpen, toggleSidebar }) => {
                                   <span className={styles.submenuIcon}>
                                     {subItem.icon}
                                   </span>
-                                  <span className={styles.submenuText}>{subItem.name}</span>
+                                  <span className={styles.submenuText}>
+                                    {subItem.name}
+                                  </span>
                                 </NavLink>
                               </li>
                             ))}
@@ -214,7 +313,7 @@ const SideBar = ({ isOpen, toggleSidebar }) => {
         {user && (
           <div className={styles.userSection}>
             <div className={styles.profileInfo}>
-              <div className={styles.profileAvatar}>{user.initials}</div>
+              <div className={styles.profileAvatar}>{getInitials(user.name)}</div>
               <div>
                 <span className={styles.profileName}>{user.name}</span>
                 <span className={styles.profileRole}>{user.role}</span>

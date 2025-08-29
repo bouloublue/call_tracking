@@ -1,9 +1,10 @@
 import { useState, useEffect } from "react";
 import axios from "axios";
 import { toast } from 'react-toastify';
+import "react-toastify/dist/ReactToastify.css";
 import styles from "../pages/Home.module.css";
 import Swal from "sweetalert2";
-
+import axiosInstance from "../utils/axiosInstance"
 const API_BASE_URL = import.meta.env.VITE_API_URL;
 
 function BillingLogic() {
@@ -29,7 +30,7 @@ function BillingLogic() {
 
   const fetchCampaigns = async () => {
     try {
-      const res = await axios.get(`${API_BASE_URL}/api/campaign`);
+      const res = await axiosInstance.get(`${API_BASE_URL}/api/campaign`);
       setCampaigns(res.data.filter((c) => c.routing_method === "smart"));
     } catch (error) {
       console.error("Error fetching campaigns:", error);
@@ -39,7 +40,7 @@ function BillingLogic() {
   const fetchBillingRules = async (campaignId) => {
     setLoading(true);
     try {
-      const res = await axios.get(
+      const res = await axiosInstance.get(
         `${API_BASE_URL}/api/billing/rules?campaign_id=${campaignId}`
       );
       const rules = res.data.map((rule) => ({
@@ -58,11 +59,12 @@ function BillingLogic() {
     if (!selectedCampaign) return;
 
     try {
-      await axios.post(`${API_BASE_URL}/api/billing/rules`, {
+      await axiosInstance.post(`${API_BASE_URL}/api/billing/rules`, {
         ...newRule,
         campaign_id: selectedCampaign,
       });
       fetchBillingRules(selectedCampaign);
+      toast.success("Billing rule created for the campaign")
       setNewRule({
         min_duration_sec: 90,
         rate_per_min: 0.06,
@@ -87,7 +89,7 @@ function BillingLogic() {
     if (!result.isConfirmed) return;
 
     try {
-      await axios.delete(`${API_BASE_URL}/api/billing/rules/${ruleId}`);
+      await axiosInstance.delete(`${API_BASE_URL}/api/billing/rules/${ruleId}`);
       toast.success("Billing rule deleted successfully");
       fetchBillingRules(selectedCampaign);
     } catch (error) {

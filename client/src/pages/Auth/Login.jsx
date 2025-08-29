@@ -3,6 +3,8 @@ import { useNavigate } from "react-router-dom";
 import { FiEye, FiEyeOff } from "react-icons/fi";
 import { toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
+const API_BASE_URL = import.meta.env.VITE_API_URL;
+import { jwtDecode } from 'jwt-decode';
 
 function Login() {
   const [username, setUsername] = useState("");
@@ -11,24 +13,58 @@ function Login() {
   const [error, setError] = useState("");
   const navigate = useNavigate();
 
-  const handleLogin = () => {
-    if (username === "admin" && password === "admin@123") {
-      localStorage.setItem("auth", "true");
-      navigate("/");
-    } else {
-      toast.error("Invalid username or password");
-    }
-  };
+  const handleLogin = async () => {
+  if (!username || !password) {
+    toast.error("Username and password are required");
+    return;
+  }
 
-  const useDemoCredentials = (role) => {
-    const creds = {
-      admin: "admin@123",
-      buyer: "buyer @123",
+  try {
+    const response = await fetch(`${API_BASE_URL}/api/auth/login`, {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json"
+      },
+      body: JSON.stringify({
+        email: username,
+        password: password,
+      })
+    });
+
+    const data = await response.json();
+
+    if (!response.ok) {
+      toast.error(data?.error || "Login failed");
+      return;
+    }
+
+    const decoded = jwtDecode(data.token);
+
+    console.log("role", decoded.role)
+
+    const authData = {
+      isAuthenticated: true,
+      token: data.token,
+      role: decoded.role,
     };
-    setUsername(role);
-    setPassword(creds[role]);
-    setError("");
-  };
+
+    // Save token to localStorage (or cookies)
+    localStorage.setItem("token", JSON.stringify(authData));
+
+    toast.success("Login successful!");
+
+     if (decoded.role === "admin") {
+      navigate("/");
+    } else if (decoded.role === "buyer") {
+      navigate("/campaign-report");
+    } else {
+      navigate("/unauthorized");
+    }
+  } catch (err) {
+    console.error("Login error:", err);
+    toast.error("Something went wrong. Please try again.");
+  }
+};
 
   const containerStyle = {
     display: "flex",
@@ -56,7 +92,7 @@ function Login() {
     justifyContent: "center",
     flexDirection: "column",
     padding: "40px",
-    position: "relative", // Needed for corner images
+    position: "relative",
     overflow: "hidden",
   };
 
