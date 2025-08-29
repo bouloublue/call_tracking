@@ -1,49 +1,149 @@
 function init() {
-  const { User, Campaign, Form, CampaignLead } = global.db.models;
+  const {
+    User,
+    Campaign,
+    CampaignMapping,
+    Number,
+    BillingRule,
+    CallLog,
+    BillingLog
+  } = global.db.models;
 
-  // A User (creator) has many Campaigns (user_id)
-  User.hasMany(Campaign, {
-    foreignKey: 'user_id',
-    as: 'createdCampaigns',
-    constraints: false,
-  });
-  Campaign.belongsTo(User, {
-    foreignKey: 'user_id',
-    as: 'creator',
-    constraints: false,
-  });
+  // Validate all models exist
+  if (!User || !Campaign || !CampaignMapping || !Number || !BillingRule || !CallLog) {
+    throw new Error('Required models are not initialized');
+  }
 
-  // A User (client) has many Campaigns (client_id)
-  User.hasMany(Campaign, {
-    foreignKey: 'client_id',
-    as: 'clientCampaigns',
-    constraints: false,
-  });
-  Campaign.belongsTo(User, {
-    foreignKey: 'client_id',
-    as: 'client',
-    constraints: false,
-  });
-
-  // A Form has many Campaigns
-  Form.hasMany(Campaign, {
-    foreignKey: 'form_id',
-    constraints: false,
-  });
-  Campaign.belongsTo(Form, {
-    foreignKey: 'form_id',
-    constraints: false,
-  });
-
-  Campaign.hasMany(CampaignLead, {
+  // 1. Campaign Associations
+  Campaign.hasMany(CampaignMapping, {
     foreignKey: 'campaign_id',
-    as: 'leads',
-    onDelete: 'CASCADE',
+    as: 'buyer_mappings',
+    constraints: true,
+    onDelete: 'CASCADE'
   });
-  
-  CampaignLead.belongsTo(Campaign, {
+
+
+  Campaign.belongsTo(Number, {
+    foreignKey: 'number_id',
+    as: 'number',
+    constraints: true,
+    onDelete: 'CASCADE'
+  });
+
+  Campaign.hasMany(BillingRule, {
     foreignKey: 'campaign_id',
+    as: 'billing_rules',
+    constraints: true,
+    onDelete: 'CASCADE'
   });
+
+  Campaign.hasMany(CallLog, {
+    foreignKey: 'campaign_id',
+    as: 'call_logs',
+    constraints: true
+  });
+
+  // 2. User (Buyer) Associations
+  // User.hasMany(CampaignMapping, {
+  //   foreignKey: 'buyer_id',
+  //   as: 'campaign_mappings',
+  //   constraints: true
+  // });
+
+  // 3. CampaignMapping Associations
+
+  CampaignMapping.belongsTo(User, {
+    foreignKey: 'buyer_id',
+    as: 'buyer',
+    constraints: true
+  });
+
+  CampaignMapping.belongsTo(Campaign, {
+    foreignKey: 'campaign_id',
+    as: 'campaign',
+    constraints: true
+  });
+
+  User.hasMany(CallLog, {
+    foreignKey: 'buyer_id',
+    as: 'call_logs',
+    constraints: true
+  });
+
+
+  // 4. Number Associations
+  Number.hasOne(Campaign, {
+    foreignKey: 'number_id',
+    as: 'campaign',
+    constraints: true,
+    onDelete: 'CASCADE'
+  });
+
+  // 5. BillingRule Associations
+  BillingRule.belongsTo(Campaign, {
+    foreignKey: 'campaign_id',
+    as: 'campaign',
+    constraints: true
+  });
+
+  BillingRule.hasMany(BillingLog, {
+    foreignKey: 'rule_id',
+    as: 'billing_logs',
+    constraints: true
+  });
+
+  // 6. CallLog Associations
+  CallLog.belongsTo(Campaign, {
+    foreignKey: 'campaign_id',
+    as: 'campaign',
+    constraints: true
+  });
+
+  CallLog.belongsTo(User, {
+    foreignKey: 'buyer_id',
+    as: 'buyer',
+    constraints: true
+  });
+
+  // 7. BillingLog Associations
+  BillingLog.belongsTo(BillingRule, {
+    foreignKey: 'rule_id',
+    as: 'billing_rule',
+    constraints: true
+  });
+
+  BillingLog.belongsTo(CallLog, {
+    foreignKey: 'call_log_id',
+    as: 'call_log',
+    constraints: true
+  });
+
+  CallLog.hasMany(BillingLog, {
+  foreignKey: 'call_log_id',
+  as: 'billing_logs'
+});
+
+
+  // BillingLog.belongsTo(User, {
+  //   foreignKey: 'buyer_id',
+  //   as: 'buyer',
+  // });
+
+  // // user.js
+  // User.hasMany(BillingLog, {
+  //   foreignKey: 'buyer_id',
+  //   as: 'billingLogs'
+  // });
+
+//   BillingLog.belongsTo(Campaign, {
+//     foreignKey: 'campaign_id',
+//     as: 'campaign'
+//   });
+
+//   Campaign.hasMany(BillingLog, {
+//   foreignKey: 'campaign_id',
+//   as: 'billingLogs'
+// });
 }
 
 

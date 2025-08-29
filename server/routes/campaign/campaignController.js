@@ -1,99 +1,205 @@
 const express = require("express");
 const router = express.Router();
 const { Op } = require("sequelize");
-const {csvUpload} = require("../../middlewares/upload")
-const { Campaign, User, Form, CampaignLead } = global.db.models;
+const { Campaign } = global.db.models;
 
-router.post("/", csvUpload.single("file"), async (req, res) => {
+router.post("/", async (req, res) => {
   try {
-    const {
-      name,
-      user_id,
-      client_id,
-      form_id,
-      import_lead_fields,
-      leadsDataParsed, // sent from frontend as JSON.stringify([...])
-    } = req.body;
+    const { name, country } = req.body;
 
-    if (!name || !user_id || !client_id) {
-      return res.status(400).json({ error: "Missing required fields" });
+    if (!name || !country) {
+      return res.status(400).json({ error: "Missing required fields: name and country" });
     }
 
-    // Create campaign entry
-    const newCampaign = await Campaign.create({
-      name,
-      user_id,
-      client_id,
-      form_id,
-      import_lead_fields: import_lead_fields
-        ? JSON.parse(import_lead_fields)
-        : null,
-      file: req.file ? `/uploads/campaigns/${req.file.filename}` : null,
+    const existingCampaign = await Campaign.findOne({
+      where: { name },
     });
 
-    // Add campaign leads
-    const parsedLeads =
-      typeof leadsDataParsed === "string"
-        ? JSON.parse(leadsDataParsed)
-        : leadsDataParsed;
-
-    if (Array.isArray(parsedLeads) && parsedLeads.length > 0) {
-      const leadsToInsert = parsedLeads.map((lead) => ({
-        campaign_id: newCampaign.id,
-        data: lead,
-      }));
-
-      await global.db.models.CampaignLead.bulkCreate(leadsToInsert);
+    if (existingCampaign) {
+      return res.status(409).json({ error: "Campaign already exists" });
     }
 
-    res
-      .status(201)
-      .json({ message: "Campaign created", campaign: newCampaign });
+    // Create campaign with only name and country
+    const newCampaign = await Campaign.create({ name, country });
+
+    res.status(201).json({
+      message: "Campaign created successfully",
+      campaign: newCampaign,
+    });
   } catch (err) {
-    console.error("Error uploading campaign:", err);
+    console.error("Error creating campaign:", err);
     res.status(500).json({ error: "Internal server error" });
   }
 });
 
 
-// router.get("/", async (req, res) => {
+router.put("/:id", async (req, res) => {
+  const campaignId = req.params.id;
+  const {
+    name,
+    country,
+    number_id,
+    routing_method,
+    isCallRecordingEnabled,
+    is_active,
+    buyers,
+  } = req.body;
+
+  const CampaignMapping = global.db.models.CampaignMapping;
+  const User = global.db.models.User;
+
+  const transaction = await global.db.sequelizeConfig.transaction();
+
+  try {
+    const campaign = await Campaign.findByPk(campaignId, { transaction });
+    if (!campaign) {
+      await transaction.rollback();
+      return res.status(404).json({ error: "Campaign not found" });
+    }
+
+    await campaign.update({
+      name,
+      country,
+      number_id : number_id || null,
+      routing_method,
+      isCallRecordingEnabled,
+      is_active,
+    }, { transaction });
+
+    if (buyers && Array.isArray(buyers) && buyers.length > 0) {
+
+      const buyerRecords = await User.findAll({
+        where: {
+          name: buyers,
+          role: 'buyer',
+        },
+        transaction,
+      });
+
+      const buyerIds = buyerRecords.map(b => b.id);
+
+      await CampaignMapping.destroy({
+        where: { campaign_id: campaignId },
+        transaction,
+      });
+
+      const newMappings = buyerIds.map(buyer_id => ({
+        campaign_id: campaignId,
+        buyer_id,
+      }));
+
+      await CampaignMapping.bulkCreate(newMappings, { transaction });
+    }
+
+    await transaction.commit();
+
+    res.json({ message: "Campaign updated successfully", campaign });
+  } catch (error) {
+    console.error("Error updating campaign:", error);
+    await transaction.rollback();
+    res.status(500).json({ error: "Internal server error" });
+  }
+});
+
+// router.put("/:id", async (req, res) => {
+//   const campaignId = req.params.id;
+//   const {
+//     name,
+//     country,
+//     number_id,
+//     routing_method,
+//     isCallRecordingEnabled,
+//     is_active,
+//     buyers,
+//   } = req.body;
+
+//   const CampaignMapping = global.db.models.CampaignMapping;
+//   const User = global.db.models.User;
+
+//   const transaction = await global.db.sequelizeConfig.transaction();
+
 //   try {
-//     const campaigns = await Campaign.findAll({
-//       include: [
-//         {
-//           model: User,
-//           as: 'creator', // user_id
-//           required: false,
-//           attributes: ['id', 'name', 'email'],
-//         },
-//         {
-//           model: User,
-//           as: 'client', // client_id
-//           required: false,
-//           attributes: ['id', 'name', 'email'],
-//         },
-//         {
-//           model: Form,
-//           required: false,
-//           attributes: ['id', 'name'],
+//     const campaign = await Campaign.findByPk(campaignId, { 
+//       transaction,
+//       include: [{
+//         model: CampaignMapping,
+//         as: 'campaign_mappings',
+//         include: [{ model: User, as: 'User', attributes: ['id', 'name'] }],
+//       }]
+//     });
+
+//     if (!campaign) {
+//       await transaction.rollback();
+//       return res.status(404).json({ error: "Campaign not found" });
+//     }
+
+//     // Update basic campaign info
+//     await campaign.update({
+//       name,
+//       country,
+//       number_id,
+//       routing_method,
+//       isCallRecordingEnabled,
+//       is_active,
+//     }, { transaction });
+
+//     // Only process buyers if the field is explicitly provided in the request
+//     if (req.body.hasOwnProperty('buyers')) {
+//       if (!Array.isArray(buyers)) {
+//         await transaction.rollback();
+//         return res.status(400).json({ error: "Buyers should be an array" });
+//       }
+
+//       // Get current buyer names
+//       const currentBuyers = campaign.CampaignMappings
+//         .map(mapping => mapping.User.name)
+//         .sort();
+
+//       // Sort and compare with new buyers
+//       const newBuyers = [...buyers].sort();
+
+//       // Only update if buyers actually changed
+//       if (JSON.stringify(currentBuyers) !== JSON.stringify(newBuyers)) {
+//         const buyerRecords = await User.findAll({
+//           where: {
+//             name: buyers,
+//             role: 'buyer',
+//           },
+//           transaction,
+//         });
+
+//         const buyerIds = buyerRecords.map(b => b.id);
+
+//         if (buyers.length > 0 && buyerIds.length === 0) {
+//           await transaction.rollback();
+//           return res.status(404).json({ error: "No buyers found with the provided names" });
 //         }
-//       ],
-//       order: [['created_at', 'DESC']],
-//     });
 
-//     const formatted = campaigns.map((campaign) => {
-//       const obj = campaign.toJSON();
-//       return {
-//         ...obj,
-//         import_lead_fields: typeof obj.import_lead_fields === 'string'
-//           ? JSON.parse(obj.import_lead_fields)
-//           : obj.import_lead_fields || [],
-//       };
-//     });
+//         // Delete existing mappings for this campaign
+//         await CampaignMapping.destroy({
+//           where: { campaign_id: campaignId },
+//           transaction,
+//         });
 
-//     res.json(formatted);
-//   } catch (err) {
-//     console.error("Error fetching campaigns:", err);
+//         // Only create new mappings if we have buyers
+//         if (buyerIds.length > 0) {
+//           const newMappings = buyerIds.map(buyer_id => ({
+//             campaign_id: campaignId,
+//             buyer_id,
+//           }));
+
+//           await CampaignMapping.bulkCreate(newMappings, { transaction });
+//         }
+//       }
+//       // If buyers didn't change, do nothing
+//     }
+
+//     await transaction.commit();
+
+//     res.json({ message: "Campaign updated successfully", campaign });
+//   } catch (error) {
+//     console.error("Error updating campaign:", error);
+//     await transaction.rollback();
 //     res.status(500).json({ error: "Internal server error" });
 //   }
 // });
@@ -103,145 +209,101 @@ router.get("/", async (req, res) => {
     const campaigns = await Campaign.findAll({
       include: [
         {
-          model: User,
-          as: "creator", // user_id
+          model: global.db.models.CampaignMapping,
+          as: 'buyer_mappings',
           required: false,
-          attributes: ["id", "name", "email"],
+          include: [
+            {
+              model: global.db.models.User,
+              as: 'buyer',
+              attributes: ['id', 'name', 'email'],
+              required: false,
+              where: {
+                role: 'buyer',
+              },
+            },
+          ],
         },
         {
-          model: User,
-          as: "client", // client_id
+          model: global.db.models.Number,
+          as: 'number',
           required: false,
-          attributes: ["id", "name", "email"],
-        },
-        {
-          model: Form,
-          required: false,
-          attributes: ["id", "name"],
-        },
-        {
-          model: CampaignLead,
-          required: false,
-          as: "leads",
-          attributes: ["data"],
-        },
+          attributes: ['id', 'number'], 
+        }
       ],
-      order: [["created_at", "DESC"]],
     });
-
-    const formatted = campaigns.map((campaign) => {
-      const obj = campaign.toJSON();
-      return {
-        ...obj,
-        import_lead_fields:
-          typeof obj.import_lead_fields === "string"
-            ? JSON.parse(obj.import_lead_fields)
-            : obj.import_lead_fields || [],
-      };
-    });
-
-    res.json(formatted);
-  } catch (err) {
-    console.error("Error fetching campaigns:", err);
+    res.json(campaigns);
+  } catch (error) {
+    console.error("Error fetching campaigns:", error);
     res.status(500).json({ error: "Internal server error" });
   }
 });
-
 
 router.get("/:id", async (req, res) => {
   try {
     const campaign = await Campaign.findByPk(req.params.id, {
       include: [
-        { model: User, as: "user" },
-        { model: User, as: "client" },
-        { model: Form },
+        {
+          model: global.db.models.CampaignMapping,
+          as: 'buyer_mappings',
+          required: false,
+          include: [
+            {
+              model: global.db.models.User,
+              as: 'buyer',
+              attributes: ['id', 'name', 'email'],
+              required: false,
+              where: {
+                role: 'buyer',
+              },
+            },
+          ],
+        },
+        {
+          model: global.db.models.Number,
+          as: 'number',
+          required: false,
+          attributes: ['id', 'number'],
+        }
       ],
     });
 
-    if (!campaign) return res.status(404).json({ error: "Campaign not found" });
-
-    const data = {
-      ...campaign.toJSON(),
-      import_lead_fields: campaign.import_lead_fields ? JSON.parse(campaign.import_lead_fields) : [],
-    };
-
-    res.json(data);
-  } catch (err) {
-    console.error("Error fetching campaign:", err);
-    res.status(500).json({ error: "Internal server error" });
-  }
-});
-
-
-router.put("/:id", csvUpload.single("file"), async (req, res) => {
-  try {
-    const { id } = req.params;
-
-    const {
-      name,
-      user_id,
-      client_id,
-      form_id,
-      import_lead_fields,
-      leadsDataParsed,
-    } = req.body;
-
-    console.log("Received body:", req.body);
-    console.log("Received file:", req.file);
-
-    // 1️⃣ Find campaign
-    const campaign = await Campaign.findByPk(id);
     if (!campaign) {
       return res.status(404).json({ error: "Campaign not found" });
     }
 
-    // 2️⃣ Update campaign
-    await campaign.update({
-      name: name || campaign.name,
-      user_id: user_id || campaign.user_id,
-      client_id: client_id || campaign.client_id,
-      form_id: form_id || campaign.form_id,
-      import_lead_fields: import_lead_fields
-        ? JSON.parse(import_lead_fields)
-        : campaign.import_lead_fields,
-      file: req.file ? `/uploads/campaigns/${req.file.filename}` : campaign.file,
-    });
-
-    // 3️⃣ Add leads if provided
-    if (leadsDataParsed) {
-      const leads = typeof leadsDataParsed === "string"
-        ? JSON.parse(leadsDataParsed)
-        : leadsDataParsed;
-
-      if (Array.isArray(leads) && leads.length > 0) {
-        const entries = leads.map((lead) => ({
-          campaign_id: campaign.id,
-          data: lead,
-        }));
-
-        await CampaignLead.bulkCreate(entries);
-      }
-    }
-
-    res.status(200).json({ message: "Campaign updated successfully", campaign });
+    res.json(campaign);
   } catch (error) {
-    console.error("Error updating campaign:", error);
+    console.error("Error fetching campaign:", error);
     res.status(500).json({ error: "Internal server error" });
   }
 });
-
 
 router.delete("/:id", async (req, res) => {
-  try {
-    const campaign = await Campaign.findByPk(req.params.id);
-    if (!campaign) return res.status(404).json({ error: "Campaign not found" });
+  const campaignId = req.params.id;
 
-    await campaign.destroy();
+  const t = await global.db.sequelizeConfig.transaction();
+  try {
+    const campaign = await Campaign.findByPk(campaignId);
+    if (!campaign) {
+      return res.status(404).json({ error: "Campaign not found" });
+    }
+
+    // Remove all related mappings
+    const CampaignMapping = global.db.models.CampaignMapping;
+    await CampaignMapping.destroy({ where: { campaign_id: campaignId }, transaction: t });
+
+    // Delete the campaign
+    await campaign.destroy({ transaction: t });
+
+    await t.commit();
     res.json({ message: "Campaign deleted successfully" });
-  } catch (err) {
-    console.error("Error deleting campaign:", err);
+  } catch (error) {
+    await t.rollback();
+    console.error("Error deleting campaign:", error);
     res.status(500).json({ error: "Internal server error" });
   }
 });
+
 
 module.exports = router;

@@ -1,9 +1,13 @@
 function init(){
     // Register all models here
     require('./models/users');
+    require('./models/number');
     require('./models/campaign');
-    require('./models/form');
-    require('./models/campaignLead')
+    require('./models/campaignMapping');
+    require('./models/billingRule');
+    require('./models/callLogs');
+    require('./models/billingLogs');
+    require('./models/otpVerfication');
 }
 
 module.exports = init;

@@ -1,0 +1,19 @@
+# Environment Configuration
+NODE_ENV=development
+# DEBUG=true
+PORT=3000
+SYNC_DB=false
+SYNC_DB_ALTER=false
+
+# SYNC_DB=true
+# SYNC_DB_ALTER=true
+
+# Database Configuration
+DB_NAME=call_tracking
+DB_USERNAME=root
+DB_PASSWORD=root
+DB_HOST=localhost
+DB_DIALECT=mysql
+DB_PORT=3306
+
+

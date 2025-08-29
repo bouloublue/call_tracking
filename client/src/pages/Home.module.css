@@ -7,7 +7,7 @@
   --color-surface-secondary: rgba(0, 0, 0, 0.07);
   --color-primary: #0D9488;
   --color-primary-darker: #0F766E;
-  --color-text-heading: #0F172A;
+  --color-text-heading: #2b2a2a;
   --color-text-body: #475569;
   --color-accent: #E2E8F0;
   --color-creative: rgba(139, 92, 246, 0.1);
@@ -44,7 +44,7 @@
 .pageTitleBox {
   padding: 1.25rem 0;
   background-color: var(--home-bg);
-  border-bottom: 1px solid var(--color-accent);
+  border-bottom: 1px solid #e2e8f0;
 }
 
 .pageTitleContainer {
@@ -58,6 +58,7 @@
   justify-content: space-between;
   align-items: center;
   flex-wrap: wrap;
+  margin-left: 30px;
 }
 
 .breadcrumb {
@@ -96,6 +97,37 @@
   color: var(--color-accent);
   font-weight: 400;
 }
+
+
+/* Custom select dropdown */
+.custom-select {
+  width: 100%;
+  padding: 10px 12px;
+  border-radius: 6px;
+  border: 1px solid #e2e8f0;
+  font-size: 14px;
+  background-color: #ffffff;
+  outline: none;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.custom-select:hover {
+  background-color: #f8fafc !important;
+  border-color: #cbd5e1;
+}
+
+.custom-select:focus {
+  border-color: #94a3b8;
+  box-shadow: 0 0 0 1px #e2e8f0;
+}
+
+/* Options hover style */
+.custom-select option:hover {
+  background-color: #f1f5f9 !important;
+}
+
+
 
 .pageTitle {
   font-size: 1.75rem;
@@ -137,6 +169,7 @@
 /* Page Wrapper & Content */
 .pageWrapper {
   padding: 1.5rem 0;
+  margin-left: 26px;
 }
 
 .pageContent {
@@ -154,6 +187,7 @@
   margin-bottom: 1.5rem;
   overflow: hidden;
   transition: transform 0.3s ease, box-shadow 0.3s ease;
+  height: 100%;
 }
 
 .card:hover {
@@ -163,6 +197,7 @@
 
 .cardBody {
   padding: 1.5rem;
+  margin-top: 14px;
 }
 
 .cardHeader {
@@ -186,6 +221,7 @@
 /* --- Info Cards (Top Row) --- */
 .metricsRow {
   margin-bottom: 1.5rem;
+  
 }
 
 .infoCardFlex {

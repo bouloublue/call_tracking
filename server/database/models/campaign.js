@@ -1,7 +1,7 @@
 const { sequelize } = require('../sequelizeDB');
 const { DataTypes, Model } = require('sequelize');
 
-class Campaign extends Model {}
+class Campaign extends Model { }
 
 Campaign.init({
   id: {
@@ -15,32 +15,34 @@ Campaign.init({
     allowNull: false,
   },
 
-  user_id: {
-    type: DataTypes.UUID,
-    allowNull: false,
-    comment: 'Created by (Admin/Staff)',
+  country: {
+    type: DataTypes.STRING,
+    allowNull: false
   },
 
-  client_id: {
+  number_id: {
     type: DataTypes.UUID,
-    allowNull: false,
-    comment: 'Client who owns the campaign',
+    allowNull: true,
+    references:{
+      model: 'numbers',
+      key: 'id',
+    }
   },
-
-  form_id: {
-    type: DataTypes.UUID,
-    allowNull: false,
-    comment: 'Linked form',
-  },
-
-  import_lead_fields: {
-    type: DataTypes.JSON, // parsed JSON
+  
+  routing_method: {
+    type: DataTypes.ENUM('manual', 'smart'),
+    defaultValue: 'manual',
     allowNull: true,
   },
 
-  file: {
-    type: DataTypes.STRING, // file path or URL
+  isCallRecordingEnabled: {
+    type: DataTypes.BOOLEAN,
     allowNull: true,
+  },
+
+  is_active: {
+    type: DataTypes.BOOLEAN,
+    defaultValue: true,
   },
 
   deleted_at: {

@@ -1,4 +1,5 @@
 const express = require("express");
+const authMiddleware = require("../middlewares/auth");
 
 function init() {
   const router = express.Router();
@@ -17,20 +18,26 @@ function init() {
   // };
 
   // Route imports
-//   const authRouter = require("./auth");
+  const authRouter = require("./auth");
   const userRouter = require("./user");
-  const campaignRouter = require("./campaign")
-  const formController =  require("./form")
+  const campaignRouter = require("./campaign");
+  const numberController = require("./number");
+  const billingController = require("./billing");
+  const callController = require("./call");
 
   global.logger?.routes?.info("Initializing API Routes");
 
   // Public routes
-//   router.use("/auth", authRouter());
+  router.use("/auth", authRouter());
+  router.use("/user", userRouter());
+  router.use("/call", callController());
+  router.use(authMiddleware);
 
   // Secured API routes (passport middleware can be added later here)
-  router.use("/user", userRouter());
   router.use("/campaign", campaignRouter());
-  router.use("/form",formController());
+  router.use("/number", numberController());
+  router.use("/billing", billingController());
+  
 
   // Catch-all for 404s
   router.use((req, res) => {
